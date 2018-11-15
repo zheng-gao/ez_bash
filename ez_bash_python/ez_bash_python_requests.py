@@ -12,7 +12,7 @@ ARGUMENTS = PARSER.parse_args()
 def main(args):
     auth = None
     if args.username is not None:
-        if password is not None:
+        if args.password is not None:
             auth = (args.username, args.password)
         else:
             auth = (args.username, getpass.getpass())

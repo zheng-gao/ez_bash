@@ -46,8 +46,59 @@ function ez_get_timeout_cmd() {
     fi
 }
 
-function ez_get_epoch_seconds() {
-    date +%s
+function ez_get_timestamp_from_epoch_seconds() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_get_timestamp_from_epoch_seconds" -d "Convert Epoch Seconds to Timestamp")
+    usage_string+=$(ez_build_usage -o "add" -a "-e|--epoch" -d "Epoch Seconds")
+    usage_string+=$(ez_build_usage -o "add" -a "-f|--format" -d "Timestamp Format")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local epoch_second=""
+    local format="+%Y-%m-%d %H:%M:%S"
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-e" | "--epoch") shift; epoch_second=${1-} ;;
+            "-f" | "--format") shift; format=${1-} ;;
+            *)
+                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+        if [[ ! -z "${1-}" ]]; then shift; fi
+    done
+    local os=$(ez_get_os_type)
+    if [[ "${os}" == "macos" ]]; then
+        date -r "${epoch_second}" "${format}"
+    elif [[ "${os}" == "linux" ]]; then
+        date "${format}" -d "@${epoch_second}"
+    fi
+}
+
+function ez_get_epoch_seconds_from_timestamp() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_get_epoch_seconds_from_timestamp" -d "Convert Human Readable Timestamp to Epoch Seconds")
+    usage_string+=$(ez_build_usage -o "add" -a "-d|--date" -d "YYYY-MM-DD, default is now")
+    usage_string+=$(ez_build_usage -o "add" -a "-t|--time" -d "HH:mm:SS, default is now")
+    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local date=""
+    local time=""
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-d" | "--date") shift; date=${1-} ;;
+            "-t" | "--time") shift; time=${1-} ;;
+            *)
+                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+        if [[ ! -z "${1-}" ]]; then shift; fi
+    done
+    if [[ "${date}" == "" ]] && [[ "${time}" == "" ]]; then date "+%s"
+    elif [[ "${date}" == "" ]]; then ez_print_log -l ERROR -m "Date cannot be empty if Time is given"; ez_print_usage "${usage_string}"; return 1
+    elif [[ "${time}" == "" ]]; then ez_print_log -l ERROR -m "Time cannot be empty if Date is given"; ez_print_usage "${usage_string}"; return 1
+    else
+        local os=$(ez_get_os_type)
+        if [[ "${os}" == "macos" ]]; then
+            date -j -f "%Y-%m-%d %H:%M:%S" "${date} ${time}" "+%s"
+        elif [[ "${os}" == "linux" ]]; then
+            date -d "${date} ${time}" "+%s"
+        fi
+    fi
 }
 
 function ez_get_readable_time_from_seconds() {
@@ -90,32 +141,6 @@ function ez_get_readable_time_from_seconds() {
         output_string="${days} Days ${hours} Hours ${minutes} Minutes ${seconds} Seconds"
     fi
     echo "${output_string}"
-}
-
-
-function ez_get_timestamp_from_epoch_seconds() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_get_timestamp_from_epoch_seconds" -d "Convert Epoch Seconds to Timestamp")
-    usage_string+=$(ez_build_usage -o "add" -a "-e|--epoch" -d "Epoch Seconds")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--format" -d "Timestamp Format")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local epoch_second=""
-    local format="+%Y-%m-%d %H:%M:%S"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-e" | "--epoch") shift; epoch_second=${1-} ;;
-            "-f" | "--format") shift; format=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    local os=$(ez_get_os_type)
-    if [[ "${os}" == "macos" ]]; then
-        date -r "${epoch_second}" "${format}"
-    elif [[ "${os}" == "linux" ]]; then
-        date "${format}" --date="${epoch_second}"
-    fi
 }
 
 function ez_get_duration_from_epoch_seconds_diff() {

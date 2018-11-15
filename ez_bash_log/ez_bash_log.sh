@@ -165,7 +165,10 @@ function ez_print_banner() {
             "-p" | "--prefix") prefix="${EZ_BASH_BOOL_TRUE}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-m" | "--message") shift
                 while [[ ! -z "${1-}" ]]; do
-                    if [[ $(ez_check_item_in_array -i "${1}" -a "${all_argument_names[@]}") == "${EZ_BASH_BOOL_TRUE}" ]]; then break; fi
+                    if [[ "${1}" ==  "-s" ]] || [[ "${1}" ==  "--substring" ]]; then break; fi
+                    if [[ "${1}" ==  "-c" ]] || [[ "${1}" ==  "--count" ]]; then break; fi
+                    if [[ "${1}" ==  "-m" ]] || [[ "${1}" ==  "--message" ]]; then break; fi
+                    if [[ "${1}" ==  "-p" ]] || [[ "${1}" ==  "--prefix" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
             *)
