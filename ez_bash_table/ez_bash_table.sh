@@ -23,6 +23,7 @@ fi
 ###################################################################################################
 if ! source "${EZ_BASH_HOME}/ez_bash_log/ez_bash_log.sh"; then exit 1; fi
 if ! source "${EZ_BASH_HOME}/ez_bash_variables/ez_bash_variables.sh"; then exit 1; fi
+if ! source "${EZ_BASH_HOME}/ez_bash_os/ez_bash_os.sh"; then exit 1; fi
 if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then exit 1; fi
 
 ###################################################################################################
@@ -91,6 +92,11 @@ function ez_print_table() {
             table="${table}$(printf "%s#+" $(ez_repeat_string -s "#+" -c "${number_of_columns}"))"
         fi
     done
-    echo -e "${table}" | column -s "#" -t | awk '/^\+/{gsub(" ", "-", $0)}1'      
+    if [[ "$(ez_get_os_type)" == "macos" ]]; then
+        echo -e "${table}" | column -s "#" -t | awk '/^\+/{gsub(" ", "-", $0)}1'
+    elif [[ "$(ez_get_os_type)" == "linux" ]]; then
+        # linux print table with 2 spaces in front of each line
+        echo -e "${table}" | column -s "#" -t | sed "s/^  //" | awk '/^\+/{gsub(" ", "-", $0)}1'
+    fi    
 }
 

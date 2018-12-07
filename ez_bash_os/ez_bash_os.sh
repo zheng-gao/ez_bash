@@ -59,8 +59,8 @@ function ez_get_md5_cmd() {
     fi
 }
 
-function ez_get_fd_count() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_get_fd_count" -d "Find the count of file descriptor used by a process")
+function ez_get_file_descriptor_count() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_get_file_descriptor_count" -d "Find the count of file descriptor used by a process")
     usage_string+=$(ez_build_usage -o "add" -a "--pid" -d "Process ID")
     usage_string+=$(ez_build_usage -o "add" -a "--name" -d "Process Name, only works for linux")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi

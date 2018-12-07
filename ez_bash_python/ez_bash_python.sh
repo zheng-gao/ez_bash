@@ -22,7 +22,7 @@ fi
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 if ! source "${EZ_BASH_HOME}/ez_bash_log/ez_bash_log.sh"; then exit 1; fi
-
+if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then exit 1; fi
 
 ###################################################################################################
 # ------------------------------------------ Variables ------------------------------------------ #
@@ -39,8 +39,12 @@ function ez_get_python() {
 }
 
 function ez_python_request() {
-    local python_bin=$(ez_get_python)
-    ez_print_log -l INFO -m "Running Python Command: ${python_bin} ${EZ_BASH_PYTHON_REQUESTS} ${@}"
-    ${python_bin} "${EZ_BASH_PYTHON_REQUESTS}" ${@}
+    if ez_command_check --command "python" --silent; then
+        local python_bin=$(ez_get_python)
+        ez_print_log -l INFO -m "Running Python Command: ${python_bin} ${EZ_BASH_PYTHON_REQUESTS} ${@}"
+        ${python_bin} "${EZ_BASH_PYTHON_REQUESTS}" ${@}
+    else
+        ez_print_log -l ERROR -m "Command \"python\" not found"
+    fi
 }
 
