@@ -27,24 +27,27 @@ if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then
 ###################################################################################################
 # ------------------------------------------ Variables ------------------------------------------ #
 ###################################################################################################
-EZ_BASH_PYTHON_REQUESTS="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_requests.py"
+EZ_BASH_PYTHON_REQUEST="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_request.py"
+EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_table.py"
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ez_get_python() {
-    which python
-    # echo python_path
-}
-
 function ez_python_request() {
-    if ez_command_check --command "python" --silent; then
-        local python_bin=$(ez_get_python)
-        ez_print_log -l INFO -m "Running Python Command: ${python_bin} ${EZ_BASH_PYTHON_REQUESTS} ${@}"
-        ${python_bin} "${EZ_BASH_PYTHON_REQUESTS}" ${@}
+    local python_bin="python"
+    if ez_command_check --command "${python_bin}" --silent; then
+        ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
     else
         ez_print_log -l ERROR -m "Command \"python\" not found"
     fi
 }
 
+function ez_python_table() {
+    local python_bin="python3"
+    if ez_command_check --command "${python_bin}" --silent; then
+        ${python_bin} "${EZ_BASH_PYTHON_TABLE}" "${@}"
+    else
+        ez_print_log -l ERROR -m "Command \"python\" not found"
+    fi
+}

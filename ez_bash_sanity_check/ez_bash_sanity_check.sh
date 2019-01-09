@@ -168,6 +168,47 @@ function ez_argument_check() {
     fi
 }
 
+function ez_path_check() {
+    local valid_keys=("Nonempty-File" "Directory")
+    local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
+    local usage_string=$(ez_build_usage -o "init" -a "ez_file_system_check" -d "Check if the given path is a valid file or directory")
+    usage_string+=$(ez_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}], default = \"nonempty-file\"")
+    usage_string+=$(ez_build_usage -o "add" -a "-p|--path" -d "Given Path")
+    usage_string+=$(ez_build_usage -o "add" -a "-s|--silent" -d "[Optional][Bool] Does not print error log")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local key=""
+    local path=""
+    local silent="${EZ_BASH_BOOL_FALSE}"
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-k" | "--key") shift; key=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-p" | "--path") shift; path=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-s" | "--silent") shift; silent="${EZ_BASH_BOOL_TRUE}" ;;
+            *)
+                ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+    done
+    if ! ez_nonempty_check -n "-p|--path" -v "${path}" -o "${usage_string}"; then return 1; fi
+    if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi
+    if [[ ! -e "${path}" ]]; then ez_print_log -l "ERROR" -m "${path} does not exist"; return 1; fi
+    if [[ "${key}" == "Nonempty-File" ]]; then
+        if [[ ! -f "${path}" ]]; then
+            if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is not a file"; fi
+            return 1
+        elif [[ ! -s "${path}" ]]; then
+            if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is empty"; fi
+            return 1
+        fi
+    elif [[ "${key}" == "Directory" ]]; then
+        if [[ ! -d "${path}" ]]; then
+            if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is not a directory"; fi
+            return 1
+        fi
+    fi
+    return 0
+}
+
+
 function ez_sanity_check() {
     local command_list=("date" "uname" "printf")
     for command in "${command_list[@]}"; do

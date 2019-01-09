@@ -3,7 +3,7 @@ import requests
 import getpass
 
 
-PARSER = argparse.ArgumentParser(description='Send Python Request')
+PARSER = argparse.ArgumentParser(description="Send Python Request")
 PARSER.add_argument("--url", dest="url", required=True)
 PARSER.add_argument("-x", "--method", dest="method", default="GET", choices=["GET", "POST"])
 PARSER.add_argument("-u", "--username", dest="username", default=None)
