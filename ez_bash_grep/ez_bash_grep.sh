@@ -7,7 +7,7 @@
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 
-THIS_SCRIPT_NAME="ez_bash_git.sh"
+THIS_SCRIPT_NAME="ez_bash_grep.sh"
 if [[ "${0}" != "-bash" ]]; then
     RUNNING_SCRIPT=$(basename "${0}")
     if [[ "${RUNNING_SCRIPT}" == "${THIS_SCRIPT_NAME}" ]]; then
@@ -32,33 +32,26 @@ if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ez_git_commit_stats() {
-    local valid_time_formats=("Epoch" "Datetime")
-    local valid_time_formats_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_time_formats[@]}")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_git_commit_stats" -d "Print Commit Statistics Of Git Repo")
-    usage_string+=$(ez_build_usage -o "add" -a "-r|--repo-path" -d "Repo Path")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--time-format" -d "Choose From: [${valid_time_formats_string}], default = Datetime")
+function ez_grep_ith_line() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_grep_ith_line" -d "Grep the i-th line, use after pipe")
+    usage_string+=$(ez_build_usage -o "add" -a "-i|--ith-line" -d "The line number, default = 1")
+    usage_string+=$(ez_build_usage -o "add" -a "-r|--reverse" -d "[Boolean] Grep the i-th line to the end")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local repo_path=""
-    local time_format="Datetime"
+    local ith_line=1
+    local reverse="${EZ_BASH_BOOL_FALSE}"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
-            "-r" | "--repo-path") shift; repo_path=${1-} ;;
-            "-f" | "--time-format") shift; time_format=${1-} ;;
+            "-i" | "--ith-line") shift; ith_line=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-r" | "--reverse") shift; reverse="${EZ_BASH_BOOL_TRUE}" ;;
             *)
                 ez_print_log -l ERROR -m "Unknown argument \"$1\""
                 ez_print_usage "${usage_string}"; return 1; ;;
         esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    if ! ez_argument_check -n "-f|--time-format" -v "${time_format}" -c "${valid_time_formats[@]}" -o "${usage_string}"; then return 1; fi
-    if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
-    if ! ez_command_check --silent --command "git"; then
-        ez_print_log -l ERROR -m "Command \"git\" not found!"
-        ez_print_usage "${usage_string}"; return 1
+    if ! ez_nonempty_check -n "-i|--ith-line" -v "${ith_line}" -o "${usage_string}"; then return 1; fi
+    if [[ "${reverse}" == "${EZ_BASH_BOOL_FALSE}" ]]; then
+        head -n "${ith_line}" | tail -n 1
+    else
+        tail -n "${ith_line}" | head -n 1
     fi
-    local date_option="iso-strict"
-    if [[ "${time_format}" == "Epoch" ]]; then date_option="unix"; fi
-    git -C "${repo_path}" config diff.renameLimit 999999
-    git -C "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
 }

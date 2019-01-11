@@ -187,4 +187,3 @@ function ez_print_banner() {
         echo "${spliter}"
     fi
 }
-
