@@ -72,6 +72,12 @@ function ez_trim_string() {
         else
             echo "${input_string}" | sed "s/\(${pattern}\)\{1,${count}\}$//"
         fi
+    elif [[ "${key}" == "both" ]]; then
+        if [[ "${count}" == "" ]]; then
+            echo "${input_string}" | sed "s/^\(${pattern}\)\{1,\}//" | sed "s/\(${pattern}\)\{1,\}$//"
+        else
+            echo "${input_string}" | sed "s/^\(${pattern}\)\{1,${count}\}//" | sed "s/\(${pattern}\)\{1,${count}\}$//"
+        fi
     fi
 }
 
