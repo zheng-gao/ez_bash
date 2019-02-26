@@ -6,28 +6,11 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-
-THIS_SCRIPT_NAME="ez_bash_time.sh"
-if [[ "${0}" != "-bash" ]]; then
-    RUNNING_SCRIPT=$(basename "${0}")
-    if [[ "${RUNNING_SCRIPT}" == "${THIS_SCRIPT_NAME}" ]]; then
-        echo "[EZ-BASH][ERROR] ${THIS_SCRIPT_NAME} is not runnable!"
-    fi
-else
-    if [[ "${EZ_BASH_HOME}" == "" ]]; then
-        # For other script to source
-        echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"
-        exit 1
-    fi
-fi
+if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
-if ! source "${EZ_BASH_HOME}/ez_bash_os/ez_bash_os.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ez_bash_log/ez_bash_log.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ez_bash_variables/ez_bash_variables.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -44,6 +27,23 @@ function ez_get_timeout_cmd() {
     elif [[ "${os}" == "linux" ]]; then
         echo "timeout"
     fi
+}
+
+function ez_get_timestamp_now() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_get_timestamp_now" -d "Print Timestamp for Now")
+    usage_string+=$(ez_build_usage -o "add" -a "-f|--format" -d "Timestamp Format")
+    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local format="+%Y-%m-%d %H:%M:%S"
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-f" | "--format") shift; format=${1-} ;;
+            *)
+                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+        if [[ ! -z "${1-}" ]]; then shift; fi
+    done
+    date "${format}"
 }
 
 function ez_get_timestamp_from_epoch_seconds() {

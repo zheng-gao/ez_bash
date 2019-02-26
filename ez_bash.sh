@@ -2,7 +2,7 @@
 ###################################################################################################
 # ---------------------------------------- Release Info  ---------------------------------------- #
 ###################################################################################################
-EZ_BASH_RELEASE_VERSION="0.0.1"
+EZ_BASH_RELEASE_VERSION="0.0.2"
 EZ_BASH_REQUIRED_BASH_VERSION="4.4.*"
 
 function ez_bash_print_copy_right() {
@@ -33,30 +33,25 @@ function main() {
         ez_bash_print_release_version
     elif [[ "${1}" == "-r" ]] || [[ "${1}" == "--requirements" ]]; then
         ez_bash_print_requirements
-    else
+    elif [[ "${1}" == "-i" ]] || [[ "${1}" == "--info" ]]; then
         ez_bash_print_info
     fi
 }
 
-THIS_SCRIPT_NAME="ez_bash.sh"
 if [[ "${0}" != "-bash" ]]; then
-    RUNNING_SCRIPT=$(basename "${0}")
-    if [[ "${RUNNING_SCRIPT}" == "${THIS_SCRIPT_NAME}" ]]; then
+    if [[ "$(basename ${0})" == "ez_bash.sh" ]]; then
         main "${@}"
     fi
+fi
+
+if [[ "${EZ_BASH_HOME}" == "" ]]; then
+    echo "[EZ-BASH] EZ_BASH_HOME is not set!"
 else
-    if [[ "${EZ_BASH_HOME}" == "" ]]; then
-        # For other script to source
-        echo "[EZ-BASH] EZ_BASH_HOME is not set!"
-        exit 1
-    else
-        for EZ_BASH_LIBRARY_DIR in $(ls -1 "${EZ_BASH_HOME}" | grep -v "${THIS_SCRIPT_NAME}"); do
-            for EZ_BASH_LIBRARY in $(ls -1 "${EZ_BASH_HOME}/${EZ_BASH_LIBRARY_DIR}" | grep "\.sh"); do
-                EZ_BASH_LIBRARY_PATH="${EZ_BASH_HOME}/${EZ_BASH_LIBRARY_DIR}/${EZ_BASH_LIBRARY}"
-                if ! source "${EZ_BASH_LIBRARY_PATH}"; then
-                    echo "[EZ-BASH] Failed to source ${EZ_BASH_LIBRARY_PATH}"
-                fi
-            done
+    if source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
+        for EZ_BASH_LIBRARY_DIR in $(ls -1 "${EZ_BASH_HOME}" | grep -v "\.sh" | grep -v "\.md"); do
+            ez_source_directory "${EZ_BASH_HOME}/${EZ_BASH_LIBRARY_DIR}"
         done
+    else
+        echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
     fi
 fi

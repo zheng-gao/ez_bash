@@ -2,20 +2,7 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-
-THIS_SCRIPT_NAME="ez_bash_variables.sh"
-if [[ "${0}" != "-bash" ]]; then
-    RUNNING_SCRIPT=$(basename "${0}")
-    if [[ "${RUNNING_SCRIPT}" == "${THIS_SCRIPT_NAME}" ]]; then
-        echo "[EZ-BASH][ERROR] ${THIS_SCRIPT_NAME} is not runnable!"
-    fi
-else
-    if [[ "${EZ_BASH_HOME}" == "" ]]; then
-        # For other script to source
-        echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"
-        exit 1
-    fi
-fi
+if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #

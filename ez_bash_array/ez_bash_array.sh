@@ -3,31 +3,36 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-
-THIS_SCRIPT_NAME="ez_bash_array.sh"
-if [[ "${0}" != "-bash" ]]; then
-    RUNNING_SCRIPT=$(basename "${0}")
-    if [[ "${RUNNING_SCRIPT}" == "${THIS_SCRIPT_NAME}" ]]; then
-        echo "[EZ-BASH][ERROR] ${THIS_SCRIPT_NAME} is not runnable!"
-    fi
-else
-    if [[ "${EZ_BASH_HOME}" == "" ]]; then
-        # For other script to source
-        echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"
-        exit 1
-    fi
-fi
+if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
-if ! source "${EZ_BASH_HOME}/ez_bash_log/ez_bash_log.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ez_bash_variables/ez_bash_variables.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ez_bash_sanity_check/ez_bash_sanity_check.sh"; then exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ez_split_string_into_array() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_split_string_into_array" -d "Split string by delimiter")
+    usage_string+=$(ez_build_usage -o "add" -a "-d|--delimiter" -d "Given delimiter, default = \",\"")
+    usage_string+=$(ez_build_usage -o "add" -a "-s|--string" -d "Given string")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local delimiter=","
+    local input_string=""
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-d" | "--delimiter") shift; delimiter=${1-} ;;
+            "-s" | "--string") shift; input_string=${1-} ;;
+            *)
+                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+        if [[ ! -z "${1-}" ]]; then shift; fi
+    done
+    if ! ez_nonempty_check -n "-d|--delimiter" -v "${delimiter}" -o "${usage_string}"; then return 1; fi
+    if ! ez_nonempty_check -n "-s|--string" -v "${input_string}" -o "${usage_string}"; then return 1; fi
+    echo "${input_string}" | column -t -s "${delimiter}"
+}
 
 function ez_print_array_with_delimiter() {
     local usage_string=$(ez_build_usage -o "init" -a "ez_print_array_with_delimiter" -d "Print array with delimiter")
