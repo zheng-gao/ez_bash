@@ -20,7 +20,7 @@ EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_table.py"
 ###################################################################################################
 
 function ez_python_request() {
-    local python_bin="python"
+    local python_bin="python3"
     if ez_command_check --command "${python_bin}" --silent; then
         ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
     else
