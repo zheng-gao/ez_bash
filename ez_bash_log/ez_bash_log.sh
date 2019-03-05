@@ -1,56 +1,15 @@
 #!/usr/bin/env bash
 
 ###################################################################################################
-# -------------------------------------- Global Variables --------------------------------------- #
-###################################################################################################
-export EZ_BASH_DEFAULT_LOG_FILE="/var/tmp/ez_bash.log"
-
-###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
-# -------------------------------------- Import Libraries --------------------------------------- #
-###################################################################################################
-
-###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-
-function ez_print_usage() {
-    tabs "${EZ_BASH_TAB_SIZE}"
-    printf "${1}"
-}
-
-function ez_build_usage() {
-    local usage_string="[Command Name]\t\"ez_build_usage\"\n[Description ]\tEZ-BASH standard usage builder\n"
-    usage_string+="-o|--operation\tValid operations are \"add\" and \"init\"\n"
-    usage_string+="-a|--argument\tArgument Name\n"
-    usage_string+="-d|--description\tArgument Description\n"
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local operation=""
-    local argument=""
-    local description="No Description"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-o" | "--operation") shift; operation=${1-} ;;
-            "-a" | "--argument") shift; argument=${1-} ;;
-            "-d" | "--description") shift; description=${1-} ;;
-            *)
-                echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""
-                ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if [[ "${operation}" == "init" ]]; then
-        echo "[Command Name]\t\"${argument}\"\n[Description ]\t${description}\n"
-    elif [[ "${operation}" == "add" ]]; then
-        echo "${argument}\t${description}\n"
-    else
-        echo "[${EZ_BASH_LOG_LOGO}][ERROR] Invalid operation \"${operation}\""
-        ez_print_usage "${usage_string}"
-    fi
+function ez_get_default_log_file() {
+    echo "/var/tmp/ez_bash.log"
 }
 
 function ez_print_log() {
@@ -68,9 +27,7 @@ function ez_print_log() {
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *)
-                echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}][${logger}] ${message[*]}"
@@ -83,7 +40,7 @@ function ez_print_log_to_file() {
     usage_string+=$(ez_build_usage -o "add" -a "-f|--file" -d "Log file path")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
     local logger="INFO"
-    local log_file=${EZ_BASH_DEFAULT_LOG_FILE}
+    local log_file="$(ez_get_default_log_file)"
     local message=()
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
@@ -95,12 +52,10 @@ function ez_print_log_to_file() {
                     if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *)
-                echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
-    if [[ "${log_file}" == "" ]]; then log_file=${EZ_BASH_DEFAULT_LOG_FILE}; fi
+    if [[ "${log_file}" == "" ]]; then log_file="$(ez_get_default_log_file)"; fi
     # Make sure the log_file exists and you have the write permission
     if [ ! -e "${log_file}" ]; then touch "${log_file}"; fi
     if [ ! -f "${log_file}" ] || [ ! -w "${log_file}" ]; then
