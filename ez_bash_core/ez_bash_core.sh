@@ -8,26 +8,6 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_source() {
-    if [[ "${1}" == "" ]]; then echo "[EZ-BASH][ERROR] Empty file path"; return 1; fi
-    local file_path="${1}"
-    if [ ! -f "${file_path}" ]; then echo "[EZ-BASH][ERROR] Invalid file path \"${file_path}\""; return 2; fi
-    if [ ! -r "${file_path}" ]; then echo "[EZ-BASH][ERROR] Unreadable file \"${file_path}\""; return 3; fi
-    if ! source "${file_path}"; then echo "[EZ-BASH][ERROR] Failed to source \"${file_path}\""; return 4; fi
-}
-
-function ez_source_directory() {
-    local exclude_regex="_test.sh"
-    if [[ "${2}" != "" ]]; then exclude_regex="${2}"; fi
-    if [[ "${1}" == "" ]]; then echo "[EZ-BASH][ERROR] Empty directory path"; return 1; fi
-    local dir_path="${1}"
-    if [ ! -d "${dir_path}" ]; then echo "[EZ-BASH][ERROR] Invalid directory path \"${dir_path}\""; return 2; fi
-    if [ ! -r "${dir_path}" ]; then echo "[EZ-BASH][ERROR] Unreadable directory \"${dir_path}\""; return 3; fi
-    for path in $(find "${dir_path}" -type f -name '*.sh' | grep -v "${exclude_regex}"); do
-        if ! source "${path}"; then return 4; fi
-    done
-}
-
 function ez_print_usage() {
     tabs "${EZ_BASH_TAB_SIZE}"
     printf "${1}"
@@ -58,6 +38,43 @@ function ez_build_usage() {
     else
         echo "[${EZ_BASH_LOG_LOGO}][ERROR] Invalid operation \"${operation}\""
         ez_print_usage "${usage_string}"
+    fi
+}
+
+function ez_source() {
+    if [[ "${1}" == "" ]]; then echo "[EZ-BASH][ERROR] Empty file path"; return 1; fi
+    local file_path="${1}"
+    if [ ! -f "${file_path}" ]; then echo "[EZ-BASH][ERROR] Invalid file path \"${file_path}\""; return 2; fi
+    if [ ! -r "${file_path}" ]; then echo "[EZ-BASH][ERROR] Unreadable file \"${file_path}\""; return 3; fi
+    if ! source "${file_path}"; then echo "[EZ-BASH][ERROR] Failed to source \"${file_path}\""; return 4; fi
+}
+
+function ez_source_directory() {
+    local usage_string=$(ez_build_usage -o "init" -a "ez_source_directory" -d "Source Directory")
+    usage_string+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
+    usage_string+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local path="."
+    local exclude=""
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-p" | "--path") shift; path=${1-} ;;
+            "-r" | "--exclude") shift; exclude=${1-} ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+        if [[ ! -z "${1-}" ]]; then shift; fi
+    done
+    if [[ "${path}" == "" ]]; then echo "[EZ-BASH][ERROR] Invalid value \"${path}\" for \"-p|--path\""; return 1; fi
+    if [ ! -d "${path}" ]; then echo "[EZ-BASH][ERROR] \"${path}\" is not a directory"; return 2; fi
+    if [ ! -r "${path}" ]; then echo "[EZ-BASH][ERROR] Cannot read directory \"${dir_path}\""; return 3; fi
+    if [[ "${exclude}" == "" ]]; then
+        for sh_file_path in $(find "${path}" -type f -name '*.sh'); do
+            if ! ez_source "${sh_file_path}"; then return 4; fi
+        done
+    else
+        for sh_file_path in $(find "${path}" -type f -name '*.sh' | grep -v "${exclude}"); do
+            if ! ez_source "${sh_file_path}"; then return 4; fi
+        done
     fi
 }
 

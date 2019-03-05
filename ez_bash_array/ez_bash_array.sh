@@ -19,7 +19,7 @@ function ez_split_string_into_array() {
         case "${1-}" in
             "-d" | "--delimiter") shift; delimiter=${1-} ;;
             "-s" | "--string") shift; input_string=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done

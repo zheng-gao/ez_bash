@@ -50,7 +50,7 @@ else
     if source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
         for EZ_BASH_LIBRARY_DIR in $(ls -1 "${EZ_BASH_HOME}" | grep -v "\.sh" | grep -v "\.md"); do
             # exclude "_test.sh" file
-            ez_source_directory "${EZ_BASH_HOME}/${EZ_BASH_LIBRARY_DIR}" "_test.sh"
+            ez_source_directory --path "${EZ_BASH_HOME}/${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
         done
     else
         echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
