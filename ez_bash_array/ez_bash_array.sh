@@ -77,9 +77,7 @@ function ez_check_item_in_array() {
                     if [[ "${1-}" == "-s" ]] || [[ "${1-}" == "--silent" ]]; then break; fi
                     array+=("${1-}"); shift
                 done ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     for item_x in "${array[@]}"; do
@@ -110,17 +108,17 @@ function ez_get_diff_between_two_sets() {
                 while [[ ! -z "${1-}" ]]; do
                     if [[ "${1-}" == "-o" ]] || [[ "${1-}" == "--operation" ]]; then break; fi
                     if [[ "${1-}" == "-r" ]] || [[ "${1-}" == "--right" ]]; then break; fi
+                    if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--left" ]]; then break; fi
                     left_set["${1-}"]="${EZ_BASH_BOOL_TRUE}"; shift
                 done ;;
             "-r" | "--right") shift
                 while [[ ! -z "${1-}" ]]; do
                     if [[ "${1-}" == "-o" ]] || [[ "${1-}" == "--operation" ]]; then break; fi
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--left" ]]; then break; fi
+                    if [[ "${1-}" == "-r" ]] || [[ "${1-}" == "--right" ]]; then break; fi
                     right_set["${1-}"]="${EZ_BASH_BOOL_TRUE}"; shift
                 done ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${operation}" == "Intersection" ]]; then
@@ -141,8 +139,66 @@ function ez_get_diff_between_two_sets() {
             if [ ! ${left_set["${item}"]+_} ]; then echo "${item}"; fi
         done
     else
-        ez_print_log -l ERROR -m "Invalid Operation \"${operation}\""
-        ez_print_usage "${usage_string}"; return 1
+        ez_print_log -l ERROR -m "Invalid Operation \"${operation}\""; ez_print_usage "${usage_string}"; return 1
     fi
 }
 
+
+function ez_is_subset() {
+    local valid_operation=("A-IN-B" "B-IN-A")
+    local valid_operation_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_operation[@]}")
+    local usage_string=$(ez_build_usage -o "init" -a "ez_is_subset" -d "Check if a set is the subset of another set, Null is a subset of All sets")
+    usage_string+=$(ez_build_usage -o "add" -a "-o|--operation" -d "[${valid_operation_string}], default = ${valid_operation[0]}")
+    usage_string+=$(ez_build_usage -o "add" -a "-a|--set-A" -d "Set A: Item_l1 Item_l2 ...")
+    usage_string+=$(ez_build_usage -o "add" -a "-b|--set-B" -d "Set B: Item_r1 Item_r2 ...")
+    usage_string+=$(ez_build_usage -o "add" -a "-s|--silent" -d "Hide the output")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local operation=${valid_operation[0]}
+    local silent="${EZ_BASH_BOOL_FALSE}"
+    declare -A set_a
+    declare -A set_b
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-s" | "--silent") shift; silent="${EZ_BASH_BOOL_TRUE}" ;;
+            "-o" | "--operation") shift; operation=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-a" | "--set-A") shift
+                while [[ ! -z "${1-}" ]]; do
+                    if [[ "${1-}" == "-o" ]] || [[ "${1-}" == "--operation" ]]; then break; fi
+                    if [[ "${1-}" == "-b" ]] || [[ "${1-}" == "--set-B" ]]; then break; fi
+                    if [[ "${1-}" == "-a" ]] || [[ "${1-}" == "--set-A" ]]; then break; fi
+                    if [[ "${1-}" == "-s" ]] || [[ "${1-}" == "--silent" ]]; then break; fi
+                    set_a["${1-}"]="${EZ_BASH_BOOL_TRUE}"; shift
+                done ;;
+            "-b" | "--set-B") shift
+                while [[ ! -z "${1-}" ]]; do
+                    if [[ "${1-}" == "-o" ]] || [[ "${1-}" == "--operation" ]]; then break; fi
+                    if [[ "${1-}" == "-a" ]] || [[ "${1-}" == "--set-A" ]]; then break; fi
+                    if [[ "${1-}" == "-b" ]] || [[ "${1-}" == "--set-B" ]]; then break; fi
+                    if [[ "${1-}" == "-s" ]] || [[ "${1-}" == "--silent" ]]; then break; fi
+                    set_b["${1-}"]="${EZ_BASH_BOOL_TRUE}"; shift
+                done ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+        esac
+    done
+    if [[ "${operation}" == "A-IN-B" ]]; then
+        for item in "${!set_a[@]}"; do
+            if [ ! ${set_b["${item}"]+_} ]; then
+                if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then echo "${EZ_BASH_BOOL_FALSE}"; fi
+                return 1
+            fi
+        done
+        if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; fi
+        return 0
+    elif [[ "${operation}" == "B-IN-A" ]]; then
+        for item in "${!set_b[@]}"; do
+            if [ ! ${set_a["${item}"]+_} ]; then
+                if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then echo "${EZ_BASH_BOOL_FALSE}"; fi
+                return 1
+            fi
+        done
+        if [[ "${silent}" == "${EZ_BASH_BOOL_FALSE}" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; fi
+        return 0
+    else
+        ez_print_log -l ERROR -m "Invalid Operation \"${operation}\""; ez_print_usage "${usage_string}"; return 1
+    fi
+}
