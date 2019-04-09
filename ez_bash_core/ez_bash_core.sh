@@ -79,19 +79,28 @@ function ez_source_directory() {
 }
 
 function ez_get_argument() {
-    local supported_types=("String" "List")
+    # Error Code
+    # 1: Invalid Argument Name
+    # 2: Invalid Argument Type
+    # 3: Argument Value Not Found & Default Not Given
+    # 4: Argument Value Not In "Choose From" Set 
+    local supported_types=("String" "List" "Boolean")
     local usage_string=$(ez_build_usage -o "init" -a "ez_get_argument" -d "Get argument value from argument list")
-    usage_string+=$(ez_build_usage -o "add" -a "--ez-argument-type" -d "Supported Types: [Boolean, String, List], default = \"String\"")
+    usage_string+=$(ez_build_usage -o "add" -a "--ez-argument-type" -d "Supported Types: [${supported_types[*]}], default = \"String\"")
     usage_string+=$(ez_build_usage -o "add" -a "--ez-short-identifier" -d "Short Identifier")
     usage_string+=$(ez_build_usage -o "add" -a "--ez-long-identifier" -d "Long Identifier")
     usage_string+=$(ez_build_usage -o "add" -a "--ez-argument-list" -d "Argument List")
     usage_string+=$(ez_build_usage -o "add" -a "--ez-default-value" -d "Default Value")
+    usage_string+=$(ez_build_usage -o "add" -a "--ez-choose-from" -d "Valid Option")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
     local ez_argument_type="String"
     local short_identifier=""
     local long_identifier=""
     local default_value=()
+    local use_default_value="${EZ_BASH_BOOL_FALSE}"
     local arguments=()
+    declare -A choose_from_set
+    local validate_choice="${EZ_BASH_BOOL_FALSE}"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "--ez-argument-type") shift; ez_argument_type=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
@@ -104,16 +113,30 @@ function ez_get_argument() {
                     if [[ "${1-}" == "--ez-long-identifier" ]]; then break; fi
                     if [[ "${1-}" == "--ez-argument-list" ]]; then break; fi
                     if [[ "${1-}" == "--ez-default-value" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-choose-from" ]]; then break; fi
                     arguments+=("${1-}"); shift
                 done ;;
             "--ez-default-value") shift
+                use_default_value="${EZ_BASH_BOOL_TRUE}"
                 while [[ ! -z "${1-}" ]]; do
                     if [[ "${1-}" == "--ez-argument-type" ]]; then break; fi
                     if [[ "${1-}" == "--ez-short-identifier" ]]; then break; fi
                     if [[ "${1-}" == "--ez-long-identifier" ]]; then break; fi
                     if [[ "${1-}" == "--ez-argument-list" ]]; then break; fi
                     if [[ "${1-}" == "--ez-default-value" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-choose-from" ]]; then break; fi
                     default_value+=("${1-}"); shift
+                done ;;
+            "--ez-choose-from") shift
+                validate_choice="${EZ_BASH_BOOL_TRUE}"
+                while [[ ! -z "${1-}" ]]; do
+                    if [[ "${1-}" == "--ez-argument-type" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-short-identifier" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-long-identifier" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-argument-list" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-default-value" ]]; then break; fi
+                    if [[ "${1-}" == "--ez-choose-from" ]]; then break; fi
+                    choose_from_set["${1-}"]="${EZ_BASH_BOOL_TRUE}"; shift
                 done ;;
             *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
@@ -124,18 +147,39 @@ function ez_get_argument() {
                 echo "${EZ_BASH_BOOL_TRUE}"; return
             fi
         done
-        if [[ "${default_value[@]}" != "" ]]; then
-            echo "${default_value[@]}"
+        if [[ "${use_default_value}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+            if [[ "${default_value[@]}" == "" ]]; then
+                return 3
+            else
+                echo "${default_value[0]}"
+            fi
         else
             echo "${EZ_BASH_BOOL_FALSE}"
         fi
     elif [[ "${ez_argument_type}" == "String" ]]; then
         for ((i = 0; i < ${#arguments[@]} - 1; i++)); do
             if [[ "${arguments[${i}]}" == "${short_identifier}" ]] || [[ "${arguments[${i}]}" == "${long_identifier}" ]]; then
-                ((i++)); echo "${arguments[${i}]}"; return
+                local identifier="${arguments[${i}]}"
+                ((i++))
+                if [[ "${validate_choice}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+                    if [ ! ${choose_from_set["${arguments[${i}]}"]+_} ]; then
+                        echo "[${EZ_BASH_LOG_LOGO}][ERROR] Invalide value \"${arguments[${i}]}\" for identifier \"${identifier}\", please choose from [${!choose_from_set[*]}]"
+                        return 4
+                    else
+                        echo "${arguments[${i}]}"; return
+                    fi
+                else
+                    echo "${arguments[${i}]}"; return
+                fi
             fi
         done
-        echo "${default_value[@]}"
+        if [[ "${use_default_value}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+            if [[ "${default_value[@]}" == "" ]]; then
+                return 3
+            else
+                echo "${default_value[0]}"
+            fi
+        fi
     elif [[ "${ez_argument_type}" == "List" ]]; then
         for ((i = 0; i < ${#arguments[@]} - 1; i++)); do
             if [[ "${arguments[${i}]}" == "${short_identifier}" ]] || [[ "${arguments[${i}]}" == "${long_identifier}" ]]; then
@@ -148,12 +192,18 @@ function ez_get_argument() {
                 return
             fi
         done
-        for item in "${default_value[@]}"; do
-            echo "${item}"
-        done
+        if [[ "${use_default_value}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+            if [[ "${default_value[@]}" == "" ]]; then
+                return 3
+            else
+                for item in "${default_value[@]}"; do
+                    echo "${item}"
+                done
+            fi
+        fi
     else
         echo "[${EZ_BASH_LOG_LOGO}][ERROR] Invalid value \"${ez_argument_type}\" for \"--ez-argument-type\""; ez_print_usage "${usage_string}"
-        return 1
+        return 2
     fi
 }
 

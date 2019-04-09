@@ -47,6 +47,12 @@ if [[ "${my_string}" != "EZ-BASH" ]]; then echo "[${THIS_TEST_FILE_NAME}][ERROR]
 my_string=$(ez_get_argument --ez-argument-type "String" --ez-short-identifier "-v" --ez-argument-list "${argument_list[@]}")
 if [[ "${my_string}" != "Hello World" ]]; then echo "[${THIS_TEST_FILE_NAME}][ERROR] \"${my_string}\" != \"Hello World\""; exit 1; fi
 
+my_valid_string=$(ez_get_argument --ez-argument-type "String" --ez-short-identifier "--name" --ez-argument-list "${argument_list[@]}" --ez-choose-from "Valid1" "EZ-BASH" "Valid2")
+if [[ "${?}" != "0" ]]; then echo "[${THIS_TEST_FILE_NAME}][ERROR] \"--ez-choose-from\" does not work as expected"; exit 1; fi
+
+my_invalid_string=$(ez_get_argument --ez-argument-type "String" --ez-short-identifier "--name" --ez-argument-list "${argument_list[@]}" --ez-choose-from "Valid1" "Valid2")
+if [[ "${?}" != "4" ]]; then echo "[${THIS_TEST_FILE_NAME}][ERROR] \"--ez-choose-from\" does not work as expected"; exit 1; fi
+
 default_string=$(ez_get_argument --ez-short-identifier "NA" --ez-argument-list "${argument_list[@]}" --ez-default-value "Not Found")
 if [[ "${default_string}" != "Not Found" ]]; then echo "[${THIS_TEST_FILE_NAME}][ERROR] \"${default_string}\" != \"Not Found\""; exit 1; fi
 
