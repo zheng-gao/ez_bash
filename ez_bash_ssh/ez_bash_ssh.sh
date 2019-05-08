@@ -249,7 +249,7 @@ function ez_mssh_sudo_cmd() {
                 ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
-    if [[ "${sudo_pwd}" == "" ]]; then read -s -p "Password: " sudo_pwd; echo; fi
+    if [[ "${sudo_pwd}" == "" ]]; then read -s -p "Sudo Password: " sudo_pwd; echo; fi
     if [[ "${prompt}" == "" ]]; then prompt="#${EZ_BASH_SPACE}"; fi
     if [[ "${hosts}" == "" ]]; then ez_print_log -l ERROR -m "Hostnames cannot be empty"; ez_print_usage "${usage_string}"; return 1; fi
     if [[ "${cmd}" == "" ]]; then ez_print_log -l ERROR -m "Command cannot be empty"; ez_print_usage "${usage_string}"; return 1; fi
