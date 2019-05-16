@@ -133,9 +133,7 @@ function ez_mssh_cmd() {
             "-t" | "--timeout") shift; timeout=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-f" | "--failure") shift; failure=${EZ_BASH_BOOL_TRUE}; ;;
             "-s" | "--stats") shift; stats=${EZ_BASH_BOOL_TRUE}; ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${hosts}" == "" ]]; then ez_print_log -l ERROR -m "Hostnames cannot be empty"; ez_print_usage "${usage_string}"; return 1; fi
@@ -244,9 +242,7 @@ function ez_mssh_sudo_cmd() {
             "--switch-user") shift; switch_user=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "--sudo-pwd") shift; sudo_pwd=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "--prompt") shift; prompt=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${sudo_pwd}" == "" ]]; then read -s -p "Sudo Password: " sudo_pwd; echo; fi
