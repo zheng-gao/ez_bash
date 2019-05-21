@@ -10,8 +10,8 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 ###################################################################################################
 export EZ_BASH_LOG_LOGO="EZ-BASH"
 export EZ_BASH_TAB_SIZE="30"
-export EZ_BASH_BOOL_TRUE="true"
-export EZ_BASH_BOOL_FALSE="false"
+export EZ_BASH_BOOL_TRUE="True"
+export EZ_BASH_BOOL_FALSE="False"
 export EZ_BASH_SPACE="SPACE"
 export EZ_BASH_ALL="ALL"
 export EZ_BASH_NONE="NONE"

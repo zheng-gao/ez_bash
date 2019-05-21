@@ -25,6 +25,7 @@ declare -A EZ_BASH_FUNCTION_SET
 declare -A EZ_BASH_FUNCTION_LONG_NAMES_SET
 declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP
+declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP
@@ -32,6 +33,7 @@ declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP
 declare -A EZ_BASH_FUNCTION_SHORT_NAMES_SET
 declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP
+declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP
 declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP
@@ -46,14 +48,17 @@ function ez_unset_core_accociative_arrays() {
     # Long/Short Argument Names
     for k in "${!EZ_BASH_FUNCTION_LONG_NAMES_SET[@]}"; do unset EZ_BASH_FUNCTION_LONG_NAMES_SET["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_SHORT_NAMES_SET[@]}"; do unset EZ_BASH_FUNCTION_SHORT_NAMES_SET["${k}"]; done
-    # Argument Attributes
+    # Long Argument Attributes
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP["${k}"]; done
+    for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP["${k}"]; done
+    # Short Argument Attribute
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP["${k}"]; done
+    for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP[@]}"; do unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP["${k}"]; done
@@ -98,6 +103,7 @@ function ez_set_argument() {
     usage_string+=$(ez_build_usage -o "add" -a "-t|--type" -d "Supported Types: [${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET_STRING}], default = \"${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}\"")
     usage_string+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
     usage_string+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
+    usage_string+=$(ez_build_usage -o "add" -a "-r|--required" -d "Flag for required argument")
     usage_string+=$(ez_build_usage -o "add" -a "-d|--default" -d "Default Value")
     usage_string+=$(ez_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
     usage_string+=$(ez_build_usage -o "add" -a "-i|--info" -d "Argument Description")
@@ -109,6 +115,7 @@ function ez_set_argument() {
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
     local function=""
     local type="${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}"
+    local required="${EZ_BASH_BOOL_FALSE}"
     local short=""
     local long=""
     local info=""
@@ -121,6 +128,7 @@ function ez_set_argument() {
             "-s" | "--short") shift; short=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-l" | "--long") shift; long=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-i" | "--info") shift; info=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-r" | "--required") shift; required="${EZ_BASH_BOOL_TRUE}" ;;
             "-d" | "--default") shift;
                 while [[ ! -z "${1-}" ]]; do
                     if [[ ! -z "${arg_set[${1-}]}" ]]; then break; fi
@@ -177,6 +185,7 @@ function ez_set_argument() {
             # Delete short_old
             unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP["${key}"]
+            unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP["${key}"]
@@ -205,6 +214,7 @@ function ez_set_argument() {
         fi
         EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP["${key}"]="${long}"
         EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP["${key}"]="${type}"
+        EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP["${key}"]="${info}"
         EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP["${key}"]="${default_str[@]}"
         EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP["${key}"]="${choices_str[@]}"
@@ -217,6 +227,7 @@ function ez_set_argument() {
             # Delete long_old
             unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP["${key}"]
+            unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP["${key}"]
             unset EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP["${key}"]
@@ -245,6 +256,7 @@ function ez_set_argument() {
         fi
         EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP["${key}"]="${short}"
         EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP["${key}"]="${type}"
+        EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP["${key}"]="${info}"
         EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP["${key}"]="${default_str[@]}"
         EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP["${key}"]="${choices_str[@]}"
@@ -341,10 +353,12 @@ function ez_get_argument() {
     local argument_default=""
     local argument_choices=""
     if [[ ! -z "${short}" ]]; then
+        argument_required="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP[${short_key}]}"
         argument_type="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP[${short_key}]}"
         argument_default="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[${short_key}]}"
         argument_choices="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP[${short_key}]}"
     else
+        argument_required="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP[${long_key}]}"
         argument_type="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP[${long_key}]}"
         argument_default="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP[${long_key}]}"
         argument_choices="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP[${long_key}]}"   
@@ -389,6 +403,12 @@ function ez_get_argument() {
                 echo "${value}"; return
             fi
         done
+        # Required but not found and no default
+        if [[ -z "${argument_default}" ]] && [[ "${argument_required}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+            [[ ! -z "${short}" ]] && ez_log_error "Argument \"${short}\" is required"
+            [[ ! -z "${long}" ]] && ez_log_error "Argument \"${long}\" is required"
+            return 5
+        fi
         # Not Found, Use Default, Only print the first item in the default list
         local default_value=""
         local length="${#argument_default}"
@@ -422,6 +442,12 @@ function ez_get_argument() {
                 echo "${output_list_string}"; return
             fi
         done
+        # Required but not found and no default
+        if [[ -z "${argument_default}" ]] && [[ "${argument_required}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
+            [[ ! -z "${short}" ]] && ez_log_error "Argument \"${short}\" is required"
+            [[ ! -z "${long}" ]] && ez_log_error "Argument \"${long}\" is required"
+            return 5
+        fi
         # Not Found, Use Default
         echo "${argument_default}"
     fi
@@ -445,13 +471,15 @@ function ez_function_help() {
     echo "[Function Name] \"${function}\""
     echo
     {
-        echo "[Arg Short]${delimiter}[Arg Long]${delimiter}[Arg Type]${delimiter}[Arg Default]${delimiter}[Arg Choices]${delimiter}[Arg Description]"
+        echo "[Arg Short]${delimiter}[Arg Long]${delimiter}[Arg Type]${delimiter}[Arg Required]${delimiter}[Arg Default]${delimiter}[Arg Choices]${delimiter}[Arg Description]"
         for short in $(sed "s/${delimiter}/ /g" <<< "${EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP[${function}]}"); do
             local key="${function}${delimiter}${short}"
             local long="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP[${key}]}"
             [[ -z "${long}" ]] && long="${EZ_BASH_NONE}"
             local type="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP[${key}]}"
             [[ -z "${type}" ]] && type="${EZ_BASH_NONE}"
+            local required="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP[${key}]}"
+            [[ -z "${required}" ]] && required="${EZ_BASH_NONE}"
             local choices="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP[${key}]}"
             if [[ -z "${choices}" ]]; then
                 choices="${EZ_BASH_NONE}"
@@ -466,13 +494,15 @@ function ez_function_help() {
             fi
             local info="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP["${key}"]}"
             [[ -z "${info}" ]] && info="${EZ_BASH_NONE}"
-            echo "${short}${delimiter}${long}${delimiter}${type}${delimiter}${default}${delimiter}${choices}${delimiter}${info}"
+            echo "${short}${delimiter}${long}${delimiter}${type}${delimiter}${required}${delimiter}${default}${delimiter}${choices}${delimiter}${info}"
         done
         for long in $(sed "s/${delimiter}/ /g" <<< "${EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP[${function}]}"); do
             local key="${function}${delimiter}${long}"
             local short="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP[${key}]}"
             local type="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP[${key}]}"
             [[ -z "${type}" ]] && type="${EZ_BASH_NONE}"
+            local required="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP[${key}]}"
+            [[ -z "${required}" ]] && required="${EZ_BASH_NONE}"
             local choices="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP[${key}]}"
             if [[ -z "${choices}" ]]; then
                 choices="${EZ_BASH_NONE}"
@@ -489,7 +519,7 @@ function ez_function_help() {
             [[ -z "${info}" ]] && info="${EZ_BASH_NONE}"
             if [[ -z "${short}" ]]; then
                 short="${EZ_BASH_NONE}"
-                echo "${short}${delimiter}${long}${delimiter}${type}${delimiter}${default}${delimiter}${choices}${delimiter}${info}"
+                echo "${short}${delimiter}${long}${delimiter}${type}${delimiter}${required}${delimiter}${default}${delimiter}${choices}${delimiter}${info}"
             fi
         done
     } | column -t -s "${delimiter}"

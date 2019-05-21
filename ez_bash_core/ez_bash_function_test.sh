@@ -29,31 +29,37 @@ function ez_get_list() {
 }
 
 function ez_test_core_function() {
+    ez_set_argument -s "-t" --required -i "Your Title" &&
     ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
     ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
     ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
     ez_set_argument -s "-h" -l "--happy" -t "Flag" -i "Are you happy?" || return 1
     ez_ask_for_help "${@}" && ez_function_help && return
+    local name; name="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local name; name="$(ez_get_argument --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local gender; gender="$(ez_get_argument --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local pets; pets="$(ez_get_argument --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local happy; happy="$(ez_get_argument --short '-h' --long "--happy" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    echo "Title = ${title}"
     echo "Name = ${name}"
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
     echo "Pets = "; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
-    echo "Pets = "; ez_get_list "${pets}"
+    # echo "Pets = "; ez_get_list "${pets}"
 }
 
 echo "[Test 1]"
 ez_test_core_function --help
 echo
 echo "[Test 2]"
-ez_test_core_function --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird"
+ez_test_core_function --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird" -t "Dr."
 echo
 echo "[Test 3]"
-ez_test_core_function --happy
+ez_test_core_function --happy -t "Mr."
 echo
 echo "[Test 4]"
-ez_test_core_function --gender "Both Genders" --happy
+ez_test_core_function --gender "Both Genders" --happy -t "Jr."
+echo
+echo "[Test 5]"
+ez_test_core_function --happy
 echo
