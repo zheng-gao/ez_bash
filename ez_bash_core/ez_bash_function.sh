@@ -66,6 +66,7 @@ function ez_unset_core_accociative_arrays() {
     for k in "${!EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP[@]}"; do unset EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP["${k}"]; done
     for k in "${!EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP[@]}"; do unset EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP["${k}"]; done
 }
+
 # Source this file should clean all these  accociative arrays
 ez_unset_core_accociative_arrays
 
