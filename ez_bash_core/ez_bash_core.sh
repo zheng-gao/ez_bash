@@ -24,6 +24,22 @@ function ez_print_usage() {
     (>&2 printf "${1}\n")
 }
 
+function ez_log_stack() {
+    local function_stack=""
+    if [[ -z "${1}" ]]; then
+        # ignore self "ez_log_stack"
+        for ((i = ${#FUNCNAME[@]} - 1; i > 0; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
+    else
+        # ignore top x
+        for ((i = ${#FUNCNAME[@]} - 1; i > "${1}"; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
+    fi
+    echo "${function_stack}"
+}
+
+function ez_log_error() {
+    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
+}
+
 function ez_build_usage() {
     local usage_string="[Function Name]\t\"ez_build_usage\"\n[Function Info]\tEZ-BASH standard usage builder\n"
     usage_string+="-o|--operation\tValid operations are \"add\" and \"init\"\n"

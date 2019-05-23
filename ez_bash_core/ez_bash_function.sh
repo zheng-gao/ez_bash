@@ -73,22 +73,6 @@ ez_unset_core_accociative_arrays
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_log_stack() {
-    local function_stack=""
-    if [[ -z "${1}" ]]; then
-        # ignore self "ez_log_stack"
-        for ((i = ${#FUNCNAME[@]} - 1; i > 0; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
-    else
-        # ignore top x
-        for ((i = ${#FUNCNAME[@]} - 1; i > "${1}"; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
-    fi
-    echo "${function_stack}"
-}
-
-function ez_log_error() {
-    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
-}
-
 function ez_ask_for_help() {
     if [[ -z "${@}" ]]; then return; fi
     for arg in "${@}"; do
