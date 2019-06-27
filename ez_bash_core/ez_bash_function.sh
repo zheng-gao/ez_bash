@@ -3,7 +3,7 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
+if [[ -z "${EZ_BASH_HOME}" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
@@ -97,7 +97,7 @@ function ez_set_argument() {
     arg_set["-s"]="1"; arg_set["--short"]="1"; arg_set["-l"]="1"; arg_set["--long"]="1"
     arg_set["-d"]="1"; arg_set["--default"]="1"; arg_set["-c"]="1"; arg_set["--choices"]="1"
     arg_set["-i"]="1"; arg_set["--info"]="1"
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
+    if [[ -z "${1}" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
     local function=""
     local type="${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}"
     local required="${EZ_BASH_BOOL_FALSE}"
@@ -178,7 +178,7 @@ function ez_set_argument() {
             local new_short_list_string=""
             for existing_short in $(sed "s/${delimiter}/ /g" <<< "${EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP[${function}]}"); do
                 if [[ "${short_old}" != "${existing_short}" ]]; then
-                    if [[ "${new_short_list_string}" == "" ]]; then 
+                    if [[ -z "${new_short_list_string}" ]]; then 
                         new_short_list_string="${existing_short}"
                     else
                         new_short_list_string+="${delimiter}${existing_short}"
@@ -220,7 +220,7 @@ function ez_set_argument() {
             local new_long_list_string=""
             for existing_long in $(sed "s/${delimiter}/ /g" <<< "${EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP[${function}]}"); do
                 if [[ "${long_old}" != "${existing_long}" ]]; then
-                    if [[ "${new_short_list_string}" == "" ]]; then 
+                    if [[ -z "${new_short_list_string}" ]]; then 
                         new_long_list_string="${existing_long}"
                     else
                         new_long_list_string+="${delimiter}${existing_long}"
@@ -417,7 +417,7 @@ function ez_get_argument() {
                     local index=$((i + j))
                     # List ends with another argument indentifier "-" or end of line
                     if [[ "${arguments[${index}]}" =~ "-"[-,a-zA-Z].* ]]; then break; fi
-                    if [[ "${count}" == 0 ]]; then
+                    if [[ "${count}" -eq 0 ]]; then
                         output_list_string="${arguments[${index}]}"
                     else
                         output_list_string+="${delimiter}${arguments[${index}]}"
