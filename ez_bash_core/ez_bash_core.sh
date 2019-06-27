@@ -3,7 +3,7 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
+[[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
@@ -70,10 +70,11 @@ function ez_build_usage() {
 }
 
 function ez_source() {
-    if [[ "${1}" == "" ]]; then ez_log_error "Empty file path"; return 1; fi
+    if [[ -z "${1}" ]]; then ez_log_error "Empty file path"; return 1; fi
     local file_path="${1}"
     if [ ! -f "${file_path}" ]; then ez_log_error "Invalid file path \"${file_path}\""; return 2; fi
     if [ ! -r "${file_path}" ]; then ez_log_error "Unreadable file \"${file_path}\""; return 3; fi
+    # echo "${file_path}"
     if ! source "${file_path}"; then ez_log_error "Failed to source \"${file_path}\""; return 4; fi
 }
 
@@ -92,7 +93,8 @@ function ez_source_directory() {
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    if [[ "${path}" == "" ]]; then ez_log_error "Invalid value \"${path}\" for \"-p|--path\""; return 1; fi
+    if [[ -z "${path}" ]]; then ez_log_error "Invalid value \"${path}\" for \"-p|--path\""; return 1; fi
+    path="${path%/}" # Remove a trailing slash if there is one
     if [ ! -d "${path}" ]; then ez_log_error "\"${path}\" is not a directory"; return 2; fi
     if [ ! -r "${path}" ]; then ez_log_error "Cannot read directory \"${dir_path}\""; return 3; fi
     if [[ "${exclude}" == "" ]]; then

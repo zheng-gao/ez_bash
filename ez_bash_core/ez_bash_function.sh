@@ -3,7 +3,7 @@
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-if [[ -z "${EZ_BASH_HOME}" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
+[[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
@@ -12,7 +12,7 @@ export EZ_BASH_FUNCTION_HELP_KEYWORD="--help"
 export EZ_BASH_NON_SPACE_LIST_DELIMITER="#"
 
 export EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT="String"
-declare -A EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET=(
+declare -g -A EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET=(
     ["${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}"]="${EZ_BASH_BOOL_TRUE}"
     ["List"]="${EZ_BASH_BOOL_TRUE}"
     ["Flag"]="${EZ_BASH_BOOL_TRUE}"
@@ -20,26 +20,26 @@ declare -A EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET=(
 export EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET_STRING="$(sed 's/ /, /g' <<< ${!EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET[@]})"
 
 # Do NOT move the following accociative arrays to other files
-declare -A EZ_BASH_FUNCTION_SET
+declare -g -A EZ_BASH_FUNCTION_SET
 # Key Format: function + "::" + long name
-declare -A EZ_BASH_FUNCTION_LONG_NAMES_SET
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP
+declare -g -A EZ_BASH_FUNCTION_LONG_NAMES_SET
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_SHORT_NAME_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_TYPE_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_REQUIRED_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_DEFAULT_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_INFO_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP
 # Key Format: function + "::" + short name
-declare -A EZ_BASH_FUNCTION_SHORT_NAMES_SET
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP
-declare -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP
+declare -g -A EZ_BASH_FUNCTION_SHORT_NAMES_SET
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_INFO_MAP
+declare -g -A EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_CHOICES_MAP
 # Key Format: function
-declare -A EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP
-declare -A EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP
+declare -g -A EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP
+declare -g -A EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP
 
 # MUST unset the above accociative arrays inside a function for each key
 function ez_unset_core_accociative_arrays() {

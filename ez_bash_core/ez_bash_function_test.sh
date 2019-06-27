@@ -3,7 +3,8 @@
 ###################################################################################################
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
-if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
+[[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
+
 if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then exit 1; fi
 if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then exit 1; fi
 
@@ -35,7 +36,7 @@ function ez_test_core_function() {
     ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
     ez_set_argument -s "-h" -l "--happy" -t "Flag" -i "Are you happy?" || return 1
     ez_ask_for_help "${@}" && ez_function_help && return
-    local title; tilte="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local title; title="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local name; name="$(ez_get_argument --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local gender; gender="$(ez_get_argument --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local pets; pets="$(ez_get_argument --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
