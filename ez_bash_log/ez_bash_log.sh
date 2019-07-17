@@ -27,7 +27,7 @@ function ez_print_log() {
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}][${logger}] ${message[*]}"
@@ -52,7 +52,7 @@ function ez_print_log_to_file() {
                     if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${log_file}" == "" ]]; then log_file="$(ez_get_default_log_file)"; fi
@@ -113,7 +113,7 @@ function ez_print_banner() {
                     message+=("${1-}"); shift
                 done ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ez_print_log -l ERROR -m "Unknown argument \"${1}\""
                 ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done

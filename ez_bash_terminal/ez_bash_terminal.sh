@@ -16,7 +16,7 @@
 ###################################################################################################
 
 
-function ez_terminal_set_title() {
+function ez_set_terminal_title() {
     ez_set_argument -s "-t" --long "--title" --type "String" --required --default "hostname" --info "Terminal Title" || return 1
     [[ ! -z "${@}" ]] && ez_ask_for_help "${@}" && ez_function_help && return
     local title; title="$(ez_get_argument --short "-t" --long "--title" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
