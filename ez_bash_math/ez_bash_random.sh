@@ -17,6 +17,7 @@ function ez_get_random_int() {
     local upper_bound; upper_bound="$(ez_get_argument --short "-u" --long "--upper-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     [ "${lower_bound}" -gt "${upper_bound}" ] && return 2
     local seed="$(date +%s)"
+    # Linux can get milli seconds, but MacOS can only have seconds
     [ "$(ez_get_os_type)" = "linux" ] && seed="$(date +%s%N)"
     local random=0; (( random = ("${seed}" * 214013 + 2531011) % ("${upper_bound}" - "${lower_bound}") + "${lower_bound}" ))
     echo "${random}"

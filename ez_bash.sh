@@ -42,17 +42,19 @@ if [[ "${0}" != "-bash" ]]; then
     if [[ "$(basename ${0})" == "ez_bash.sh" ]]; then
         main "${@}"
     fi
-fi
-
-if [[ -z "${EZ_BASH_HOME}" ]]; then
-    echo "[EZ-BASH] EZ_BASH_HOME is not set!"
 else
-    if source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
+    if [[ -z "${EZ_BASH_HOME}" ]]; then
+        echo "[EZ-BASH] EZ_BASH_HOME is not set!"; return 1
+    else
+        if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; return 2
+        fi
+        if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; return 2
+        fi
         for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/*/); do
             # exclude "_test.sh" file
             ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
         done
-    else
-        echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
     fi
 fi
