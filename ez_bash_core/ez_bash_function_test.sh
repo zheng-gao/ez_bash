@@ -34,7 +34,7 @@ function ez_test_core_function() {
     ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
     ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
     ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
-    ez_set_argument -s "-h" -l "--happy" -t "Flag" -i "Are you happy?" || return 1
+    ez_set_argument -s "-h" -l "--happy" -t "Flag" || return 1
     ez_ask_for_help "${@}" && ez_function_help && return
     local title; title="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local name; name="$(ez_get_argument --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
