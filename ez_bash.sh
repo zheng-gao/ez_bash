@@ -50,9 +50,9 @@ else
             echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; return 2
         fi
         if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then
-            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; return 2
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; return 2
         fi
-        for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/*/); do
+        for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/*/ | grep -v "ez_bash_core"); do
             # exclude "_test.sh" file
             ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
         done
