@@ -29,20 +29,17 @@ function ez_bash_print_info() {
 ###################################################################################################
 
 function main() {
-    if [[ "${1}" == "-v" ]] || [[ "${1}" == "--version" ]]; then
+    if [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then
         ez_bash_print_release_version
-    elif [[ "${1}" == "-r" ]] || [[ "${1}" == "--requirements" ]]; then
+    elif [[ "${1}" = "-r" ]] || [[ "${1}" = "--requirements" ]]; then
         ez_bash_print_requirements
-    elif [[ "${1}" == "-i" ]] || [[ "${1}" == "--info" ]]; then
+    elif [[ "${1}" = "-i" ]] || [[ "${1}" = "--info" ]]; then
         ez_bash_print_info
     fi
 }
 
-if [[ "${0}" != "-bash" ]]; then
-    if [[ "$(basename ${0})" == "ez_bash.sh" ]]; then
-        main "${@}"
-    fi
-else
+if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
+    # To source this script, "${0}" is "-bash" or "-sh"
     if [[ -z "${EZ_BASH_HOME}" ]]; then
         echo "[EZ-BASH] EZ_BASH_HOME is not set!"; return 1
     else
@@ -56,5 +53,9 @@ else
             # exclude "_test.sh" file
             ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
         done
+    fi
+else
+    if [[ "$(basename ${0})" = "ez_bash.sh" ]]; then
+        main "${@}"
     fi
 fi
