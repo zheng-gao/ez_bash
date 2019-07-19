@@ -141,7 +141,7 @@ function ez_print_progress() {
     echo "${percentage_string}[${progress_bar_string}]"
     # [Demo]
     # list=("I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)")
-    # out=""; for((i=0; i<${#list[@]};)); do out+="${list[$i]} "; ((++i)); ez_print_progress -c $i -t ${#list[@]} -d1 0 -dx 2; echo $out; done
+    # o=""; i=0; for d in ${list[@]}; do o+="${d} "; ((++i)); ez_print_progress -p -c $i -t ${#list[@]} -d1 0 -dx 2; echo $o; done
 }
 
 
