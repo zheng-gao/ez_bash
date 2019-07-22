@@ -142,6 +142,17 @@ function ez_print_progress() {
     # [Demo]
     # list=("I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)")
     # o=""; i=0; for d in ${list[@]}; do o+="${d} "; ((++i)); ez_print_progress -p -c $i -t ${#list[@]} -d1 0 -dx 2; echo $o; done
+    # ez_print_list_with_progress_bar "I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)"
+}
+
+function ez_print_list_with_progress_bar() {
+    local out=""; local i=0
+    for data in ${@}; do
+        out+="${data} "
+        ((++i))
+        ez_print_progress -p -c $i -t ${#} -d1 0 -dx 2
+        echo "${out}"
+    done
 }
 
 
