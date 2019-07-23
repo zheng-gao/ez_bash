@@ -150,7 +150,7 @@ function ez_print_list_with_progress_bar() {
     for data in ${@}; do
         out+="${data} "
         ((++i))
-        ez_print_progress -p -c $i -t ${#} -d1 0 -dx 2
+        ez_print_progress -p -c "${i}" -t "${#}" -d1 0 -dx 2
         echo "${out}"
     done
 }

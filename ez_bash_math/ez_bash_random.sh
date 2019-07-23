@@ -17,6 +17,7 @@ function ez_get_random_int() {
     local upper_bound; upper_bound="$(ez_get_argument --short "-u" --long "--upper-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     [ "${lower_bound}" -gt "${upper_bound}" ] && return 2
     # Linux can get milli seconds, but MacOS can only have seconds
+    # Maybe we can use $RANDOM as seed, which is an internal Bash function that returns a pseudorandom integer in the range 0 - 32767
     if [ "$(ez_get_os_type)" = "linux" ]; then
         echo $(( ("$(date +%s%N)" * 214013 + 2531011) % ("${upper_bound}" - "${lower_bound}") + "${lower_bound}" ))
     else
