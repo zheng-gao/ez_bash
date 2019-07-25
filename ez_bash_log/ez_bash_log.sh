@@ -13,24 +13,23 @@ function ez_get_default_log_file() {
 }
 
 function ez_print_log() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_print_log" -d "Print log in \"EZ-BASH\" standard log format to console")
-    usage_string+=$(ez_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
-    usage_string+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local logger="INFO"
-    local message=()
-    while [[ ! -z "${1-}" ]]; do
+    local usage=$(ez_build_usage -o "init" -d "Print log in \"EZ-BASH\" standard log format to console")
+    usage+=$(ez_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
+    usage+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print")
+    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then ez_print_usage "${usage}"; return 1; fi
+    local time_stamp="$(date '+%Y-%m-%d %H:%M:%S')"; local logger="INFO"; local message=()
+    while [ -n "${1}" ]; do
         case "${1-}" in
             "-l" | "--logger") shift; logger="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-m" | "--message") shift
-                while [[ ! -z "${1-}" ]]; do
+                while [ -n "${1}" ]; do
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""; ez_print_usage "${usage}"; return 1 ;;
         esac
     done
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}][${logger}] ${message[*]}"
+    echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack 1)[${logger}] ${message[*]}"
 }
 
 function ez_print_log_to_file() {

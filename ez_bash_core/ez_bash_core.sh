@@ -19,26 +19,15 @@ export EZ_BASH_NONE="NONE"
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_print_usage() {
-    tabs "${EZ_BASH_TAB_SIZE}"
-    (>&2 printf "${1}\n")
-}
-
 function ez_log_stack() {
-    local function_stack=""
-    if [[ -z "${1}" ]]; then
-        # ignore self "ez_log_stack"
-        for ((i = ${#FUNCNAME[@]} - 1; i > 0; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
-    else
-        # ignore top x
-        for ((i = ${#FUNCNAME[@]} - 1; i > "${1}"; i--)); do function_stack+="[${FUNCNAME[$i]}]"; done
-    fi
-    echo "${function_stack}"
+    local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
+    [[ -n "${ignore_top_x}" ]] && for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done && echo "${stack}"
+    [[ -z "${ignore_top_x}" ]] && for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done && echo "${stack}" # ignore self "ez_log_stack"
 }
 
-function ez_log_error() {
-    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
-}
+function ez_log_error() { (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}") }
+
+function ez_print_usage() { tabs "${EZ_BASH_TAB_SIZE}" && (>&2 printf "${1}\n") && tabs; }
 
 function ez_build_usage() {
     local usage_string="[Function Name]\t\"ez_build_usage\"\n[Function Info]\tEZ-BASH standard usage builder\n"
@@ -59,7 +48,7 @@ function ez_build_usage() {
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if [[ "${operation}" == "init" ]]; then
-        if [[ "${argument}" == "" ]]; then argument="${FUNCNAME[1]}"; fi
+        if [[ -z "${argument}" ]]; then argument="${FUNCNAME[1]}"; fi
         echo "\n[Function Name]\t\"${argument}\"\n[Function Info]\t${description}\n"
     elif [[ "${operation}" == "add" ]]; then
         echo "${argument}\t${description}\n"
