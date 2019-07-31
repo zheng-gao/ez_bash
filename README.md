@@ -1,5 +1,5 @@
 # ez_bash
-Bash Tools for Linux and MacOS\r
+Bash Tools for Linux and MacOS&nbsp;
 Setup Environment Variable "EZ_BASH_HOME"
 ```
 source "${EZ_BASH_HOME}/ez_bash.sh"
@@ -44,7 +44,7 @@ $ foo --wrong-arg "First Arg"
 [EZ-BASH][2019-07-30 21:02:36][foo][ERROR] Unknown argument "--wrong-arg"
 ```
 # Example 2
-The new helper support default, required, choices, flag, list
+The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"&nbsp;
 You need to source 2 files to get the new feature
 ```
 source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
