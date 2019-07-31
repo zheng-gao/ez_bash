@@ -83,21 +83,21 @@ function ez_ask_for_help() {
 
 function ez_set_argument() {
     ### [To Do] Check if the arg already be set to make it faster ###
-    local usage_string=$(ez_build_usage -o "init" -d "Register Function Argument")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
-    usage_string+=$(ez_build_usage -o "add" -a "-t|--type" -d "Supported Types: [${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET_STRING}], default = \"${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
-    usage_string+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
-    usage_string+=$(ez_build_usage -o "add" -a "-r|--required" -d "Flag for required argument")
-    usage_string+=$(ez_build_usage -o "add" -a "-d|--default" -d "Default Value")
-    usage_string+=$(ez_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
-    usage_string+=$(ez_build_usage -o "add" -a "-i|--info" -d "Argument Description")
+    local usage=$(ez_build_usage -o "init" -d "Register Function Argument")
+    usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
+    usage+=$(ez_build_usage -o "add" -a "-t|--type" -d "Supported Types: [${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET_STRING}], default = \"${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}\"")
+    usage+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
+    usage+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
+    usage+=$(ez_build_usage -o "add" -a "-r|--required" -d "Flag for required argument")
+    usage+=$(ez_build_usage -o "add" -a "-d|--default" -d "Default Value")
+    usage+=$(ez_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
+    usage+=$(ez_build_usage -o "add" -a "-i|--info" -d "Argument Description")
     declare -A arg_set
     arg_set["-f"]="1"; arg_set["--function"]="1"; arg_set["-t"]="1"; arg_set["--type"]="1"
     arg_set["-s"]="1"; arg_set["--short"]="1"; arg_set["-l"]="1"; arg_set["--long"]="1"
     arg_set["-d"]="1"; arg_set["--default"]="1"; arg_set["-c"]="1"; arg_set["--choices"]="1"
     arg_set["-i"]="1"; arg_set["--info"]="1"
-    if [[ -z "${1}" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
+    if [[ -z "${1}" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage}"; return; fi
     local function=""
     local type="${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}"
     local required="${EZ_BASH_BOOL_FALSE}"
@@ -124,7 +124,7 @@ function ez_set_argument() {
                     if [[ ! -z "${arg_set[${1-}]}" ]]; then break; fi
                     choices+=("${1-}"); shift
                 done ;;
-            *) ez_log_error "Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1 ;;
+            *) ez_log_error "Unknown argument \"${1}\""; ez_print_usage "${usage}"; return 1 ;;
         esac
     done
     [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
@@ -249,70 +249,45 @@ function ez_set_argument() {
 }
 
 function ez_get_argument() {
-    local usage_string=$(ez_build_usage -o "init" -d "Get argument value from argument list")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
-    usage_string+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
-    usage_string+=$(ez_build_usage -o "add" -a "-a|--arguments" -d "Argument List")
-    usage_string+="\n[Notes]\n"
-    usage_string+="    Can only be called by another function"
-    usage_string+="    The arguments to process must be at the end of this function's argument list\n"
-    usage_string+="[Example]\n"
-    usage_string+="    ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\"\n"
-    if [[ -z "${1}" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then  ez_print_usage "${usage_string}"; return; fi
+    local usage=$(ez_build_usage -o "init" -d "Get argument value from argument list")
+    usage+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
+    usage+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
+    usage+=$(ez_build_usage -o "add" -a "-a|--arguments" -d "Argument List")
+    usage+="\n[Notes]\n"
+    usage+="    Can only be called by another function"
+    usage+="    The arguments to process must be at the end of this function's argument list\n"
+    usage+="[Example]\n"
+    usage+="    ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\"\n"
+    if [[ -z "${1}" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then  ez_print_usage "${usage}"; return; fi
     # Must Run Inside Other Functions
     local function="${FUNCNAME[1]}"
-    if [[ -z "${EZ_BASH_FUNCTION_SET[${function}]}" ]]; then ez_log_error "Function \"${function}\" NOT registered"; return 2; fi
-    local short=""
-    local long=""
-    local arguments=()
-    if [[ "${1}" == "-s" ]] || [[ "${1}" == "--short" ]]; then
-        short="${2}"
-        if [[ "${3}" == "-l" ]] || [[ "${3}" == "--long" ]]; then
-            long="${4}"
-            if [[ "${5}" == "-a" ]] || [[ "${5}" == "--arguments" ]]; then
-                local count=1
-                while [[ ! -z "${1-}" ]]; do [[ "${count}" -gt 5 ]] && arguments+=("${1}"); shift; ((++count)); done
+    [[ -z "${EZ_BASH_FUNCTION_SET[${function}]}" ]] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    local short=""; local long=""; local arguments=()
+    if [[ "${1}" == "-s" ]] || [[ "${1}" == "--short" ]]; then short="${2}"
+        if [[ "${3}" == "-l" ]] || [[ "${3}" == "--long" ]]; then long="${4}"
+            if [[ "${5}" == "-a" ]] || [[ "${5}" == "--arguments" ]]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_print_usage "${usage_string}"
-                return 1
+                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""; ez_print_usage "${usage}"; return 1
             fi
-        elif [[ "${3}" == "-a" ]] || [[ "${3}" == "--arguments" ]]; then
-            local count=1
-            while [[ ! -z "${1-}" ]]; do [[ "${count}" -gt 3 ]] && arguments+=("${1}"); shift; ((++count)); done
+        elif [[ "${3}" == "-a" ]] || [[ "${3}" == "--arguments" ]]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
-            ez_print_usage "${usage_string}"
-            return 1
+            ez_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""; ez_print_usage "${usage}"; return 1
         fi
-    elif [[ "${1}" == "-l" ]] || [[ "${1}" == "--long" ]]; then
-        long="${2}"
-        if [[ "${3}" == "-s" ]] || [[ "${3}" == "--short" ]]; then
-            short="${4}"
-            if [[ "${5}" == "-a" ]] || [[ "${5}" == "--arguments" ]]; then
-                local count=1
-                while [[ ! -z "${1-}" ]]; do [[ "${count}" -gt 5 ]] && arguments+=("${1}"); shift; ((++count)); done
+    elif [[ "${1}" == "-l" ]] || [[ "${1}" == "--long" ]]; then long="${2}"
+        if [[ "${3}" == "-s" ]] || [[ "${3}" == "--short" ]]; then short="${4}"
+            if [[ "${5}" == "-a" ]] || [[ "${5}" == "--arguments" ]]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_print_usage "${usage_string}"
-                return 1
+                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""; ez_print_usage "${usage}"; return 1
             fi
-        elif [[ "${3}" == "-a" ]] || [[ "${3}" == "--arguments" ]]; then
-            local count=1
-            while [[ ! -z "${1-}" ]]; do [[ "${count}" -gt 3 ]] && arguments+=("${1}"); shift; ((++count)); done
+        elif [[ "${3}" == "-a" ]] || [[ "${3}" == "--arguments" ]]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
-            ez_print_usage "${usage_string}"
-            return 1
+            ez_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""; ez_print_usage "${usage}"; return 1
         fi
     else
-        ez_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
-        ez_print_usage "${usage_string}"
-        return 1
+        ez_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""; ez_print_usage "${usage}"; return 1
     fi
-    if [[ -z "${short}" ]] && [[ -z "${long}" ]]; then ez_log_error "Not found \"-s|--short\" or \"-l|--long\""; return 1; fi
-    local short_key=""
-    local long_key=""
+    [[ -z "${short}" ]] && [[ -z "${long}" ]] && ez_log_error "Not found \"-s|--short\" or \"-l|--long\"" && return 1
+    local short_key=""; local long_key=""
     if [[ ! -z "${short}" ]]; then
         short_key="${function}${EZ_BASH_NON_SPACE_LIST_DELIMITER}${short}"
         if [[ -z "${EZ_BASH_FUNCTION_SHORT_NAMES_SET[${short_key}]}" ]]; then
@@ -334,9 +309,7 @@ function ez_get_argument() {
             return 2
         fi
     fi
-    local argument_type=""
-    local argument_default=""
-    local argument_choices=""
+    local argument_type=""; local argument_default=""; local argument_choices=""
     if [[ ! -z "${short}" ]]; then
         argument_required="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_REQUIRED_MAP[${short_key}]}"
         argument_type="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_TYPE_MAP[${short_key}]}"
@@ -349,7 +322,7 @@ function ez_get_argument() {
         argument_choices="${EZ_BASH_FUNCTION_ARGUMENT_LONG_NAME_TO_CHOICES_MAP[${long_key}]}"   
     fi
     local delimiter="${EZ_BASH_NON_SPACE_LIST_DELIMITER}"
-    if [[ -z "${argument_type}" ]]; then ez_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3; fi
+    [[ -z "${argument_type}" ]] && ez_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found" && return 3
     if [[ "${argument_type}" == "Flag" ]]; then
         for item in ${arguments[@]}; do
             if [[ "${item}" == "${short}" ]] || [[ "${item}" == "${long}" ]]; then
@@ -439,18 +412,18 @@ function ez_get_argument() {
 }
 
 function ez_function_help() {
-    local usage_string=$(ez_build_usage -o "init" -d "Check if the function is registered")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
-    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
+    local usage=$(ez_build_usage -o "init" -d "Check if the function is registered")
+    usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
+    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage}"; return; fi
     local function="${FUNCNAME[1]}"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-f" | "--function") shift; function=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *) ez_log_error "Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1 ;;
+            *) ez_log_error "Unknown argument \"${1}\""; ez_print_usage "${usage}"; return 1 ;;
         esac
     done
-    if [[ -z "${function}" ]]; then function="${FUNCNAME[1]}"; fi
-    if [[ -z "${EZ_BASH_FUNCTION_SET[${function}]}" ]]; then ez_log_error "Function \"${function}\" NOT registered"; return 2; fi
+    [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
+    [[ -z "${EZ_BASH_FUNCTION_SET[${function}]}" ]] && ez_log_error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZ_BASH_NON_SPACE_LIST_DELIMITER}"
     echo
     echo "[Function Name] \"${function}\""

@@ -35,9 +35,7 @@ function ez_build_usage() {
     usage_string+="-a|--argument\tArgument Name\n"
     usage_string+="-d|--description\tArgument Description\n"
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return; fi
-    local operation=""
-    local argument=""
-    local description="No Description"
+    local operation=""; local argument=""; local description="No Description"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-o" | "--operation") shift; operation=${1-} ;;
@@ -48,7 +46,7 @@ function ez_build_usage() {
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if [[ "${operation}" == "init" ]]; then
-        if [[ -z "${argument}" ]]; then argument="${FUNCNAME[1]}"; fi
+        [[ -z "${argument}" ]] && argument="${FUNCNAME[1]}"
         echo "\n[Function Name]\t\"${argument}\"\n[Function Info]\t${description}\n"
     elif [[ "${operation}" == "add" ]]; then
         echo "${argument}\t${description}\n"
@@ -59,10 +57,10 @@ function ez_build_usage() {
 }
 
 function ez_source() {
-    if [[ -z "${1}" ]]; then ez_log_error "Empty file path"; return 1; fi
+    [[ -z "${1}" ]] && ez_log_error "Empty file path" && return 1
     local file_path="${1}"
-    if [ ! -f "${file_path}" ]; then ez_log_error "Invalid file path \"${file_path}\""; return 2; fi
-    if [ ! -r "${file_path}" ]; then ez_log_error "Unreadable file \"${file_path}\""; return 3; fi
+    [ ! -f "${file_path}" ] && ez_log_error "Invalid file path \"${file_path}\"" && return 2
+    [ ! -r "${file_path}" ] && ez_log_error "Unreadable file \"${file_path}\"" && return 3
     # echo "${file_path}"
     if ! source "${file_path}"; then ez_log_error "Failed to source \"${file_path}\""; return 4; fi
 }
@@ -82,10 +80,10 @@ function ez_source_directory() {
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    if [[ -z "${path}" ]]; then ez_log_error "Invalid value \"${path}\" for \"-p|--path\""; return 1; fi
+    [[ -z "${path}" ]] && ez_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
     path="${path%/}" # Remove a trailing slash if there is one
-    if [ ! -d "${path}" ]; then ez_log_error "\"${path}\" is not a directory"; return 2; fi
-    if [ ! -r "${path}" ]; then ez_log_error "Cannot read directory \"${dir_path}\""; return 3; fi
+    [ ! -d "${path}" ] && ez_log_error "\"${path}\" is not a directory" && return 2
+    [ ! -r "${path}" ] && ez_log_error "Cannot read directory \"${dir_path}\"" && return 3
     if [[ "${exclude}" == "" ]]; then
         for sh_file_path in $(find "${path}" -type f -name '*.sh'); do
             if ! ez_source "${sh_file_path}"; then return 4; fi
