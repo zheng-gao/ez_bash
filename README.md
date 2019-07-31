@@ -1,5 +1,5 @@
 # ez_bash
-Bash Tools for Linux and MacOS
+Bash Tools for Linux and MacOS\r
 Setup Environment Variable "EZ_BASH_HOME"
 ```
 source "${EZ_BASH_HOME}/ez_bash.sh"
