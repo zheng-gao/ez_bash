@@ -29,9 +29,7 @@ function ez_git_commit_stats() {
         case "${1-}" in
             "-r" | "--repo-path") shift; repo_path=${1-} ;;
             "-f" | "--time-format") shift; time_format=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
