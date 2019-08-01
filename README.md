@@ -97,7 +97,6 @@ The first argument is required, if we ignore it
 ```
 $ bar -a2 "Second Arg" -a3 "Third Arg"
 [2019-07-30 21:35:23][EZ-BASH][bar][ez_get_argument][ERROR] Argument "-a1" is required
-[2019-07-30 21:35:23][EZ-BASH][bar][ez_get_argument][ERROR] Argument "--argument-1" is required
 ```
 The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
 ```

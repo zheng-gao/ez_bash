@@ -11,7 +11,7 @@ if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then exit 1; fi
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
 ###################################################################################################
-function ez_get_list() {
+function ez_test_get_list() {
     local input="${1}"
     local item=""
     local length="${#input}"
@@ -19,17 +19,17 @@ function ez_get_list() {
     ((last_index=length-1))
     for ((k=0; k < "${length}"; ++k)); do
         local char="${input:k:1}"
-        if [[ "${char}" == "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" ]]; then
-            [[ ! -z "${item}" ]] && echo "${item}"
+        if [ "${char}" = "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" ]; then
+            [ -n "${item}" ] && echo "${item}"
             item=""
         else
             item+="${char}"
         fi
-        [[ "${k}" -eq "${last_index}" ]] && [[ ! -z "${item}" ]] && echo "${item}"
+        [ "${k}" -eq "${last_index}" ] && [ -n "${item}" ] && echo "${item}"
     done
 }
 
-function ez_test_core_function() {
+function ez_test_core_function_1() {
     ez_set_argument -s "-t" --required -i "Your Title" &&
     ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
     ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
@@ -46,27 +46,27 @@ function ez_test_core_function() {
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
     echo "Pets = "; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
-    # echo "Pets = "; ez_get_list "${pets}"
+    # echo "Pets = "; ez_test_get_list "${pets}"
 }
 
 echo "[Test 1]"
-ez_test_core_function --help
-echo
+ez_test_core_function_1 --help; echo
+
 echo "[Test 2]"
-ez_test_core_function --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird" -t "Dr."
-echo
+ez_test_core_function_1 --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird" -t "Dr."; echo
+
 echo "[Test 3]"
-ez_test_core_function --happy -t "Mr."
-echo
+ez_test_core_function_1 --happy -t "Mr."; echo
+
 echo "[Test 4]"
-ez_test_core_function --gender "Both Genders" --happy -t "Jr."
-echo
+ez_test_core_function_1 --gender "Both Genders" --happy -t "Jr."; echo
+
 echo "[Test 5]"
-ez_test_core_function --happy
-echo
+ez_test_core_function_1 --happy; echo
 
 
-function bar() {
+
+function ez_test_core_function_2() {
     ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
     ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
     ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
@@ -85,5 +85,37 @@ function bar() {
     echo "Dry Run   : ${dry_run}"
 }
 
-bar --help
-bar -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"
+echo "[Test 1]"
+ez_test_core_function_2 --help; echo
+
+echo "[Test 2]"
+ez_test_core_function_2 -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"; echo
+
+echo "[Test 3]"
+ez_test_core_function_2 -a2 "Second Arg" -a3 "Third Arg"; echo
+
+echo "[Test 4]"
+ez_test_core_function_2 -a1 "First Arg" -a3 "Third Arg"; echo
+
+echo "[Test 5]"
+ez_test_core_function_2 -a1 "First Arg" -a3 "Arg 3"; echo
+
+echo "[Test 6]"
+ez_test_core_function_2 -a1 "First Arg" --dry-run -a3 "3rd Arg"; echo
+
+
+# function ez_test_core_function_3() {
+#     ez_set_argument --short "-c" --long "--choose-from" --choices "Choice 1" "Choice 2" --info "Test Choice" &&
+#     ez_set_argument --short "-l" --long "--list-items" --type "List" --default "Item 1" "Item 2" --info "Test List & Default" || return 1
+#     ez_ask_for_help "${@}" && ez_function_help && return
+#     local choose_from; choose_from="$(ez_get_argument --short "-c" --long "--choose-from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+#     local list_items; list_items="$(ez_get_argument --short "-l" --long "--list-items" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+#     echo "List:"; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${list_items}"
+#     echo "Choice: ${choose_from}"
+# }
+# 
+# ez_test_core_function_3 --help
+# 
+# echo "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[@]}"
+# echo "${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[@]}"
+
