@@ -20,10 +20,9 @@ export EZ_BASH_NONE="NONE"
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez_join() {
-    # ${1} is the delimiter
-    local i=0; local out_put=""
+    local delimiter="${1}"; local i=0; local out_put=""
     for data in "${@:2}"; do
-        [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${1}${data}"
+        [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"
         ((++i))
     done
     echo "${out_put}"
