@@ -75,8 +75,7 @@ ez_unset_core_accociative_arrays
 ###################################################################################################
 function ez_ask_for_help() {
     [ -z "${1}" ] && return
-    for arg in "${@}"; do [ "${arg}" = "${EZ_BASH_FUNCTION_HELP_KEYWORD}" ] && return; done
-    return 1
+    if ! ez_contain "${EZ_BASH_FUNCTION_HELP_KEYWORD}" "${@}"; then return 1; fi
 }
 
 function ez_set_argument() {

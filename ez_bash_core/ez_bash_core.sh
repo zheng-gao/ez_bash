@@ -19,6 +19,20 @@ export EZ_BASH_NONE="NONE"
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+
+function ez_contain() {
+    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+    for data in "${@:2}"; do
+        [[ "${1}" = "${data}" ]] && return
+    done
+    return 1
+}
+
+function ez_exclude() {
+    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+    if ez_contain "${@}"; then return 1; fi
+}
+
 function ez_join() {
     local delimiter="${1}"; local i=0; local out_put=""
     for data in "${@:2}"; do
