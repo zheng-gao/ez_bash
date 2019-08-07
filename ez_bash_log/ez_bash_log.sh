@@ -13,10 +13,12 @@ function ez_get_default_log_file() {
 }
 
 function ez_print_log() {
-    local usage=$(ez_build_usage -o "init" -d "Print log in \"EZ-BASH\" standard log format to console")
-    usage+=$(ez_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
-    usage+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print")
-    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then ez_print_usage "${usage}"; return 1; fi
+    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then
+        local usage=$(ez_build_usage -o "init" -d "Print log in \"EZ-BASH\" standard log format to console")
+        usage+=$(ez_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
+        usage+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print")
+        ez_print_usage "${usage}"; return 1
+    fi
     local time_stamp="$(date '+%Y-%m-%d %H:%M:%S')"; local logger="INFO"; local message=()
     while [ -n "${1}" ]; do
         case "${1-}" in
@@ -26,7 +28,9 @@ function ez_print_log() {
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""; ez_print_usage "${usage}"; return 1 ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
+               echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
+               return 1 ;;
         esac
     done
     echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack 1)[${logger}] ${message[*]}"
@@ -51,7 +55,8 @@ function ez_print_log_to_file() {
                     if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument \"${1}\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument indentifier \"${1}\""
+               ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${log_file}" == "" ]]; then log_file="$(ez_get_default_log_file)"; fi
@@ -64,19 +69,20 @@ function ez_print_log_to_file() {
 }
 
 function ez_repeat_string() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_repeat_string" -d "Copy and concatenate the substring several times")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--substring" -d "Substring to be repeated, default \"=\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default \"80\"")
-    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
+        local usage_string=$(ez_build_usage -o "init" -a "ez_repeat_string" -d "Copy and concatenate the substring several times")
+        usage_string+=$(ez_build_usage -o "add" -a "-s|--substring" -d "Substring to be repeated, default \"=\"")
+        usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default \"80\"")
+        ez_print_usage "${usage_string}"; return 1
+    fi
     local count=80
     local substring="="
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-s" | "--substring") shift; substring=${1-} ;;
             "-c" | "--count") shift; count=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"${1}\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *)  ez_print_log -l "ERROR" -m "Unknown argument indentifier \"${1}\""
+                ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
@@ -87,13 +93,14 @@ function ez_repeat_string() {
 }
 
 function ez_print_banner() {
-    local all_argument_names=("-s" "--substring" "-c" "--count" "-m" "--message" "-p" "--prefix")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_print_banner" -d "Print \"EZ-BASH\" standard banner")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--substring" -d "The substring in the spliter, default is \"=\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default is \"80\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print in the banner")
-    usage_string+=$(ez_build_usage -o "add" -a "-p|--prefix" -d "Print EZ-BASH log prefix")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
+        local usage_string=$(ez_build_usage -o "init" -a "ez_print_banner" -d "Print \"EZ-BASH\" standard banner")
+        usage_string+=$(ez_build_usage -o "add" -a "-s|--substring" -d "The substring in the spliter, default is \"=\"")
+        usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default is \"80\"")
+        usage_string+=$(ez_build_usage -o "add" -a "-m|--message" -d "Message to print in the banner")
+        usage_string+=$(ez_build_usage -o "add" -a "-p|--prefix" -d "Print EZ-BASH log prefix")
+        ez_print_usage "${usage_string}"; return 1
+    fi
     local count=80
     local substring="="
     local prefix="${EZ_BASH_BOOL_FALSE}"
@@ -111,9 +118,8 @@ function ez_print_banner() {
                     if [[ "${1}" ==  "-p" ]] || [[ "${1}" ==  "--prefix" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"${1}\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *)  ez_print_log -l "ERROR" -m "Unknown argument indentifier \"${1}\""
+                ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
         esac
     done
     local spliter=$(ez_repeat_string --substring "${substring}" --count ${count})

@@ -66,18 +66,21 @@ function ez_print_usage() {
 }
 
 function ez_build_usage() {
-    local usage="\n[Function Name]\t\"ez_build_usage\"\n[Function Info]\tEZ-BASH usage builder\n"
-    usage+="-o|--operation\tValid operations [\"add\", \"init\"]\n"
-    usage+="-a|--argument\tArgument Name\n"
-    usage+="-d|--description\tArgument Description\n"
-    [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ] && ez_print_usage "${usage}" && return
+    if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
+        local usage="\n[Function Name]\t\"ez_build_usage\"\n[Function Info]\tEZ-BASH usage builder\n"
+        usage+="-o|--operation\tValid operations [\"add\", \"init\"]\n"
+        usage+="-a|--argument\tArgument Name\n"
+        usage+="-d|--description\tArgument Description\n"
+        ez_print_usage "${usage}"
+        return
+    fi
     local operation=""; local argument=""; local description="No Description"
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-o" | "--operation") shift; operation=${1} && [ -n "${1}" ] && shift ;;
             "-a" | "--argument") shift; argument=${1} && [ -n "${1}" ] && shift ;;
             "-d" | "--description") shift; description=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument \"${1}\"" && ez_print_usage "${usage}" && return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
         esac
     done
     case "${operation}" in
@@ -86,7 +89,7 @@ function ez_build_usage() {
             echo "\n[Function Name]\t\"${argument}\"\n[Function Info]\t${description}\n" ;;
         "add")
             echo "${argument}\t${description}\n" ;;
-        *) ez_log_error "Invalid value \"${operation}\" for \"-o|--operation\"" && ez_print_usage "${usage}" && return 1 ;;
+        *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
     esac
 }
 
@@ -99,16 +102,19 @@ function ez_source() {
 }
 
 function ez_source_directory() {
-    local usage=$(ez_build_usage -o "init" -d "Source Directory")
-    usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
-    usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
-    [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ] && ez_print_usage "${usage}" && return
+    if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
+        local usage=$(ez_build_usage -o "init" -d "Source Directory")
+        usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
+        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
+        ez_print_usage "${usage}"
+        return
+    fi
     local path="."; local exclude=""
     while [ -n "${1}" ]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1} && [ -n "${1}" ] && shift ;;
             "-r" | "--exclude") shift; exclude=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument \"${1}\"" && ez_print_usage "${usage}" && return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
         esac
     done
     [ -z "${path}" ] && ez_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
