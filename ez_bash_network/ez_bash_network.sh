@@ -39,3 +39,9 @@ function ez_url_encode() {
     done
     echo
 }
+
+
+function ez_reload_etc_host() {
+    local os=$(ez_get_os_type)
+    [[ "${os}" = "macos" ]] && sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+}
