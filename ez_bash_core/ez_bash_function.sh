@@ -99,6 +99,7 @@ function ez_set_argument() {
         ["-t"]="1" ["--type"]="1"
         ["-s"]="1" ["--short"]="1"
         ["-l"]="1" ["--long"]="1"
+        ["-r"]="1" ["--required"]="1"
         ["-d"]="1" ["--default"]="1"
         ["-c"]="1" ["--choices"]="1"
         ["-i"]="1" ["--info"]="1"
