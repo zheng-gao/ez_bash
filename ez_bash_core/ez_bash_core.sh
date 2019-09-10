@@ -22,43 +22,37 @@ export EZ_BASH_NONE="NONE"
 
 function ez_contain() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    for data in "${@:2}"; do
-        [[ "${1}" = "${data}" ]] && return
-    done
-    return 1
+    for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
 }
 
 function ez_exclude() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    if ez_contain "${@}"; then return 1; fi
+    for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
 }
 
 function ez_join() {
     local delimiter="${1}"; local i=0; local out_put=""
-    for data in "${@:2}"; do
-        [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"
-        ((++i))
-    done
+    for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
 }
 
 function ez_log_stack() {
     local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
     if [ -n "${ignore_top_x}" ]; then
-        for ((; i > "${ignore_top_x}"; i--)); do
-            stack+="[${FUNCNAME[$i]}]"
-        done
+        for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     else
         # i > 0 to ignore self "ez_log_stack"
-        for ((; i > 0; i--)); do
-            stack+="[${FUNCNAME[$i]}]"
-        done
+        for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     fi
     echo "${stack}"
 }
 
 function ez_log_error() {
     (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
+}
+
+function ez_log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[INFO] ${@}"
 }
 
 function ez_print_usage() {
