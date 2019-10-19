@@ -40,7 +40,7 @@ declare -g -A EZ_BASH_FUNCTION_NAME_TO_LONG_NAMES_MAP
 declare -g -A EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP
 
 # MUST unset the above accociative arrays inside a function for each key
-function ez_unset_core_accociative_arrays() {
+function ez_function_unset_accociative_arrays() {
     # Function
     for k in "${!EZ_BASH_FUNCTION_SET[@]}"; do unset EZ_BASH_FUNCTION_SET["${k}"]; done
     # Long/Short Argument Names
@@ -65,19 +65,32 @@ function ez_unset_core_accociative_arrays() {
     for k in "${!EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP[@]}"; do unset EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP["${k}"]; done
 }
 
-# Source this file should clean all these  accociative arrays
-ez_unset_core_accociative_arrays
+# Source this file should clean all these accociative arrays
+# Do not source this file more than once
+ez_function_unset_accociative_arrays
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ez_function_exist() {
+    # Should only be called by another function. If not, give the function name in 1st argument
+    if [[ -z "${1}" ]]; then
+        if [[ -z "${EZ_BASH_FUNCTION_SET[${FUNCNAME[1]}]}" ]] || [[ "${EZ_BASH_FUNCTION_SET[${FUNCNAME[1]}]}" != "${EZ_BASH_BOOL_TRUE}" ]]; then
+            return 1
+        fi
+    else
+        if [[ -z "${EZ_BASH_FUNCTION_SET[${1}]}" ]] || [[ "${EZ_BASH_FUNCTION_SET[${1}]}" != "${EZ_BASH_BOOL_TRUE}" ]]; then
+            return 1
+        fi
+    fi
+}
+
 function ez_ask_for_help() {
     [ -z "${1}" ] && return
     if ! ez_contain "${EZ_BASH_FUNCTION_HELP_KEYWORD}" "${@}"; then return 1; fi
 }
 
 function ez_set_argument() {
-    ### [To Do] Check if the arg already be set to make it faster ###
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
         local type_info="[${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_SET_STRING}], default = \"${EZ_BASH_SUPPORTED_ARGUMENT_TYPE_DEFAULT}\""
         local usage=$(ez_build_usage -o "init" -d "Register Function Argument")
@@ -418,6 +431,7 @@ function ez_function_help() {
         ez_print_usage "${usage}"
         return
     fi
+    # Should only be called by another function
     local function="${FUNCNAME[1]}"
     while [ -n "${1}" ]; do
         case "${1}" in

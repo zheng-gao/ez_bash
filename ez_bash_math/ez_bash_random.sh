@@ -8,8 +8,10 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 ###################################################################################################
 
 function ez_get_random_int() {
-    ez_set_argument --short "-l" --long "--lower-bound" --default 0 --info "Inclusive Lower Bound" &&
-    ez_set_argument --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
+    if ! ez_function_exist; then
+        ez_set_argument --short "-l" --long "--lower-bound" --default 0 --info "Inclusive Lower Bound" &&
+        ez_set_argument --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
+    fi
     ez_ask_for_help "${@}" && ez_function_help && return
     local lower_bound; lower_bound="$(ez_get_argument --short "-l" --long "--lower-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local upper_bound; upper_bound="$(ez_get_argument --short "-u" --long "--upper-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1

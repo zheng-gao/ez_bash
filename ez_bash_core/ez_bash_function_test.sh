@@ -28,11 +28,13 @@ function ez_test_get_list() {
 }
 
 function ez_test_core_function_1() {
-    ez_set_argument -s "-t" --required -i "Your Title" &&
-    ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
-    ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
-    ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
-    ez_set_argument -s "-h" -l "--happy" -t "Flag" || return 1
+    if ! ez_function_exist; then
+        ez_set_argument -s "-t" --required -i "Your Title" &&
+        ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
+        ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
+        ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
+        ez_set_argument -s "-h" -l "--happy" -t "Flag" || return 1
+    fi
     ez_ask_for_help "${@}" && ez_function_help && return
     local title; title="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local name; name="$(ez_get_argument --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -65,11 +67,13 @@ ez_test_core_function_1 --happy; echo
 
 
 function ez_test_core_function_2() {
-    ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-    ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-    ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-    ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-    ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
+    if ! ez_function_exist; then
+        ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
+        ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
+        ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
+        ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
+        ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
+    fi
     ez_ask_for_help "${@}" && ez_function_help && return
     local arg_1; arg_1="$(ez_get_argument --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local arg_2; arg_2="$(ez_get_argument --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -103,8 +107,10 @@ ez_test_core_function_2 -a1 "First Arg" --dry-run -a3 "3rd Arg"; echo
 
 
 # function ez_test_core_function_3() {
-#     ez_set_argument --short "-c" --long "--choose-from" --choices "Choice 1" "Choice 2" --info "Test Choice" &&
-#     ez_set_argument --short "-l" --long "--list-items" --type "List" --default "Item 1" "Item 2" --info "Test List & Default" || return 1
+#     if ! ez_function_exist; then
+#         ez_set_argument --short "-c" --long "--choose-from" --choices "Choice 1" "Choice 2" --info "Test Choice" &&
+#         ez_set_argument --short "-l" --long "--list-items" --type "List" --default "Item 1" "Item 2" --info "Test List & Default" || return 1
+#     fi
 #     ez_ask_for_help "${@}" && ez_function_help && return
 #     local choose_from; choose_from="$(ez_get_argument --short "-c" --long "--choose-from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
 #     local list_items; list_items="$(ez_get_argument --short "-l" --long "--list-items" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
