@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 ###################################################################################################
 # ---------------------------------------- Release Info  ---------------------------------------- #
 ###################################################################################################
@@ -41,15 +40,18 @@ function main() {
 if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     # To source this script, "${0}" is "-bash" or "-sh"
     if [[ -z "${EZ_BASH_HOME}" ]]; then
-        echo "[EZ-BASH] EZ_BASH_HOME is not set!"; return 1
+        echo "[EZ-BASH] EZ_BASH_HOME is not set!"
+        return 1
     else
         if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
-            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; return 2
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
+            return 2
         fi
         if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then
-            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; return 2
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"
+            return 2
         fi
-        for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/*/ | grep -v "ez_bash_core"); do
+        for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/ez_bash_*/ | grep -v "ez_bash_core"); do
             # exclude "_test.sh" file
             ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
         done

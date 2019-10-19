@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
@@ -55,6 +53,10 @@ function ez_log_info() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[INFO] ${@}"
 }
 
+function ez_log_warning() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[WARNING] ${@}"
+}
+
 function ez_print_usage() {
     tabs "${EZ_BASH_TAB_SIZE}" && (>&2 printf "${1}\n") && tabs
 }
@@ -74,7 +76,7 @@ function ez_build_usage() {
             "-o" | "--operation") shift; operation=${1} && [ -n "${1}" ] && shift ;;
             "-a" | "--argument") shift; argument=${1} && [ -n "${1}" ] && shift ;;
             "-d" | "--description") shift; description=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     case "${operation}" in
@@ -83,7 +85,7 @@ function ez_build_usage() {
             echo "\n[Function Name]\t\"${argument}\"\n[Function Info]\t${description}\n" ;;
         "add")
             echo "${argument}\t${description}\n" ;;
-        *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
+        *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
     esac
 }
 
@@ -108,7 +110,7 @@ function ez_source_directory() {
         case "${1}" in
             "-p" | "--path") shift; path=${1} && [ -n "${1}" ] && shift ;;
             "-r" | "--exclude") shift; exclude=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     [ -z "${path}" ] && ez_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1

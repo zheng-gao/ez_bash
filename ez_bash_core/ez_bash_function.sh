@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
@@ -124,7 +122,7 @@ function ez_set_argument() {
                 while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; default+=("${1}"); shift; done ;;
             "-c" | "--choices") shift
                 while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; choices+=("${1}"); shift; done ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     [ -z "${function}" ] && function="${FUNCNAME[1]}"
@@ -269,32 +267,32 @@ function ez_get_argument() {
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
                 ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+                ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
             ez_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
-            ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+            ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
         fi
     elif [ "${1}" = "-l" -o "${1}" = "--long" ]; then long="${2}"
         if [ "${3}" = "-s" -o "${3}" = "--short" ]; then short="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
                 ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+                ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
             ez_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
-            ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+            ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
         fi
     else
         ez_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
-        ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+        ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
     fi
     if [ -z "${short}" ] && [ -z "${long}" ]; then
         ez_log_error "Not found \"-s|--short\" or \"-l|--long\""
-        ez_log_error "For more info, please run \"${FUNCNAME[0]} --help\""; return 1
+        ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
     fi
     local short_key=""; local long_key=""
     if [ -n "${short}" ]; then
@@ -424,7 +422,7 @@ function ez_function_help() {
     while [ -n "${1}" ]; do
         case "${1}" in
             "-f" | "--function") shift; function=${1}; [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". For more info, please run \"${FUNCNAME[0]} --help\""; return 1 ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     [ -z "${function}" ] && function="${FUNCNAME[1]}"
@@ -432,7 +430,7 @@ function ez_function_help() {
     local delimiter="${EZ_BASH_NON_SPACE_LIST_DELIMITER}"
     echo; echo "[Function Name] \"${function}\""; echo
     {
-        echo $(ez_join "${delimiter}" "[Arg Short]" "[Arg Long]" "[Arg Type]" "[Arg Required]" "[Arg Default]" "[Arg Choices]" "[Arg Description]")
+        echo $(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
         for short in $(sed "s/${delimiter}/ /g" <<< "${EZ_BASH_FUNCTION_NAME_TO_SHORT_NAMES_MAP[${function}]}"); do
             local key="${function}${delimiter}${short}"
             local long="${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_LONG_NAME_MAP[${key}]}"

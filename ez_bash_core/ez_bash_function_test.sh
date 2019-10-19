@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
@@ -46,7 +44,7 @@ function ez_test_core_function_1() {
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
     echo "Pets = "; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
-    # echo "Pets = "; ez_test_get_list "${pets}"
+    echo "Pets = "; ez_test_get_list "${pets}"
 }
 
 echo "[Test 1]"
