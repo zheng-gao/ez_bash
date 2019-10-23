@@ -1,13 +1,7 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
-
-###################################################################################################
-# -------------------------------------- Import Libraries --------------------------------------- #
-###################################################################################################
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -16,20 +10,20 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no time out, if you give wrong "prompt", it will hang forever
 function ez_ssh_sudo_cmd() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_ssh_sudo_cmd" -d "Run sudo command remotely, will hang forever if given the wrong prompt")
-    usage_string+=$(ez_build_usage -o "add" -a "-l|--log" -d "Save raw log to a file, default = /var/tmp/ez_ssh_sudo_cmd.log")
-    usage_string+=$(ez_build_usage -o "add" -a "-h|--host" -d "The host to run the command on")
-    usage_string+=$(ez_build_usage -o "add" -a "-u|--user" -d "Switch to a user, default = root")
-    usage_string+=$(ez_build_usage -o "add" -a "-p|--pwd" -d "The root user password")
-    usage_string+=$(ez_build_usage -o "add" -a "-c|--cmd" -d "The command string, must be quoted otherwise it only take one word")
-    usage_string+=$(ez_build_usage -o "add" -a "-t|--timeout" -d "The timeout seconds, default = 120")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--status" -d "Print Status")
-    usage_string+=$(ez_build_usage -o "add" -a "-oc|--output-console" -d "Print output to console")
-    usage_string+=$(ez_build_usage -o "add" -a "-of|--output-file" -d "Print output to file")
-    usage_string+=$(ez_build_usage -o "add" -a "--prompt" -d "The user's prompt, default = \"#${EZ_BASH_SPACE}\", for \"app\" user use \"\$${EZ_BASH_SPACE}\"")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    if [[ "${1}" == "-h" ]] && [[ "${2}" == "" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local log_file="/var/tmp/ez_ssh_sudo_cmd.log"
+    if [[ -z "${1}" ]] || [[ "${1}" = "--help" ]]; then
+        local usage_string=$(ez_build_usage -o "init" -a "ez_ssh_sudo_cmd" -d "Run sudo command remotely, will hang forever if given the wrong prompt")
+        usage_string+=$(ez_build_usage -o "add" -a "-h|--host" -d "The host to run the command on")
+        usage_string+=$(ez_build_usage -o "add" -a "-u|--user" -d "Switch to a user, default = root")
+        usage_string+=$(ez_build_usage -o "add" -a "-p|--pwd" -d "The root user password")
+        usage_string+=$(ez_build_usage -o "add" -a "-c|--cmd" -d "The command string, must be quoted otherwise it only take one word")
+        usage_string+=$(ez_build_usage -o "add" -a "-t|--timeout" -d "The timeout seconds, default = 120")
+        usage_string+=$(ez_build_usage -o "add" -a "-s|--status" -d "Print Status")
+        usage_string+=$(ez_build_usage -o "add" -a "-oc|--output-console" -d "Print output to console")
+        usage_string+=$(ez_build_usage -o "add" -a "-of|--output-file" -d "Print output to file")
+        usage_string+=$(ez_build_usage -o "add" -a "--prompt" -d "The user's prompt, default = \"#${EZ_BASH_SPACE}\", for \"app\" user use \"\$${EZ_BASH_SPACE}\"")
+        ez_print_usage "${usage_string}"; return
+    fi
+    local data_file="${EZ_BASH_DATA}/${FUNCNAME[0]}.data"
     local host=""
     local user="root"
     local prompt=""
@@ -41,7 +35,6 @@ function ez_ssh_sudo_cmd() {
     local cmd=""
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
-            "-l" | "--log") shift; log_file=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-h" | "--host") shift; host=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-u" | "--user") shift; user=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-p" | "--pwd") shift; pwd=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
@@ -51,22 +44,20 @@ function ez_ssh_sudo_cmd() {
             "-s" | "--status") shift; status=${EZ_BASH_BOOL_TRUE}; ;;
             "-oc" | "--output-console") shift; output_console=${EZ_BASH_BOOL_TRUE}; ;;
             "-of" | "--output-file") shift; output_file=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    if [[ "${host}" == "" ]]; then ez_print_log -l ERROR -m "Hostname cannot be empty"; ez_print_usage "${usage_string}"; return 1; fi
-    if [[ "${cmd}" == "" ]]; then ez_print_log -l ERROR -m "Command cannot be empty"; ez_print_usage "${usage_string}"; return 1; fi
-    if [[ "${pwd}" == "" ]]; then read -s -p "Password: " pwd; echo; fi
-    if [[ "${timeout}" == "" ]]; then timeout=120; fi
-    if [[ "${prompt}" == "" ]]; then prompt="#${EZ_BASH_SPACE}"; fi
-    if [[ "${user}" == "root" ]]; then user=""; fi
-    if [[ $(ez_command_check -c "expect") == "${EZ_BASH_BOOL_FALSE}" ]]; then
-        ez_print_log -l ERROR -m "Command \"expect\" Not Found!"; return 1
+    if [[ -z "${host}" ]]; then ez_log_error "Invalid value \"${host}\" for -h|--host"; return 1; fi
+    if [[ -z "${cmd}" ]]; then ez_log_error "Invalid value \"${cmd}\" for -c|--cmd"; return 1; fi
+    if [[ -z "${pwd}" ]]; then read -s -p "Password: " pwd; echo; fi
+    if [[ "${user}" = "root" ]]; then user=""; fi
+    if [[ $(ez_command_check -c "expect") = "${EZ_BASH_BOOL_FALSE}" ]]; then
+        ez_log_error "Command \"expect\" Not Found!"; return 1
     fi
+    [[ -z "${timeout}" ]] && timeout=120
+    [[ -z "${prompt}" ]] && prompt="#${EZ_BASH_SPACE}"
     prompt=$(echo "${prompt}" | sed "s/${EZ_BASH_SPACE}/ /g")
-    echo > "${log_file}"
+    echo > "${data_file}"
     {
         expect << EOF
         set timeout ${timeout}
@@ -78,26 +69,26 @@ function ez_ssh_sudo_cmd() {
         send "echo EZ-BASHCommandStatus=$\?EZ-BASHCommandStatus\r"; expect "${prompt}"
         send "echo\r"; expect "${prompt}" # make sure the prompt is present
 EOF
-    } &> "${log_file}"
-    local start_line=$(grep -n EZ-BASHCommandStart ${log_file} | tail -1 | cut -d ":" -f 1)
-    local end_line=$(grep -n "echo EZ-BASHCommandStatus=" ${log_file} | tail -1 | cut -d ":" -f 1)
+    } &> "${data_file}"
+    local start_line=$(grep -n EZ-BASHCommandStart ${data_file} | tail -1 | cut -d ":" -f 1)
+    local end_line=$(grep -n "echo EZ-BASHCommandStatus=" ${data_file} | tail -1 | cut -d ":" -f 1)
     start_line=$((start_line+=2))
     end_line=$((end_line-=1))
     if [[ "${output_console}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
-        sed -n "${start_line},${end_line}p" "${log_file}"
+        sed -n "${start_line},${end_line}p" "${data_file}"
     fi
     if [[ "${output_file}" != "" ]]; then
-        sed -n "${start_line},${end_line}p" "${log_file}" > "${output_file}"
+        sed -n "${start_line},${end_line}p" "${data_file}" > "${output_file}"
     fi
-    local status_string=$(grep "CommandStatus=" "${log_file}" | grep -v "echo") # get the $?
+    local status_string=$(grep "CommandStatus=" "${data_file}" | grep -v "echo") # get the $?
     if [[ "${status_string}" != "EZ-BASHCommandStatus=0EZ-BASHCommandStatus"* ]]; then
         if [[ "${status}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
-            ez_print_log -l ERROR -m "Remote Command Failed, Please check \"${log_file}\" for details"
+            ez_log_error "Remote Command Failed, Please check \"${data_file}\" for details"
         fi
         return 1
     fi
     if [[ "${status}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
-        ez_print_log -l INFO -m "Remote Command Succeeded!"
+        ez_log_info "Remote Command Succeeded!"
     fi
 }
 
