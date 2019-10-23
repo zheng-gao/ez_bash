@@ -52,11 +52,14 @@ source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"
 ```
 ```
 function bar() {
-    ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-    ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-    ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-    ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-    ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
+    if ! ez_function_exist; then
+        ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
+        ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
+        ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
+        ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
+        ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
+        return 1
+    fi
     ez_ask_for_help "${@}" && ez_function_help && return
     local arg_1; arg_1="$(ez_get_argument --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local arg_2; arg_2="$(ez_get_argument --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
