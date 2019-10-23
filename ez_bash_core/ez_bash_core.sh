@@ -6,6 +6,7 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
+export EZ_BASH_WORKSPACE="/var/tmp/ez_bash_workspace"; mkdir -p "${EZ_BASH_WORKSPACE}"
 export EZ_BASH_LOG_LOGO="EZ-BASH"
 export EZ_BASH_TAB_SIZE="30"
 export EZ_BASH_BOOL_TRUE="True"

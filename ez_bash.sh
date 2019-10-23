@@ -1,41 +1,6 @@
 ###################################################################################################
-# ---------------------------------------- Release Info  ---------------------------------------- #
-###################################################################################################
-EZ_BASH_RELEASE_VERSION="0.0.2"
-EZ_BASH_REQUIRED_BASH_VERSION="5.*"
-
-function ez_bash_print_copy_right() {
-    echo "[EZ-BASH] Copyright: Zheng Gao, 2018-05-18" 
-}
-
-function ez_bash_print_release_version() {
-    echo "[EZ-BASH] Release Version: ${EZ_BASH_RELEASE_VERSION}" 
-}
-
-function ez_bash_print_requirements() {
-    echo "[EZ-BASH] Require Bash Version: ${EZ_BASH_REQUIRED_BASH_VERSION}"
-    echo "[EZ-BASH] Require Evironment Variables: EZ_BASH_HOME"
-}
-
-function ez_bash_print_info() {
-    ez_bash_print_copy_right
-    ez_bash_print_release_version
-    ez_bash_print_requirements
-}
-
-###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-
-function main() {
-    if [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then
-        ez_bash_print_release_version
-    elif [[ "${1}" = "-r" ]] || [[ "${1}" = "--requirements" ]]; then
-        ez_bash_print_requirements
-    elif [[ "${1}" = "-i" ]] || [[ "${1}" = "--info" ]]; then
-        ez_bash_print_info
-    fi
-}
 
 if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     # To source this script, "${0}" is "-bash" or "-sh"
@@ -57,7 +22,14 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         done
     fi
 else
+    # To run this script
     if [[ "$(basename ${0})" = "ez_bash.sh" ]]; then
-        main "${@}"
+        if [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then
+            echo "EZ-Bash v0.0.3"
+        elif [[ "${1}" = "-r" ]] || [[ "${1}" = "--requirements" ]]; then
+            echo "Bash 5.*"
+        elif [[ "${1}" = "-i" ]] || [[ "${1}" = "--info" ]]; then
+            echo "EZ-Bash Copyright: Zheng Gao, 2018-05-18"
+        fi
     fi
 fi
