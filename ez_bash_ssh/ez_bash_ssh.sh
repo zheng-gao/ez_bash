@@ -10,7 +10,7 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no time out, if you give wrong "prompt", it will hang forever
 function ez_ssh_sudo_cmd() {
-    if [[ -z "${1}" ]] || [[ "${1}" = "--help" ]]; then
+    if [[ -z "${1}" ]] || [ "${1}" = "-h" -a "${2}" = "" ] || [[ "${1}" = "--help" ]]; then
         local usage_string=$(ez_build_usage -o "init" -a "ez_ssh_sudo_cmd" -d "Run sudo command remotely, will hang forever if given the wrong prompt")
         usage_string+=$(ez_build_usage -o "add" -a "-h|--host" -d "The host to run the command on")
         usage_string+=$(ez_build_usage -o "add" -a "-u|--user" -d "Switch to a user, default = root")
@@ -20,7 +20,7 @@ function ez_ssh_sudo_cmd() {
         usage_string+=$(ez_build_usage -o "add" -a "-s|--status" -d "Print Status")
         usage_string+=$(ez_build_usage -o "add" -a "-oc|--output-console" -d "Print output to console")
         usage_string+=$(ez_build_usage -o "add" -a "-of|--output-file" -d "Print output to file")
-        usage_string+=$(ez_build_usage -o "add" -a "--prompt" -d "The user's prompt, default = \"#${EZ_BASH_SPACE}\", for \"app\" user use \"\$${EZ_BASH_SPACE}\"")
+        usage_string+=$(ez_build_usage -o "add" -a "--prompt" -d "The user's prompt, default = \"#${EZ_BASH_SPACE}\", for \"app\" user use \"\\\$${EZ_BASH_SPACE}\"")
         ez_print_usage "${usage_string}"; return
     fi
     local data_file="${EZ_BASH_DATA}/${FUNCNAME[0]}.data"
@@ -49,7 +49,7 @@ function ez_ssh_sudo_cmd() {
     done
     if [[ -z "${host}" ]]; then ez_log_error "Invalid value \"${host}\" for -h|--host"; return 1; fi
     if [[ -z "${cmd}" ]]; then ez_log_error "Invalid value \"${cmd}\" for -c|--cmd"; return 1; fi
-    if [[ -z "${pwd}" ]]; then read -s -p "Password: " pwd; echo; fi
+    if [[ -z "${pwd}" ]]; then read -s -p "Sudo Password: " pwd; echo; fi
     if [[ "${user}" = "root" ]]; then user=""; fi
     if [[ $(ez_command_check -c "expect") = "${EZ_BASH_BOOL_FALSE}" ]]; then
         ez_log_error "Command \"expect\" Not Found!"; return 1
