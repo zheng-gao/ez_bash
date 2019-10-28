@@ -9,7 +9,7 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 
 function ez_file_get_lines() {
     if ! ez_function_exist; then
-	    ez_set_argument --short "-p" --long "--path" --required --info "Path to the file" &&
+        ez_set_argument --short "-p" --long "--path" --required --info "Path to the file" &&
         ez_set_argument --short "-f" --long "--from" --default "1" --info "From line" &&
         ez_set_argument --short "-t" --long "--to" --default "EOL" --required --info "To line" ||
         return 1
@@ -28,6 +28,6 @@ function ez_file_get_lines() {
             sed -n "${from},${to}p" "${path}"
         fi
     else
-    	ez_log_error "File \"${path}\" not exist"
+        ez_log_error "File \"${path}\" not exist"
     fi
 }
