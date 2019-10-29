@@ -15,9 +15,9 @@ function ez_file_get_lines() {
         return 1
     fi
     ez_ask_for_help "${@}" && ez_function_help && return
-    local path; path="$(ez_get_argument --short "-p" --long "--path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local from; from="$(ez_get_argument --short "-f" --long "--from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local to; to="$(ez_get_argument --short "-t" --long "--to" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local path="$(ez_get_argument --short "-p" --long "--path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local from="$(ez_get_argument --short "-f" --long "--from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local to="$(ez_get_argument --short "-t" --long "--to" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ -f "${path}" ]]; then
         [[ "${to}" = "EOL" ]] && to=$(cat "${path}" | wc -l | bc)
         [[ "${from}" -lt 0 ]] && from=$((to + from + 1))
