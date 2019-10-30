@@ -1,47 +1,26 @@
-#!/usr/bin/env bash
-###################################################################################################
-# -------------------------------------- Global Variables --------------------------------------- #
-###################################################################################################
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
-# -------------------------------------- Import Libraries --------------------------------------- #
-###################################################################################################
-
-###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-
 function ez_get_os_type() {
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        echo "macos"
-    elif [[ "$(uname -s)" == "Linux" ]]; then
-        echo "linux"
-    else
-        echo "unknow"
-    fi
+    local name="$(uname -s)"
+    if [[ "${name}" = "Darwin" ]]; then echo "macos"
+    elif [[ "${name}" = "Linux" ]]; then echo "linux"
+    else echo "Unknown"; fi
 }
 
-function ez_get_md5_cmd() {
+function ez_get_cmd_md5() {
     local os=$(ez_get_os_type)
-    if [[ "${os}" == "macos" ]]; then
-        if [[ $(ez_command_check -c "md5") == "${EZ_BASH_BOOL_FALSE}" ]]; then
-            ez_print_log -l ERROR -m "\"md5\" not found!"
-            ez_print_log -l INFO -m "Please run \"brew install md5\""
-        else
-            echo "md5 -q"
-        fi
-    elif [[ "${os}" == "linux" ]]; then
-        if [[ $(ez_command_check -c "md5sum") == "${EZ_BASH_BOOL_FALSE}" ]]; then
-            ez_print_log -l ERROR -m "\"md5sum\" not found!"
-            ez_print_log -l INFO -m "Please run \"yum install md5sum\""
-        else
-            echo "md5sum"
-        fi
+    if [[ "${os}" = "macos" ]]; then
+        if ! ez_check_cmd "md5"; then ez_log_error "Not found \"md5\", please run \"brew install md5\""
+        else echo "md5 -q"; fi
+    elif [[ "${os}" = "linux" ]]; then
+        if ! ez_check_cmd "md5sum"; then ez_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
+        else echo "md5sum"; fi
     fi
 }
 
