@@ -86,7 +86,7 @@ function ez_function_exist() {
 }
 
 function ez_ask_for_help() {
-    [ -z "${1}" ] && return
+    [ -z "${1}" ] && return # Print help info if no argument given
     if ! ez_contain "${EZ_BASH_FUNCTION_HELP_KEYWORD}" "${@}"; then return 1; fi
 }
 
