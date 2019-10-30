@@ -8,6 +8,10 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         echo "[EZ-BASH] EZ_BASH_HOME is not set!"
         return 1
     else
+        if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_variables.sh"; then
+            echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_variables.sh"
+            return 2
+        fi
         if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then
             echo "[EZ-BASH][ERROR] Failed to source ${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
             return 2

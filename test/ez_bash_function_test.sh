@@ -3,6 +3,7 @@
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 
+if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_variables.sh"; then exit 1; fi
 if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"; then exit 1; fi
 if ! source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"; then exit 1; fi
 
