@@ -1,17 +1,15 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
-# -------------------------------------- Import Libraries --------------------------------------- #
-###################################################################################################
-
-###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ez_string_length() {
+    local input_string="${1}"
+    echo "${#input_string}"
+}
 
 function ez_trim_string() {
     local valid_keys=("left" "right" "both" "any")
@@ -61,21 +59,6 @@ function ez_trim_string() {
             echo "${input_string}" | sed "s/^\(${pattern}\)\{1,${count}\}//" | sed "s/\(${pattern}\)\{1,${count}\}$//"
         fi
     fi
-}
-
-function ez_string_length() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_string_length" -d "Print Number of Characters")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--string" -d "The input string")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local input_string=""
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-s" | "--string") shift; input_string=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    echo "${#input_string}"
 }
 
 function ez_string_check() {

@@ -6,6 +6,15 @@ if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is no
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ez_now() {
+    date "+%Y-%m-%d %H:%M:%S"
+}
+
+function ez_clock() {
+    ez_now; sleep 1;
+    while true; do ez_clear -l 1; ez_now; sleep 1; done
+}
+
 function ez_get_cmd_timeout() {
     local os=$(ez_get_os_type)
     if [[ "${os}" = "macos" ]]; then
@@ -14,23 +23,6 @@ function ez_get_cmd_timeout() {
     elif [[ "${os}" = "linux" ]]; then
         echo "timeout" # Should be installed by default
     fi
-}
-
-function ez_get_timestamp_now() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_get_timestamp_now" -d "Print Timestamp for Now")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--format" -d "Timestamp Format")
-    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local format="+%Y-%m-%d %H:%M:%S"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-f" | "--format") shift; format=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    date "${format}"
 }
 
 function ez_get_timestamp_from_epoch_seconds() {

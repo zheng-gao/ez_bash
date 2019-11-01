@@ -1,30 +1,22 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 
-
-###################################################################################################
-# -------------------------------------- Global Variables --------------------------------------- #
-###################################################################################################
-
-
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_clean() {
-    ez_set_argument --short "-l" --long "--lines" --required --default 1 --info "Number of lines to clean" || return 1
-    [[ ! -z "${@}" ]] && ez_ask_for_help "${@}" && ez_function_help && return
+function ez_clear() {
+    if ! ez_function_exist; then
+        ez_set_argument --short "-l" --long "--lines" --required --info "Lines to clean, non-positve clear console" ||
+        return 1
+    fi
+    ez_ask_for_help "${@}" && ez_function_help && return
     local lines; lines="$(ez_get_argument --short "-l" --long "--lines" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     if [[ "${lines}" -gt 0 ]]; then
         local i=0; for ((; i < "${lines}"; ++i)); do tput cuu1 && tput el; done # cursor up one line and clean
-    elif [[ "${lines}" -eq 0 ]]; then
-        return
     else
-        ez_print_log -l "ERROR" -m "Invalid value \"${lines}\" for \"-l|--lines\""
-        return 1
+        clear
     fi
 }
 
@@ -62,13 +54,13 @@ function ez_sleep() {
         if [[ "${seconds_left}" -ge "${interval}" ]]; then
             ((wait_seconds += "${interval}"))
             sleep "${interval}"
-            ez_clean_oneline
+            ez_clear -l 1
             wait_seconds_string=$(ez_get_readable_time_from_seconds -s "${wait_seconds}" -f "Mini")
             ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         else
             wait_seconds="${timeout_in_seconds}"
             sleep "${seconds_left}"
-            ez_clean_oneline
+            ez_clear -l 1
             wait_seconds_string=$(ez_get_readable_time_from_seconds -s "${wait_seconds}" -f "Mini")
             ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         fi
