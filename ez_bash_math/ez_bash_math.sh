@@ -12,5 +12,6 @@ export EZ_BASH_MATH_SCALE=6
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez_math() {
+	# bc scale does not work for mode %
     bc <<< "scale=${EZ_BASH_MATH_SCALE}; ${@}"
 }

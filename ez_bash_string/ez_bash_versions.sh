@@ -1,24 +1,20 @@
-#!/usr/bin/env bash
-
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${EZ_BASH_HOME}" == "" ]]; then echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!"; exit 1; fi
 
 ###################################################################################################
-# -------------------------------------- Import Libraries --------------------------------------- #
-###################################################################################################
-
-###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-
 function ez_compare_version() {
-    ez_set_argument --short "-o" --long "--operation" --choices "GreaterThan" "GreaterThanOrEqualTo" "EqualTo" "LessThanOrEqualTo" "LessThan" --required &&
-    ez_set_argument --short "-d" --long "--delimiter" --default "." --required --info "Version Item Delimiter" &&
-    ez_set_argument --short "-l" --long "--left-version" --required --info "The Left Version" &&
-    ez_set_argument --short "-r" --long "--right-version" --required --info "The Right Version" &&
-    ez_set_argument --short "-c" --long "--check-length" --type "Flag" --info "Do Not Compare Versions with Different Lengths" || return 1
+    if ! ez_function_exist; then
+        ez_set_argument --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required --info "Must quote operation \">\" and \">=\"" &&
+        ez_set_argument --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
+        ez_set_argument --short "-l" --long "--left-version" --required --info "The version on left side" &&
+        ez_set_argument --short "-r" --long "--right-version" --required --info "The version on right side" &&
+        ez_set_argument --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" ||
+        return 1
+    fi
     ez_ask_for_help "${@}" && ez_function_help && return
     local operation; operation="$(ez_get_argument --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local delimiter; delimiter="$(ez_get_argument --short "-d" --long "--delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -34,14 +30,14 @@ function ez_compare_version() {
         ((state = ${left_version_list[${i}]} - ${right_version_list[${i}]})); [[ "${state}" -ne 0 ]] && break; ((++i))
     done
     if [[ "${state}" -lt 0 ]]; then
-        if [[ "${operation}" =~ "LessThan" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "<" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
     elif [[ "${state}" -gt 0 ]]; then
-        if [[ "${operation}" =~ "GreaterThan" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ ">" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
     elif [[ "${left_length}" -lt "${right_length}" ]]; then
-        if [[ "${operation}" =~ "LessThan" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "<" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
     elif [[ "${left_length}" -gt "${right_length}" ]]; then
-        if [[ "${operation}" =~ "GreaterThan" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ ">" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
     else
-        if [[ "${operation}" =~ "EqualTo" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "=" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
     fi
 }
