@@ -12,9 +12,15 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         echo "Cannot source ${EZ_BASH_HOME}/ezb_core/ezb_core_utils.sh" && return 2
     fi
     if ! ez_source "${EZ_BASH_HOME}/ezb_core/ezb_func_defs.sh"; then return 2; fi
-    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_files"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_os"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_file"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_time"; then return 2; fi
     # [To Do] List each directory and source them explicitly as the above lines
-    for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/ez_bash_*/ | grep -v "ezb_core" | grep -v "ezb_files"); do
+    for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/ez_bash_*/ |
+        grep -v "ezb_core" |
+        grep -v "ezb_os" |
+        grep -v "ezb_file" |
+        grep -v "ezb_time"); do
         # exclude "_test.sh" file
         ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
      done
