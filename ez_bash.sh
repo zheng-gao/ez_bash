@@ -5,25 +5,21 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     # To source this script, "${0}" is "-bash" or "-sh"
     [[ -z "${EZ_BASH_HOME}" ]] && echo "\"\${EZ_BASH_HOME}\" is not set!" && return 1
     [[ ! -d "${EZ_BASH_HOME}" ]] && echo "\"${EZ_BASH_HOME}\" is an invalid directory!" && return 1
-    if ! source "${EZ_BASH_HOME}/ezb_core/ezb_export_vars.sh"; then
-        echo "Cannot source ${EZ_BASH_HOME}/ezb_core/ezb_export_vars.sh" && return 2
-    fi
-    if ! source "${EZ_BASH_HOME}/ezb_core/ezb_core_utils.sh"; then
-        echo "Cannot source ${EZ_BASH_HOME}/ezb_core/ezb_core_utils.sh" && return 2
-    fi
-    if ! ez_source "${EZ_BASH_HOME}/ezb_core/ezb_func_defs.sh"; then return 2; fi
+    if ! source "${EZ_BASH_HOME}/ezb/ezb_core.sh"; then echo "Cannot source ${EZ_BASH_HOME}/ezb/ezb_core.sh" && return 2; fi
+    if ! ez_source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then return 2; fi
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_os"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_container"; then return 2; fi
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_file"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_logging"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_math"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_ssh"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_string"; then return 2; fi
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_time"; then return 2; fi
-    # [To Do] List each directory and source them explicitly as the above lines
-    for EZ_BASH_LIBRARY_DIR in $(ls -1d ${EZ_BASH_HOME}/ez_bash_*/ |
-        grep -v "ezb_core" |
-        grep -v "ezb_os" |
-        grep -v "ezb_file" |
-        grep -v "ezb_time"); do
-        # exclude "_test.sh" file
-        ez_source_directory --path "${EZ_BASH_LIBRARY_DIR}" --exclude "_test.sh"
-     done
+    # External Lib
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_git"; then return 2; fi
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_python"; then return 2; fi
+    # Legacy
+    if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_legacy"; then return 2; fi
 else
     # To run this script
     if [[ "$(basename ${0})" = "ez_bash.sh" ]]; then

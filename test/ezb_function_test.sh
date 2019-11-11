@@ -3,9 +3,8 @@
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 
-if ! source "${EZ_BASH_HOME}/ezb_core/ezb_export_vars.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ezb_core/ezb_core_utils.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ezb_core/ezb_func_defs.sh"; then exit 1; fi
+if ! source "${EZ_BASH_HOME}/ezb/ezb_core.sh"; then exit 1; fi
+if ! source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then exit 1; fi
 
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
