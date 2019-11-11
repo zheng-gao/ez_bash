@@ -5,8 +5,11 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     # To source this script, "${0}" is "-bash" or "-sh"
     [[ -z "${EZ_BASH_HOME}" ]] && echo "\"\${EZ_BASH_HOME}\" is not set!" && return 1
     [[ ! -d "${EZ_BASH_HOME}" ]] && echo "\"${EZ_BASH_HOME}\" is an invalid directory!" && return 1
+    # Source Core
     if ! source "${EZ_BASH_HOME}/ezb/ezb_core.sh"; then echo "Cannot source ${EZ_BASH_HOME}/ezb/ezb_core.sh" && return 2; fi
+    # Source Function
     if ! ez_source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then return 2; fi
+    # Source Other Libs
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_os"; then return 2; fi
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_container"; then return 2; fi
     if ! ez_source_directory --path "${EZ_BASH_HOME}/ezb_file"; then return 2; fi

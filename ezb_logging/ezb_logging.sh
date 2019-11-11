@@ -1,5 +1,5 @@
 function ez_get_default_log_file() {
-    echo "/var/tmp/ez_bash.log"
+    echo "${EZ_BASH_LOGS}/ez_bash.log"
 }
 
 function ez_print_log() {
