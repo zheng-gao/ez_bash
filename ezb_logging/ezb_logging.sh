@@ -58,30 +58,6 @@ function ez_print_log_to_file() {
     ez_print_log -l "${logger}" -m "${message[*]}" >> "${log_file}"
 }
 
-function ez_repeat_string() {
-    if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
-        local usage_string=$(ez_build_usage -o "init" -a "ez_repeat_string" -d "Copy and concatenate the substring several times")
-        usage_string+=$(ez_build_usage -o "add" -a "-s|--substring" -d "Substring to be repeated, default \"=\"")
-        usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default \"80\"")
-        ez_print_usage "${usage_string}"; return 1
-    fi
-    local count=80
-    local substring="="
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-s" | "--substring") shift; substring=${1-} ;;
-            "-c" | "--count") shift; count=${1-} ;;
-            *)  ez_print_log -l "ERROR" -m "Unknown argument indentifier \"${1}\""
-                ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if [[ "${count}" == "" ]] || [[ "${count}" < 0 ]]; then ez_print_log -l ERROR -m "Invalid Count \"${count}\""; return 1; fi
-    local line=""
-    for ((index=0; $index < ${count}; ++index)); do line+="${substring}"; done
-    echo "$line"
-}
-
 function ez_print_banner() {
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
         local usage_string=$(ez_build_usage -o "init" -a "ez_print_banner" -d "Print \"EZ-BASH\" standard banner")
@@ -112,7 +88,7 @@ function ez_print_banner() {
                 ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
         esac
     done
-    local spliter=$(ez_repeat_string --substring "${substring}" --count ${count})
+    local spliter=$(ez_string_repeat --substring "${substring}" --count ${count})
     if [[ "${prefix}" == "${EZ_BASH_BOOL_TRUE}" ]]; then
         ez_print_log -l INFO -m "${spliter}"
         ez_print_log -l INFO -m "${message[@]}"

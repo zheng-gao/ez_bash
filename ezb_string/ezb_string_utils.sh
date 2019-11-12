@@ -3,6 +3,23 @@ function ez_string_length() {
     echo "${#input_string}"
 }
 
+function ez_string_repeat() {
+    if ! ez_function_exist; then
+        ez_set_argument --short "-s" --long "--substring" --required --default "=" --info "Substring to be repeated" &&
+        ez_set_argument --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
+    fi
+    ez_ask_for_help "${@}" && ez_function_help && return
+    local substring="$(ez_get_argument --short "-s" --long "--substring" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local count="$(ez_get_argument --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    if [[ "${count}" -ge 0 ]]; then
+        local line=""; local index=0
+        for ((; "${index}" < "${count}"; ++index)); do line+="${substring}"; done
+        echo "${line}"
+    else
+        ez_log_error "Invalid Count \"${count}\"" && return 1
+    fi
+}
+
 function ez_trim_string() {
     local valid_keys=("left" "right" "both" "any")
     local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
