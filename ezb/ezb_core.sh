@@ -72,10 +72,11 @@ function ez_print_usage() {
 
 function ez_build_usage() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage="\n[Function Name]\t\"ez_build_usage\"\n[Function Info]\tEZ-BASH usage builder\n"
-        usage+="-o|--operation\tValid operations [\"add\", \"init\"]\n"
-        usage+="-a|--argument\tArgument Name\n"
-        usage+="-d|--description\tArgument Description\n"
+        # column delimiter = "#"
+        local usage="[Function Name]#ez_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
+        usage+="-o|--operation#Choose from: [\"add\", \"init\"]\n"
+        usage+="-a|--argument#Argument Name\n"
+        usage+="-d|--description#Argument Description\n"
         ez_print_usage "${usage}"
         return
     fi
