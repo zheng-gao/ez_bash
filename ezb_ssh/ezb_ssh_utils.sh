@@ -10,7 +10,7 @@ function ez_ssh_sudo_cmd() {
         ez_set_argument --short "-s" --long "--status" --type "Flag" --info "Print status" &&
         ez_set_argument --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
         ez_set_argument --short "-o" --long "--output" --info "File path for output" &&
-        ez_set_argument --short "-P" --long "--prompt" --required --default "${EZ_BASH_SHARP}-${EZ_BASH_SPACE}" --info "Use \"\\\$${EZ_BASH_SPACE}\" for \"app\" user" ||
+        ez_set_argument --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
     ez_ask_for_help "${@}" && ez_function_help && return
@@ -23,12 +23,12 @@ function ez_ssh_sudo_cmd() {
     local console="$(ez_get_argument --short "-C" --long "--console" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local output="$(ez_get_argument --short "-o" --long "--output" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local prompt="$(ez_get_argument --short "-P" --long "--prompt" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local data_file="${EZ_BASH_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
+    local data_file="${EZB_DIR_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
     [[ "${user}" = "root" ]] && user=""; [[ "${user}" = "${USER}" ]] && user="-"
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
-    prompt=$(sed "s/${EZ_BASH_SPACE}/ /g" <<< "${prompt}")
-    prompt=$(sed "s/${EZ_BASH_SHARP}-/#/g" <<< "${prompt}")
-    if ! ez_check_cmd "expect"; then ez_log_error "Command \"expect\" Not Found!"; return 1; fi
+    prompt=$(sed "s/${EZB_CHAR_SPACE}/ /g" <<< "${prompt}")
+    prompt=$(sed "s/${EZB_CHAR_SHARP}-/#/g" <<< "${prompt}")
+    if ! ezb_check_cmd "expect"; then ez_log_error "Command \"expect\" Not Found!"; return 1; fi
     local start_banner="EZ-BASH-Command-Start"; local status_banner="EZ-BASH-Command-Status"
     {
         expect << EOF
@@ -68,7 +68,7 @@ function ez_mssh_sudo_cmd() {
         ez_set_argument --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
         ez_set_argument --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
         ez_set_argument --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
-        ez_set_argument --short "-P" --long "--prompt" --required --default "${EZ_BASH_SHARP}-${EZ_BASH_SPACE}" --info "Use \"\\\$${EZ_BASH_SPACE}\" for \"app\" user" ||
+        ez_set_argument --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
     ez_ask_for_help "${@}" && ez_function_help && return
@@ -81,13 +81,13 @@ function ez_mssh_sudo_cmd() {
     local print_failure="$(ez_get_argument --short "-f" --long "--failure" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local prompt="$(ez_get_argument --short "-P" --long "--prompt" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
-    local cmd_md5=$(ez_get_cmd_md5)
+    local cmd_md5=$(ezb_cmd_md5)
     declare -A results
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
     local failure_count=0; results["Failure"]=""
     local output=""; local md5_string=""
-    local data_dir="${EZ_BASH_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
+    local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
     for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         ez_ssh_sudo_cmd --host "${host}" --user "${user}" --command "${command}" --password "${password}" \
@@ -147,9 +147,9 @@ function ez_mssh_cmd() {
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
     local failure_count=0; results["Failure"]=""
-    local cmd_timeout=$(ez_get_cmd_timeout); local cmd_md5=$(ez_get_cmd_md5)
+    local cmd_timeout=$(ez_get_cmd_timeout); local cmd_md5=$(ezb_cmd_md5)
     local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
-    local data_dir="${EZ_BASH_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
+    local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
     for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         if [[ -z "${user}" ]] || [[ "${user}" = "${USER}" ]]; then destination="${host}"; else destination="${user}@${host}"; fi

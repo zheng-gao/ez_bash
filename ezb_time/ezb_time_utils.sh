@@ -8,9 +8,9 @@ function ez_clock() {
 }
 
 function ez_get_cmd_timeout() {
-    local os=$(ez_get_os_type)
+    local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
-        if ! ez_check_cmd "gtimeout"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
+        if ! ezb_check_cmd "gtimeout"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
         else echo "gtimeout"; fi
     elif [[ "${os}" = "linux" ]]; then
         echo "timeout" # Should be installed by default
@@ -34,7 +34,7 @@ function ez_get_timestamp_from_epoch_seconds() {
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    local os=$(ez_get_os_type)
+    local os=$(ezb_os_name)
     if [[ "${os}" == "macos" ]]; then
         date -r "${epoch_second}" "${format}"
     elif [[ "${os}" == "linux" ]]; then
@@ -63,7 +63,7 @@ function ez_get_epoch_seconds_from_timestamp() {
     elif [[ "${date}" == "" ]]; then ez_print_log -l ERROR -m "Date cannot be empty if Time is given"; ez_print_usage "${usage_string}"; return 1
     elif [[ "${time}" == "" ]]; then ez_print_log -l ERROR -m "Time cannot be empty if Date is given"; ez_print_usage "${usage_string}"; return 1
     else
-        local os=$(ez_get_os_type)
+        local os=$(ezb_os_name)
         if [[ "${os}" == "macos" ]]; then
             date -j -f "%Y-%m-%d %H:%M:%S" "${date} ${time}" "+%s"
         elif [[ "${os}" == "linux" ]]; then

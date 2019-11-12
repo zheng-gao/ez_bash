@@ -1,25 +1,27 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-export EZ_BASH_LOG_LOGO="EZ-BASH"
-export EZ_BASH_TAB_SIZE="30"
+export EZB_LOGO="EZ-BASH"
+
 export EZ_BASH_BOOL_TRUE="True"
 export EZ_BASH_BOOL_FALSE="False"
-export EZ_BASH_SHARP="SHARP"
-export EZ_BASH_SPACE="SPACE"
+
 export EZ_BASH_ALL="ALL"
 export EZ_BASH_NONE="NONE"
 
-export EZ_BASH_WORKSPACE="/var/tmp/ez_bash_workspace"; mkdir -p "${EZ_BASH_WORKSPACE}"
-export EZ_BASH_LOGS="${EZ_BASH_WORKSPACE}/logs"; mkdir -p "${EZ_BASH_LOGS}"
-export EZ_BASH_DATA="${EZ_BASH_WORKSPACE}/data"; mkdir -p "${EZ_BASH_DATA}"
+export EZB_CHAR_SHARP="_SHARP_"
+export EZB_CHAR_SPACE="_SPACE_"
+
+export EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
+export EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
+export EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ez_check_cmd() {
-    if ! which "${1}" &> "${EZ_BASH_LOGS}/null"; then return 1; else return 0; fi
+function ezb_check_cmd() {
+    if ! which "${1}" &> "${EZB_DIR_LOGS}/null"; then return 1; else return 0; fi
 }
 
 function ez_contain() {
@@ -40,7 +42,7 @@ function ez_join() {
 
 function ez_log_stack() {
     local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
-    if [ -n "${ignore_top_x}" ]; then
+    if [[ -n "${ignore_top_x}" ]]; then
         for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     else
         # i > 0 to ignore self "ez_log_stack"
@@ -50,19 +52,22 @@ function ez_log_stack() {
 }
 
 function ez_log_error() {
-    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
+    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
 }
 
 function ez_log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[INFO] ${@}"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[INFO] ${@}"
 }
 
 function ez_log_warning() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZ_BASH_LOG_LOGO}]$(ez_log_stack 1)[WARNING] ${@}"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[WARNING] ${@}"
 }
 
 function ez_print_usage() {
-    tabs "${EZ_BASH_TAB_SIZE}" && (>&2 printf "${1}\n") && tabs
+    # local tab_size=30
+    # tabs "${tab_size}" && (>&2 printf "${1}\n") && tabs
+    # column delimiter = "#"
+    echo; printf "${1}\n" | column -s "#" -t; echo
 }
 
 function ez_build_usage() {
@@ -83,12 +88,14 @@ function ez_build_usage() {
             *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
+    # column delimiter = "#"
     case "${operation}" in
         "init")
-            [ -z "${argument}" ] && argument="${FUNCNAME[1]}"
-            echo "\n[Function Name]\t\"${argument}\"\n[Function Info]\t${description}\n" ;;
+            [[ -z "${argument}" ]] && argument="${FUNCNAME[1]}"
+            echo "[Function Name]#${argument}"
+            echo "[Function Info]#${description}\n" ;;
         "add")
-            echo "${argument}\t${description}\n" ;;
+            echo "${argument}#${description}\n" ;;
         *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
     esac
 }
@@ -122,11 +129,11 @@ function ez_source_directory() {
     [ ! -d "${path}" ] && ez_log_error "\"${path}\" is not a directory" && return 2
     [ ! -r "${path}" ] && ez_log_error "Cannot read directory \"${dir_path}\"" && return 3
     if [ "${exclude}" = "" ]; then
-        for sh_file_path in $(find "${path}" -type f -name '*.sh'); do
+        for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
             if ! ez_source "${sh_file_path}"; then return 4; fi
         done
     else
-        for sh_file_path in $(find "${path}" -type f -name '*.sh' | grep -v "${exclude}"); do
+        for sh_file_path in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
             if ! ez_source "${sh_file_path}"; then return 4; fi
         done
     fi

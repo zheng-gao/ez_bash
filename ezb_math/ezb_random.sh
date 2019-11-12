@@ -1,4 +1,4 @@
-function ez_random_int() {
+function ezb_random_int() {
     if ! ez_function_exist; then
         ez_set_argument --short "-l" --long "--lower-bound" --default 0 --info "Inclusive Lower Bound" &&
         ez_set_argument --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1

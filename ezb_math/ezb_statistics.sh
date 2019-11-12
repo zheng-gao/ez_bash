@@ -1,4 +1,4 @@
-function ez_min() {
+function ezb_min() {
     [[ "${#}" -eq 0 ]] && return
     local min=2147483647
     for data in "${@}"; do
@@ -7,7 +7,7 @@ function ez_min() {
     echo "${min}"
 }
 
-function ez_max() {
+function ezb_max() {
     [[ "${#}" -eq 0 ]] && return
     local max=-2147483647
     for data in "${@}"; do
@@ -16,27 +16,27 @@ function ez_max() {
     echo "${max}"
 }
 
-function ez_sum() {
+function ezb_sum() {
     [[ "${#}" -eq 0 ]] && return
     local sum=0
     for data in "${@}"; do
-        sum=$(ez_math "${sum} + ${data}")
+        sum=$(ezb_math "${sum} + ${data}")
     done
     echo "${sum}"
 }
 
-function ez_average() {
+function ezb_average() {
     [[ "${#}" -eq 0 ]] && return
-    ez_math "$(ez_sum ${@}) / ${#}"
+    ezb_math "$(ezb_sum ${@}) / ${#}"
 }
 
-function ez_variance() {
+function ezb_variance() {
     [[ "${#}" -eq 0 ]] && return
-    local average=$(ez_average ${@}); local variance=0
+    local average=$(ezb_average ${@}); local variance=0
     for data in "${@}"; do
-        variance=$(ez_math "${variance} + (${data} - ${average}) * (${data} - ${average})")
+        variance=$(ezb_math "${variance} + (${data} - ${average}) * (${data} - ${average})")
     done
-    ez_math "sqrt(${variance})"
+    ezb_math "sqrt(${variance})"
 }
 
 

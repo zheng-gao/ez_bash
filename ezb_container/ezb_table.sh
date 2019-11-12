@@ -44,9 +44,9 @@ function ez_print_table() {
             table="${table}$(printf "%s#+" $(ez_string_repeat --substring "#+" --count "${number_of_columns}"))"
         fi
     done
-    if [[ "$(ez_get_os_type)" == "macos" ]]; then
+    if [[ "$(ezb_os_name)" == "macos" ]]; then
         echo -e "${table}" | column -s "#" -t | awk '/^\+/{gsub(" ", "-", $0)}1'
-    elif [[ "$(ez_get_os_type)" == "linux" ]]; then
+    elif [[ "$(ezb_os_name)" == "linux" ]]; then
         # linux print table with 2 spaces in front of each line
         echo -e "${table}" | column -s "#" -t | sed "s/^  //" | awk '/^\+/{gsub(" ", "-", $0)}1'
     fi    

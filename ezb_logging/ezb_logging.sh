@@ -1,5 +1,5 @@
 function ez_get_default_log_file() {
-    echo "${EZ_BASH_LOGS}/ez_bash.log"
+    echo "${EZB_DIR_LOGS}/ez_bash.log"
 }
 
 function ez_print_log() {
@@ -18,12 +18,12 @@ function ez_print_log() {
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
-               echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
+            *) echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
+               echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
                return 1 ;;
         esac
     done
-    echo "[${EZ_BASH_LOG_LOGO}][${time_stamp}]$(ez_log_stack 1)[${logger}] ${message[*]}"
+    echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack 1)[${logger}] ${message[*]}"
 }
 
 function ez_print_log_to_file() {
@@ -45,7 +45,7 @@ function ez_print_log_to_file() {
                     if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZ_BASH_LOG_LOGO}][ERROR] Unknown argument indentifier \"${1}\""
+            *) echo "[${EZB_LOGO}][ERROR] Unknown argument indentifier \"${1}\""
                ez_print_usage "${usage_string}"; return 1; ;;
         esac
     done
