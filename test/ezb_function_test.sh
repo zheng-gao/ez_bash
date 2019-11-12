@@ -17,7 +17,7 @@ function ez_test_get_list() {
     ((last_index=length-1))
     for ((k=0; k < "${length}"; ++k)); do
         local char="${input:k:1}"
-        if [ "${char}" = "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" ]; then
+        if [ "${char}" = "${EZB_NON_SPACE_LIST_DELIMITER}" ]; then
             [ -n "${item}" ] && echo "${item}"
             item=""
         else
@@ -45,7 +45,7 @@ function ez_test_core_function_1() {
     echo "Name = ${name}"
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
-    echo "Pets = "; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
+    echo "Pets = "; tr "${EZB_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
     echo "Pets = "; ez_test_get_list "${pets}"
 }
 
@@ -83,7 +83,7 @@ function ez_test_core_function_2() {
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${arg_l}"
+    echo "Argument List:"; tr "${EZB_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${arg_l}"
     echo "Dry Run   : ${dry_run}"
 }
 
@@ -105,21 +105,4 @@ ez_test_core_function_2 -a1 "First Arg" -a3 "Arg 3"; echo
 echo "[Test 6]"
 ez_test_core_function_2 -a1 "First Arg" --dry-run -a3 "3rd Arg"; echo
 
-
-# function ez_test_core_function_3() {
-#     if ! ez_function_exist; then
-#         ez_set_argument --short "-c" --long "--choose-from" --choices "Choice 1" "Choice 2" --info "Test Choice" &&
-#         ez_set_argument --short "-l" --long "--list-items" --type "List" --default "Item 1" "Item 2" --info "Test List & Default" || return 1
-#     fi
-#     ez_ask_for_help "${@}" && ez_function_help && return
-#     local choose_from="$(ez_get_argument --short "-c" --long "--choose-from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-#     local list_items="$(ez_get_argument --short "-l" --long "--list-items" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-#     echo "List:"; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${list_items}"
-#     echo "Choice: ${choose_from}"
-# }
-# 
-# ez_test_core_function_3 --help
-# 
-# echo "${!EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[@]}"
-# echo "${EZ_BASH_FUNCTION_ARGUMENT_SHORT_NAME_TO_DEFAULT_MAP[@]}"
 

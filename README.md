@@ -69,7 +69,7 @@ function bar() {
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; tr "${EZ_BASH_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${arg_l}"
+    echo "Argument List:"; tr "${EZB_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${arg_l}"
     echo "Dry Run   : ${dry_run}"
 }
 ```
