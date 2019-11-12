@@ -47,7 +47,7 @@ function ez_git_file_stats() {
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    if [[ $(ez_command_check -c "git") == "${EZ_BASH_BOOL_FALSE}" ]]; then ez_print_log -l ERROR -m "Command \"git\" Not Found"; return 1; fi
+    if ! ez_check_cmd "git"; then ez_log_error "Command \"git\" Not Found"; return 1; fi
     if ! ez_argument_check -n "-o|--operation" -v "${operation}" -c "${valid_operation[@]}" -o "${usage_string}"; then return 1; fi
     if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
     if [ ! -e "${repo_path}" ]; then ez_print_log -l ERROR -m "\"${repo_path}\" Not Found!"; return 1; fi

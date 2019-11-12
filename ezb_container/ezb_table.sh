@@ -1,47 +1,31 @@
 function ez_print_table() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_print_table" -d "Read data from a file and print the table, 1st row is the banner")
-    usage_string+=$(ez_build_usage -o "add" -a "-cd|--col-delimiter" -d "Column Delimiter, default = \",\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-rd|--row-delimiter" -d "Row Delimiter, default = \";\" for --data, \"\\\\n\" for --file")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--file" -d "The input file path")
-    usage_string+=$(ez_build_usage -o "add" -a "-d|--data" -d "The input data if file is not provided")
-    if [[ ${1} == "" ]] || [[ ${1} == "-h" ]] || [[ ${1} == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local col_delimiter=","
-    local row_delimiter=""
-    local file=""
-    local data=""
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-cd" | "--col-delimiter") shift; col_delimiter=${1-} ;;
-            "-rd" | "--row-delimiter") shift; row_delimiter=${1-} ;;
-            "-f" | "--file") shift; file=${1-} ;;
-            "-d" | "--data") shift; data=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    local rows=()
-    local number_of_rows=0
-    local table=""
-    if ! ez_nonempty_check -n "-cd|--col-delimiter" -v "${col_delimiter}" -o "${usage_string}"; then return 1; fi
-    if ez_nonempty_check -s -v "${file}"; then
-        if ez_nonempty_check -s -v "${data}"; then
-            ez_print_log -l ERROR -m "Please use single source of truth --file or --data, do not provide both"
-            ez_print_usage "${usage_string}"; return 1
-        fi
-        if [ ! -f "${file}" ]; then ez_print_log -l ERROR -m "File \"${file}\" not found"; return 1; fi
+    if ! ez_function_exist; then
+        ez_set_argument --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
+        ez_set_argument --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
+        ez_set_argument --short "-d" --long "--data" --info "The input data if file is not provided" && 
+        ez_set_argument --short "-f" --long "--file" --info "The input file path" ||
+        return 1
+    fi
+    ez_ask_for_help "${@}" && ez_function_help && return
+    local col_delimiter="$(ez_get_argument --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local row_delimiter="$(ez_get_argument --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local file="$(ez_get_argument --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local data="$(ez_get_argument --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local rows=(); local number_of_rows=0; local table=""
+    if [[ -n "${file}" ]]; then
+        [[ -n "${data}" ]] && ez_log_error "Please use single source of truth --file or --data, do not provide both" && return 1
+        [[ ! -f "${file}" ]] && ez_log_error "File \"${file}\" not found" && return 1
         local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
-        if ! ez_nonempty_check -n "${file}" -v "${file_content}"; then return 1; fi
-        if ! ez_nonempty_check -s -v "${row_delimiter}"; then
-            for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
+        [[ -z "${file_content}" ]] && return 1
+        if [[ -n "${row_delimiter}" ]]; then
+            local line=""; for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
         else
             number_of_rows=$(awk -F "${row_delimiter}" "{print NF}" <<< "${file_content}")
             IFS="${row_delimiter}" read -ra rows <<< "${file_content}"
         fi
     else
-        if ! ez_nonempty_check -n "-d|--data" -v "${data}"; then return 1; fi
-        if ! ez_nonempty_check -s -v "${row_delimiter}"; then row_delimiter=";"; fi
+        [[ -z "${data}" ]] && return 1
+        [[ -z "${row_delimiter}" ]] && row_delimiter=";"
         number_of_rows=$(awk -F "${row_delimiter}" "{print NF}" <<< "${data}")
         IFS="${row_delimiter}" read -ra rows <<< "${data}"
     fi
