@@ -70,13 +70,11 @@ ezb_function_unset_accociative_arrays
 function ez_function_exist() {
     # Should only be called by another function. If not, give the function name in 1st argument
     if [[ -z "${1}" ]]; then
-        if [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] || [[ "${EZB_FUNC_SET[${FUNCNAME[1]}]}" != "${EZ_BASH_BOOL_TRUE}" ]]; then
-            return 1
-        fi
+        [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 1
+        [[ "${EZB_FUNC_SET[${FUNCNAME[1]}]}" != "${EZ_BASH_BOOL_TRUE}" ]] && return 1
     else
-        if [[ -z "${EZB_FUNC_SET[${1}]}" ]] || [[ "${EZB_FUNC_SET[${1}]}" != "${EZ_BASH_BOOL_TRUE}" ]]; then
-            return 1
-        fi
+        [[ -z "${EZB_FUNC_SET[${1}]}" ]] && return 1
+        [[ "${EZB_FUNC_SET[${1}]}" != "${EZ_BASH_BOOL_TRUE}" ]] && return 1
     fi
 }
 
