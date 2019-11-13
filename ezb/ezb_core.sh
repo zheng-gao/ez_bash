@@ -101,7 +101,7 @@ function ez_build_usage() {
     esac
 }
 
-function ez_source() {
+function ezb_source() {
     [ -z "${1}" ] && ez_log_error "Empty file path" && return 1
     local file_path="${1}"
     [ ! -f "${file_path}" ] && ez_log_error "Invalid file path \"${file_path}\"" && return 2
@@ -109,9 +109,9 @@ function ez_source() {
     if ! source "${file_path}"; then ez_log_error "Failed to source \"${file_path}\"" && return 4; fi
 }
 
-function ez_source_directory() {
+function ezb_source_dir() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage=$(ez_build_usage -o "init" -d "Source Directory")
+        local usage=$(ez_build_usage -o "init" -d "Source whole directory")
         usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
         usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
         ez_print_usage "${usage}"
@@ -131,11 +131,11 @@ function ez_source_directory() {
     [ ! -r "${path}" ] && ez_log_error "Cannot read directory \"${dir_path}\"" && return 3
     if [ "${exclude}" = "" ]; then
         for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
-            if ! ez_source "${sh_file_path}"; then return 4; fi
+            if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
     else
         for sh_file_path in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
-            if ! ez_source "${sh_file_path}"; then return 4; fi
+            if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
     fi
 }
