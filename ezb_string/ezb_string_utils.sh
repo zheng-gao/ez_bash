@@ -16,7 +16,7 @@ function ez_string_repeat() {
         for ((; "${index}" < "${count}"; ++index)); do line+="${substring}"; done
         echo "${line}"
     else
-        ez_log_error "Invalid Count \"${count}\"" && return 1
+        ezb_log_error "Invalid Count \"${count}\"" && return 1
     fi
 }
 
@@ -50,23 +50,23 @@ function ezb_trim_string() {
 function ez_string_check() {
     local valid_keys=("contains" "starts" "ends")
     local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_string_check" -d "Check if given string conforms the given pattern")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--string" -d "The input string")
-    usage_string+=$(ez_build_usage -o "add" -a "-p|--pattern" -d "The input pattern")
-    usage_string+=$(ez_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}]")
-    usage_string+=$(ez_build_usage -o "add" -a "--silent" -d "Hide the output")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local usage_string=$(ezb_build_usage -o "init" -a "ez_string_check" -d "Check if given string conforms the given pattern")
+    usage_string+=$(ezb_build_usage -o "add" -a "-s|--string" -d "The input string")
+    usage_string+=$(ezb_build_usage -o "add" -a "-p|--pattern" -d "The input pattern")
+    usage_string+=$(ezb_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}]")
+    usage_string+=$(ezb_build_usage -o "add" -a "--silent" -d "Hide the output")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
     local input_string=""
     local pattern=""
     local key=""
-    local silent="${EZ_BASH_BOOL_FALSE}"
+    local silent="${EZB_BOOL_FALSE}"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-s" | "--string") shift; input_string=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-p" | "--pattern") shift; pattern=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-k" | "--key") shift; key=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "--silent") shift; silent="${EZ_BASH_BOOL_TRUE}" ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+            "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi
@@ -74,26 +74,26 @@ function ez_string_check() {
     if ! ez_nonempty_check -n "-p|--pattern" -v "${pattern}" -o "${usage_string}"; then return 1; fi
     if [[ "${key}" == "contains" ]]; then
         if [[ "${input_string}" == *"${pattern}"* ]]; then
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
             return 0
         else
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_FALSE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_FALSE}"; fi
             return 1
         fi
     elif [[ "${key}" == "starts" ]]; then
         if [[ "${input_string}" =~ ^"${pattern}".* ]]; then
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
             return 0
         else
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_FALSE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_FALSE}"; fi
             return 1
         fi
     elif [[ "${key}" == "ends" ]]; then
         if [[ "${input_string}" =~ .*"${pattern}"$ ]]; then
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
             return 0
         else
-            if [[ "${silent}" != "${EZ_BASH_BOOL_TRUE}" ]]; then echo "${EZ_BASH_BOOL_FALSE}"; fi
+            if [[ "${silent}" != "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_FALSE}"; fi
             return 1
         fi
     fi

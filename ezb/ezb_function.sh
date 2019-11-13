@@ -9,9 +9,9 @@ export EZB_NON_SPACE_LIST_DELIMITER="#"
 EZB_FUNC_HELP="--help"
 EZB_ARG_TYPE_DEFAULT="String"
 declare -g -A EZB_ARG_TYPE_SET=(
-    ["${EZB_ARG_TYPE_DEFAULT}"]="${EZ_BASH_BOOL_TRUE}"
-    ["List"]="${EZ_BASH_BOOL_TRUE}"
-    ["Flag"]="${EZ_BASH_BOOL_TRUE}"
+    ["${EZB_ARG_TYPE_DEFAULT}"]="${EZB_BOOL_TRUE}"
+    ["List"]="${EZB_BOOL_TRUE}"
+    ["Flag"]="${EZB_BOOL_TRUE}"
 )
 
 # Do NOT move the following accociative arrays to other files
@@ -74,10 +74,10 @@ function ezb_function_exist() {
     # Should only be called by another function. If not, give the function name in 1st argument
     if [[ -z "${1}" ]]; then
         [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 1
-        [[ "${EZB_FUNC_SET[${FUNCNAME[1]}]}" != "${EZ_BASH_BOOL_TRUE}" ]] && return 1
+        [[ "${EZB_FUNC_SET[${FUNCNAME[1]}]}" != "${EZB_BOOL_TRUE}" ]] && return 1
     else
         [[ -z "${EZB_FUNC_SET[${1}]}" ]] && return 1
-        [[ "${EZB_FUNC_SET[${1}]}" != "${EZ_BASH_BOOL_TRUE}" ]] && return 1
+        [[ "${EZB_FUNC_SET[${1}]}" != "${EZB_BOOL_TRUE}" ]] && return 1
     fi
 }
 
@@ -88,9 +88,9 @@ function ezb_function_check_help_keyword() {
 
 function ezb_function_print_help() {
     if [ "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage=$(ez_build_usage -o "init" -d "Check if the function is registered")
-        usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
-        ez_print_usage "${usage}"
+        local usage=$(ezb_build_usage -o "init" -d "Check if the function is registered")
+        usage+=$(ezb_build_usage -o "add" -a "-f|--function" -d "Function Name")
+        ezb_print_usage "${usage}"
         return
     fi
     # Should only be called by another function
@@ -98,11 +98,11 @@ function ezb_function_print_help() {
     while [ -n "${1}" ]; do
         case "${1}" in
             "-f" | "--function") shift; function=${1}; [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     [ -z "${function}" ] && function="${FUNCNAME[1]}"
-    [ -z "${EZB_FUNC_SET[${function}]}" ] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    [ -z "${EZB_FUNC_SET[${function}]}" ] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
     echo; echo "[Function Name] \"${function}\""; echo
     {
@@ -110,23 +110,23 @@ function ezb_function_print_help() {
         local key=""; local short=""; local long=""; local type=""; local required=""; local choices=""; local default=""; local info=""
         for short in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${function}]}"); do
             key="${function}${delimiter}${short}"
-            long="${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${key}]}"; [ -z "${long}" ] && long="${EZ_BASH_NONE}"
-            type="${EZB_FUNC_S_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
-            required="${EZB_FUNC_S_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
-            choices="${EZB_FUNC_S_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
-            default="${EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
+            long="${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${key}]}"; [ -z "${long}" ] && long="${EZB_OPT_NONE}"
+            type="${EZB_FUNC_S_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZB_OPT_NONE}"
+            required="${EZB_FUNC_S_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZB_OPT_NONE}"
+            choices="${EZB_FUNC_S_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZB_OPT_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            default="${EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZB_OPT_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZB_OPT_NONE}"
             echo $(ezb_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
         done
         for long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
             key="${function}${delimiter}${long}"
             short="${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${key}]}"
-            type="${EZB_FUNC_L_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
-            required="${EZB_FUNC_L_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
-            choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
-            default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
-            [ -z "${short}" ] && short="${EZ_BASH_NONE}" && echo $(ezb_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+            type="${EZB_FUNC_L_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZB_OPT_NONE}"
+            required="${EZB_FUNC_L_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZB_OPT_NONE}"
+            choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZB_OPT_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZB_OPT_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZB_OPT_NONE}"
+            [ -z "${short}" ] && short="${EZB_OPT_NONE}" && echo $(ezb_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
         done
     } | column -t -s "${delimiter}"; echo
 }
@@ -138,16 +138,16 @@ function ezb_function_usage() {
 function ezb_set_arg() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
         local type_info="[$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})], default = \"${EZB_ARG_TYPE_DEFAULT}\""
-        local usage=$(ez_build_usage -o "init" -d "Register Function Argument")
-        usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
-        usage+=$(ez_build_usage -o "add" -a "-t|--type" -d "Choose from: ${type_info}")
-        usage+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
-        usage+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
-        usage+=$(ez_build_usage -o "add" -a "-r|--required" -d "Flag for required argument")
-        usage+=$(ez_build_usage -o "add" -a "-d|--default" -d "Default Value")
-        usage+=$(ez_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
-        usage+=$(ez_build_usage -o "add" -a "-i|--info" -d "Argument Description")
-        ez_print_usage "${usage}"
+        local usage=$(ezb_build_usage -o "init" -d "Register Function Argument")
+        usage+=$(ezb_build_usage -o "add" -a "-f|--function" -d "Function Name")
+        usage+=$(ezb_build_usage -o "add" -a "-t|--type" -d "Choose from: ${type_info}")
+        usage+=$(ezb_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
+        usage+=$(ezb_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
+        usage+=$(ezb_build_usage -o "add" -a "-r|--required" -d "Flag for required argument")
+        usage+=$(ezb_build_usage -o "add" -a "-d|--default" -d "Default Value")
+        usage+=$(ezb_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
+        usage+=$(ezb_build_usage -o "add" -a "-i|--info" -d "Argument Description")
+        ezb_print_usage "${usage}"
         return
     fi
     declare -A arg_set=(
@@ -162,7 +162,7 @@ function ezb_set_arg() {
     )
     local function=""
     local type="${EZB_ARG_TYPE_DEFAULT}"
-    local required="${EZ_BASH_BOOL_FALSE}"
+    local required="${EZB_BOOL_FALSE}"
     local short=""
     local long=""
     local info=""
@@ -175,24 +175,24 @@ function ezb_set_arg() {
             "-s" | "--short") shift; short=${1}; [ -n "${1}" ] && shift ;;
             "-l" | "--long") shift; long=${1}; [ -n "${1}" ] && shift ;;
             "-i" | "--info") shift; info=${1}; [ -n "${1}" ] && shift ;;
-            "-r" | "--required") shift; required="${EZ_BASH_BOOL_TRUE}" ;;
+            "-r" | "--required") shift; required="${EZB_BOOL_TRUE}" ;;
             "-d" | "--default") shift;
                 while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; default+=("${1}"); shift; done ;;
             "-c" | "--choices") shift
                 while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; choices+=("${1}"); shift; done ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     [ -z "${function}" ] && function="${FUNCNAME[1]}"
-    [ -z "${short}" ] && [ -z "${long}" ] && ez_log_error "\"-s|--short\" and \"-l|--long\" are None" && return 1
+    [ -z "${short}" ] && [ -z "${long}" ] && ezb_log_error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [ -z "${EZB_ARG_TYPE_SET[${type}]}" ]; then
-        ez_log_error "Invalid value \"${type}\" for \"-t|--type\""
-        ez_log_error "Please choose from [$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
+        ezb_log_error "Invalid value \"${type}\" for \"-t|--type\""
+        ezb_log_error "Please choose from [$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
-    [[ "${short}" = "${EZB_FUNC_HELP}" ]] && ez_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
-    [[ "${long}" = "${EZB_FUNC_HELP}" ]] && ez_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
+    [[ "${short}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
+    [[ "${long}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
     local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
     # If the key has already been registered, then skip
     if [ -n "${short}" ] && [ -n "${long}" ]; then
@@ -212,11 +212,11 @@ function ezb_set_arg() {
         [ "${i}" -eq 0 ] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"
     done
     # Register Function
-    EZB_FUNC_SET["${function}"]="${EZ_BASH_BOOL_TRUE}"
+    EZB_FUNC_SET["${function}"]="${EZB_BOOL_TRUE}"
     local key=""
     if [ -n "${short}" ]; then
         key="${function}${delimiter}${short}"
-        EZB_FUNC_S_ARG_SET["${key}"]="${EZ_BASH_BOOL_TRUE}"
+        EZB_FUNC_S_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [ -z "${EZB_FUNC_TO_S_ARG_MAP[${function}]}" ]; then
             EZB_FUNC_TO_S_ARG_MAP["${function}"]="${short}"
         else
@@ -258,7 +258,7 @@ function ezb_set_arg() {
     fi
     if [ -n "${long}" ]; then
         key="${function}${delimiter}${long}"
-        EZB_FUNC_L_ARG_SET["${key}"]="${EZ_BASH_BOOL_TRUE}"
+        EZB_FUNC_L_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [ -z "${EZB_FUNC_TO_L_ARG_MAP[${function}]}" ]; then
             EZB_FUNC_TO_L_ARG_MAP["${function}"]="${long}"
         else
@@ -302,11 +302,11 @@ function ezb_set_arg() {
 
 function ezb_get_arg() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage=$(ez_build_usage -o "init" -d "Get argument value from argument list")
-        usage+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
-        usage+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
-        usage+=$(ez_build_usage -o "add" -a "-a|--arguments" -d "Argument List")
-        ez_print_usage "${usage}"
+        local usage=$(ezb_build_usage -o "init" -d "Get argument value from argument list")
+        usage+=$(ezb_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
+        usage+=$(ezb_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
+        usage+=$(ezb_build_usage -o "add" -a "-a|--arguments" -d "Argument List")
+        ezb_print_usage "${usage}"
         echo "[Notes]"
         echo "    Can only be called by another function"
         echo "    The arguments to process must be at the end of this function's argument list"
@@ -317,52 +317,52 @@ function ezb_get_arg() {
     fi
     # Must Run Inside Other Functions
     local function="${FUNCNAME[1]}"
-    [ -z "${EZB_FUNC_SET[${function}]}" ] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    [ -z "${EZB_FUNC_SET[${function}]}" ] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
     local short=""; local long=""; local arguments=()
     if [ "${1}" = "-s" -o "${1}" = "--short" ]; then short="${2}"
         if [ "${3}" = "-l" -o "${3}" = "--long" ]; then long="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+                ezb_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
+                ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
-            ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+            ezb_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
+            ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
         fi
     elif [ "${1}" = "-l" -o "${1}" = "--long" ]; then long="${2}"
         if [ "${3}" = "-s" -o "${3}" = "--short" ]; then short="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+                ezb_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
+                ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
-            ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+            ezb_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
+            ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
         fi
     else
-        ez_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
-        ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+        ezb_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
+        ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
     fi
     if [ -z "${short}" ] && [ -z "${long}" ]; then
-        ez_log_error "Not found \"-s|--short\" or \"-l|--long\""
-        ez_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
+        ezb_log_error "Not found \"-s|--short\" or \"-l|--long\""
+        ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info"; return 1
     fi
     local short_key=""; local long_key=""
     if [ -n "${short}" ]; then
         short_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${short}"
         if [ -z "${EZB_FUNC_S_ARG_SET[${short_key}]}" ]; then
-            ez_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
+            ezb_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
             return 2
         fi
     fi
     if [ -n "${long}" ]; then
         long_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${long}"
         if [ -z "${EZB_FUNC_L_ARG_SET[${long_key}]}" ]; then
-            ez_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
+            ezb_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
             return 2
         fi
     fi
@@ -372,9 +372,9 @@ function ezb_get_arg() {
         [ "${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${long_key}]}" == "${short}" ] && ((++match_count))
         [ "${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${short_key}]}" == "${long}" ] && ((++match_count))
         if [ "${match_count}" -ne 2 ]; then
-            ez_log_error "The Arg-Short identifier \"${short}\" and the Arg-Long identifier \"${long}\" Not Match"
-            ez_log_error "Expected: Arg-Short \"${short}\" -> Arg-Long \"${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${short_key}]}\""
-            ez_log_error "Expected: Arg-Long \"${long}\" -> Arg-Short \"${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${long_key}]}\""
+            ezb_log_error "The Arg-Short identifier \"${short}\" and the Arg-Long identifier \"${long}\" Not Match"
+            ezb_log_error "Expected: Arg-Short \"${short}\" -> Arg-Long \"${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${short_key}]}\""
+            ezb_log_error "Expected: Arg-Long \"${long}\" -> Arg-Short \"${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${long_key}]}\""
             return 2
         fi
     fi
@@ -392,15 +392,15 @@ function ezb_get_arg() {
     fi
     local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
     if [ -z "${argument_type}" ]; then
-        ez_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3
+        ezb_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3
     fi
     if [ "${argument_type}" = "Flag" ]; then
         for item in ${arguments[@]}; do
             if [ "${item}" = "${short}" -o "${item}" = "${long}" ]; then
-                echo "${EZ_BASH_BOOL_TRUE}"; return
+                echo "${EZB_BOOL_TRUE}"; return
             fi
         done
-        echo "${EZ_BASH_BOOL_FALSE}"; return
+        echo "${EZB_BOOL_FALSE}"; return
     elif [ "${argument_type}" = "String" ]; then
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
             local name="${arguments[${i}]}"
@@ -413,16 +413,16 @@ function ezb_get_arg() {
                     local k=0; for ((; k < "${length}"; ++k)); do
                         local char="${argument_choices:k:1}"
                         if [ "${char}" = "${delimiter}" ]; then
-                            [ -n "${choice}" ] && choice_set["${choice}"]="${EZ_BASH_BOOL_TRUE}"
+                            [ -n "${choice}" ] && choice_set["${choice}"]="${EZB_BOOL_TRUE}"
                             choice=""
                         else
                             choice+="${char}"
                         fi
-                        [ "${k}" -eq "${last_index}" ] && [ -n "${choice}" ] && choice_set["${choice}"]="${EZ_BASH_BOOL_TRUE}"
+                        [ "${k}" -eq "${last_index}" ] && [ -n "${choice}" ] && choice_set["${choice}"]="${EZB_BOOL_TRUE}"
                     done
                     if [ -z "${choice_set[${value}]}" ]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ez_log_error "Invalide value \"${value}\" for argument \"${name}\", please choose from [${choices_string}]"
+                        ezb_log_error "Invalide value \"${value}\" for argument \"${name}\", please choose from [${choices_string}]"
                         return 4
                     fi
                 fi
@@ -431,9 +431,9 @@ function ezb_get_arg() {
             fi
         done
         # Required but not found and no default
-        if [ -z "${argument_default}" ] && [ "${argument_required}" = "${EZ_BASH_BOOL_TRUE}" ]; then
-            [ -n "${short}" ] && ez_log_error "Argument \"${short}\" is required" && return 5
-            [ -n "${long}" ] && ez_log_error "Argument \"${long}\" is required" && return 5
+        if [ -z "${argument_default}" ] && [ "${argument_required}" = "${EZB_BOOL_TRUE}" ]; then
+            [ -n "${short}" ] && ezb_log_error "Argument \"${short}\" is required" && return 5
+            [ -n "${long}" ] && ezb_log_error "Argument \"${long}\" is required" && return 5
         fi
         # Not Found, Use Default, Only print the first item in the default list
         local default_value=""; local length="${#argument_default}"; local last_index=$((length - 1))
@@ -463,9 +463,9 @@ function ezb_get_arg() {
             fi
         done
         # Required but not found and no default
-        if [ -z "${argument_default}" ] && [ "${argument_required}" = "${EZ_BASH_BOOL_TRUE}" ]; then
-            [ -n "${short}" ] && ez_log_error "Argument \"${short}\" is required" && return 5
-            [ -n "${long}" ] && ez_log_error "Argument \"${long}\" is required" && return 5
+        if [ -z "${argument_default}" ] && [ "${argument_required}" = "${EZB_BOOL_TRUE}" ]; then
+            [ -n "${short}" ] && ezb_log_error "Argument \"${short}\" is required" && return 5
+            [ -n "${long}" ] && ezb_log_error "Argument \"${long}\" is required" && return 5
         fi
         # Not Found, Use Default
         echo "${argument_default}"

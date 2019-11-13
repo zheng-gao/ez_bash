@@ -8,10 +8,10 @@ function ezb_os_name() {
 function ezb_cmd_md5() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
-        if ! ezb_check_cmd "md5"; then ez_log_error "Not found \"md5\", please run \"brew install md5\""
+        if ! ezb_check_cmd "md5"; then ezb_log_error "Not found \"md5\", please run \"brew install md5\""
         else echo "md5 -q"; fi
     elif [[ "${os}" = "linux" ]]; then
-        if ! ezb_check_cmd "md5sum"; then ez_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
+        if ! ezb_check_cmd "md5sum"; then ezb_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
         else echo "md5sum"; fi
     fi
 }
@@ -27,13 +27,13 @@ function ezb_file_descriptor_count() {
     local name; name="$(ezb_get_arg --short "-n" --long "--process-name" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local fd_count=0
     local os=$(ezb_os_name)
-    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez_log_error "Cannot use --pid and --name together" && return 1
-    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez_log_error "Must provide --pid or --name" && return 1
+    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ezb_log_error "Cannot use --pid and --name together" && return 1
+    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ezb_log_error "Must provide --pid or --name" && return 1
     elif [[ -z "${pid}" ]]; then
         if [[ "${os}" = "linux" ]]; then
             for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
         elif [[ "${os}" = "macos" ]]; then
-            ez_log_error "\"--name\" only works on linux" && return 1
+            ezb_log_error "\"--name\" only works on linux" && return 1
         fi
     else
         if [[ "${os}" = "linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)

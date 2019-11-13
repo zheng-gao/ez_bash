@@ -1,17 +1,17 @@
 function ez_git_commit_stats() {
     local valid_time_formats=("Epoch" "Datetime")
     local valid_time_formats_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_time_formats[@]}")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_git_commit_stats" -d "Print Commit Statistics Of Git Repo")
-    usage_string+=$(ez_build_usage -o "add" -a "-r|--repo-path" -d "Repo Path")
-    usage_string+=$(ez_build_usage -o "add" -a "-f|--time-format" -d "Choose From: [${valid_time_formats_string}], default = Datetime")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local usage_string=$(ezb_build_usage -o "init" -a "ez_git_commit_stats" -d "Print Commit Statistics Of Git Repo")
+    usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo Path")
+    usage_string+=$(ezb_build_usage -o "add" -a "-f|--time-format" -d "Choose From: [${valid_time_formats_string}], default = Datetime")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
     local repo_path=""
     local time_format="Datetime"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-r" | "--repo-path") shift; repo_path=${1-} ;;
             "-f" | "--time-format") shift; time_format=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
@@ -19,7 +19,7 @@ function ez_git_commit_stats() {
     if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
     if ! ez_command_check --silent --command "git"; then
         ez_print_log -l ERROR -m "Command \"git\" not found!"
-        ez_print_usage "${usage_string}"; return 1
+        ezb_print_usage "${usage_string}"; return 1
     fi
     local date_option="iso-strict"
     if [[ "${time_format}" == "Epoch" ]]; then date_option="unix"; fi
@@ -31,10 +31,10 @@ function ez_git_commit_stats() {
 function ez_git_file_stats() {
     local valid_operation=("all" "exclude-head-files" "only-head-files")
     local valid_operation_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_operation[@]}")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_git_repo_file_stats" -d "Print files in git history")
-    usage_string+=$(ez_build_usage -o "add" -a "-o|--operation" -d "Choose from [${valid_operation_string}], default = \"all\"")
-    usage_string+=$(ez_build_usage -o "add" -a "-r|--repo-path" -d "Repo path")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local usage_string=$(ezb_build_usage -o "init" -a "ez_git_repo_file_stats" -d "Print files in git history")
+    usage_string+=$(ezb_build_usage -o "add" -a "-o|--operation" -d "Choose from [${valid_operation_string}], default = \"all\"")
+    usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo path")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
     local operation="all"
     local repo_path=""
     while [[ ! -z "${1-}" ]]; do
@@ -43,11 +43,11 @@ function ez_git_file_stats() {
             "-o" | "--operation") shift; operation=${1-} ;;
             *)
                 ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+                ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
-    if ! ezb_check_cmd "git"; then ez_log_error "Command \"git\" Not Found"; return 1; fi
+    if ! ezb_check_cmd "git"; then ezb_log_error "Command \"git\" Not Found"; return 1; fi
     if ! ez_argument_check -n "-o|--operation" -v "${operation}" -c "${valid_operation[@]}" -o "${usage_string}"; then return 1; fi
     if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
     if [ ! -e "${repo_path}" ]; then ez_print_log -l ERROR -m "\"${repo_path}\" Not Found!"; return 1; fi

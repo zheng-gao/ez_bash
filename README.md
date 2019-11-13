@@ -7,17 +7,17 @@ source "${EZ_BASH_HOME}/ez_bash.sh"
 # Example 1
 ```
 function foo() {
-    local usage=$(ez_build_usage -o "init" -d "This is a test function foo")
-    usage+=$(ez_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
-    usage+=$(ez_build_usage -o "add" -a "-a2|--argument-2" -d "The 2nd argument")
-    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then ez_print_usage "${usage}"; return 1; fi
+    local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
+    usage+=$(ezb_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
+    usage+=$(ezb_build_usage -o "add" -a "-a2|--argument-2" -d "The 2nd argument")
+    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then ezb_print_usage "${usage}"; return 1; fi
     local arg_1=""
     local arg_2=""
     while [ -n "${1}" ]; do
         case "${1-}" in
             "-a1" | "--argument-1") shift; arg_1="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-a2" | "--argument-2") shift; arg_2="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage}"; return 1 ;;
+            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage}"; return 1 ;;
         esac
     done
     echo "Argument 1: ${arg_1}"

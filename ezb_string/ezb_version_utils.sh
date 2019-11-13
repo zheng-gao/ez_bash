@@ -15,21 +15,21 @@ function ezb_compare_version() {
     local check_length; check_length="$(ezb_get_arg --short '-c' --long "--check-length" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
-    if [[ "${check_length}" = "${EZ_BASH_BOOL_TRUE}" ]] && [[ "${left_length}" -ne "${right_length}" ]]; then
-    	ez_log_error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
+    if [[ "${check_length}" = "${EZB_BOOL_TRUE}" ]] && [[ "${left_length}" -ne "${right_length}" ]]; then
+    	ezb_log_error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi
     local state=0; local i=0; while [[ "${i}" -lt "${left_length}" ]] && [[ "${i}" -lt "${right_length}" ]]; do
         ((state = ${left_version_list[${i}]} - ${right_version_list[${i}]})); [[ "${state}" -ne 0 ]] && break; ((++i))
     done
     if [[ "${state}" -lt 0 ]]; then
-        if [[ "${operation}" =~ "<" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "<" ]]; then echo "${EZB_BOOL_TRUE}"; return 0; else echo "${EZB_BOOL_FALSE}"; return 255; fi
     elif [[ "${state}" -gt 0 ]]; then
-        if [[ "${operation}" =~ ">" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ ">" ]]; then echo "${EZB_BOOL_TRUE}"; return 0; else echo "${EZB_BOOL_FALSE}"; return 255; fi
     elif [[ "${left_length}" -lt "${right_length}" ]]; then
-        if [[ "${operation}" =~ "<" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "<" ]]; then echo "${EZB_BOOL_TRUE}"; return 0; else echo "${EZB_BOOL_FALSE}"; return 255; fi
     elif [[ "${left_length}" -gt "${right_length}" ]]; then
-        if [[ "${operation}" =~ ">" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ ">" ]]; then echo "${EZB_BOOL_TRUE}"; return 0; else echo "${EZB_BOOL_FALSE}"; return 255; fi
     else
-        if [[ "${operation}" =~ "=" ]]; then echo "${EZ_BASH_BOOL_TRUE}"; return 0; else echo "${EZ_BASH_BOOL_FALSE}"; return 255; fi
+        if [[ "${operation}" =~ "=" ]]; then echo "${EZB_BOOL_TRUE}"; return 0; else echo "${EZB_BOOL_FALSE}"; return 255; fi
     fi
 }

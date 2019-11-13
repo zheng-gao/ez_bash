@@ -3,11 +3,12 @@
 ###################################################################################################
 export EZB_LOGO="EZ-BASH"
 
-export EZ_BASH_BOOL_TRUE="True"
-export EZ_BASH_BOOL_FALSE="False"
+export EZB_BOOL_TRUE="True"
+export EZB_BOOL_FALSE="False"
 
-export EZ_BASH_ALL="ALL"
-export EZ_BASH_NONE="NONE"
+export EZB_OPT_ALL="All"
+export EZB_OPT_ANY="Any"
+export EZB_OPT_NONE="None"
 
 export EZB_CHAR_SHARP="_SHARP_"
 export EZB_CHAR_SPACE="_SPACE_"
@@ -51,7 +52,7 @@ function ezb_log_stack() {
     echo "${stack}"
 }
 
-function ez_log_error() {
+function ezb_log_error() {
     (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[ERROR] ${@}")
 }
 
@@ -63,21 +64,21 @@ function ezb_log_warning() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[WARNING] ${@}"
 }
 
-function ez_print_usage() {
+function ezb_print_usage() {
     # local tab_size=30
     # tabs "${tab_size}" && (>&2 printf "${1}\n") && tabs
     # column delimiter = "#"
     echo; printf "${1}\n" | column -s "#" -t; echo
 }
 
-function ez_build_usage() {
+function ezb_build_usage() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
         # column delimiter = "#"
-        local usage="[Function Name]#ez_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
+        local usage="[Function Name]#ezb_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
         usage+="-o|--operation#Choose from: [\"add\", \"init\"]\n"
         usage+="-a|--argument#Argument Name\n"
         usage+="-d|--description#Argument Description\n"
-        ez_print_usage "${usage}"
+        ezb_print_usage "${usage}"
         return
     fi
     local operation=""; local argument=""; local description="No Description"
@@ -86,7 +87,7 @@ function ez_build_usage() {
             "-o" | "--operation") shift; operation=${1} && [ -n "${1}" ] && shift ;;
             "-a" | "--argument") shift; argument=${1} && [ -n "${1}" ] && shift ;;
             "-d" | "--description") shift; description=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     # column delimiter = "#"
@@ -97,24 +98,24 @@ function ez_build_usage() {
             echo "[Function Info]#${description}\n" ;;
         "add")
             echo "${argument}#${description}\n" ;;
-        *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
     esac
 }
 
 function ezb_source() {
-    [ -z "${1}" ] && ez_log_error "Empty file path" && return 1
+    [ -z "${1}" ] && ezb_log_error "Empty file path" && return 1
     local file_path="${1}"
-    [ ! -f "${file_path}" ] && ez_log_error "Invalid file path \"${file_path}\"" && return 2
-    [ ! -r "${file_path}" ] && ez_log_error "Unreadable file \"${file_path}\"" && return 3
-    if ! source "${file_path}"; then ez_log_error "Failed to source \"${file_path}\"" && return 4; fi
+    [ ! -f "${file_path}" ] && ezb_log_error "Invalid file path \"${file_path}\"" && return 2
+    [ ! -r "${file_path}" ] && ezb_log_error "Unreadable file \"${file_path}\"" && return 3
+    if ! source "${file_path}"; then ezb_log_error "Failed to source \"${file_path}\"" && return 4; fi
 }
 
 function ezb_source_dir() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage=$(ez_build_usage -o "init" -d "Source whole directory")
-        usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
-        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
-        ez_print_usage "${usage}"
+        local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
+        usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
+        usage+=$(ezb_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
+        ezb_print_usage "${usage}"
         return
     fi
     local path="."; local exclude=""
@@ -122,13 +123,13 @@ function ezb_source_dir() {
         case "${1}" in
             "-p" | "--path") shift; path=${1} && [ -n "${1}" ] && shift ;;
             "-r" | "--exclude") shift; exclude=${1} && [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    [ -z "${path}" ] && ez_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
+    [ -z "${path}" ] && ezb_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
     path="${path%/}" # Remove a trailing slash if there is one
-    [ ! -d "${path}" ] && ez_log_error "\"${path}\" is not a directory" && return 2
-    [ ! -r "${path}" ] && ez_log_error "Cannot read directory \"${dir_path}\"" && return 3
+    [ ! -d "${path}" ] && ezb_log_error "\"${path}\" is not a directory" && return 2
+    [ ! -r "${path}" ] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
     if [ "${exclude}" = "" ]; then
         for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
             if ! ezb_source "${sh_file_path}"; then return 4; fi

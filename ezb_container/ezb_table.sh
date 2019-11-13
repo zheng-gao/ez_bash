@@ -13,8 +13,8 @@ function ez_print_table() {
     local data; data="$(ezb_get_arg --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
-        [[ -n "${data}" ]] && ez_log_error "Please use single source of truth --file or --data, do not provide both" && return 1
-        [[ ! -f "${file}" ]] && ez_log_error "File \"${file}\" not found" && return 1
+        [[ -n "${data}" ]] && ezb_log_error "Please use single source of truth --file or --data, do not provide both" && return 1
+        [[ ! -f "${file}" ]] && ezb_log_error "File \"${file}\" not found" && return 1
         local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
         [[ -z "${file_content}" ]] && return 1
         if [[ -n "${row_delimiter}" ]]; then

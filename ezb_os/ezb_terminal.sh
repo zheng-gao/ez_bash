@@ -91,7 +91,7 @@ function ezb_print_progress() {
     local terminal_length="$(tput cols)"
     local percentage_string=""
     local integer_part=0
-    if [[ "${show_percentage}" = "${EZ_BASH_BOOL_TRUE}" ]]; then
+    if [[ "${show_percentage}" = "${EZB_BOOL_TRUE}" ]]; then
         local percentage="$((${current_step} * 10000 / ${total_steps}))"
         percentage_string="[  0.00%]"
         local decimal_part=0

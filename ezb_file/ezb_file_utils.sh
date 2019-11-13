@@ -16,16 +16,16 @@ function ezb_file_get_lines() {
         if [[ -n "${ith}" ]]; then
             if [[ "${ith}" -gt 0 ]]; then from="${ith}" && to="${ith}"
             elif [[ "${ith}" -lt 0 ]]; then from=$((to + ith + 1)) && to="${from}"
-            else ez_log_error "\"--i-th\" cannot be \"0\"" && return 2; fi
+            else ezb_log_error "\"--i-th\" cannot be \"0\"" && return 2; fi
         fi
         [[ "${from}" -lt 0 ]] && from=$((to + from + 1))
         [[ "${from}" -le 0 ]] && [[ "${to}" -le 0 ]] && return 2 # For ith < -(file_length)
         if [[ "${from}" -gt "${to}" ]]; then
-            ez_log_error "\"--from\" cannot be greater than \"--to\"" && return 2
+            ezb_log_error "\"--from\" cannot be greater than \"--to\"" && return 2
         else
             sed -n "${from},${to}p" "${path}"
         fi
     else
-        ez_log_error "File \"${path}\" not exist"
+        ezb_log_error "File \"${path}\" not exist"
     fi
 }

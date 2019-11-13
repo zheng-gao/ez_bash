@@ -1,7 +1,7 @@
 function ez_url_encode() {
-    local usage_string=$(ez_build_usage -o "init" -a "ez_url_encode" -d "Encode string for transmitting over the Internet")
-    usage_string+=$(ez_build_usage -o "add" -a "-u|--url" -d "URL String to be encoded")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
+    local usage_string=$(ezb_build_usage -o "init" -a "ez_url_encode" -d "Encode string for transmitting over the Internet")
+    usage_string+=$(ezb_build_usage -o "add" -a "-u|--url" -d "URL String to be encoded")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
     local input_list=()
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
@@ -11,7 +11,7 @@ function ez_url_encode() {
                 done ;;
             *)
                 ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ez_print_usage "${usage_string}"; return 1; ;;
+                ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     local url_string="${input_list[@]}"
