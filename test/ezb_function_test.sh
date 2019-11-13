@@ -17,7 +17,7 @@ function ez_test_get_list() {
     ((last_index=length-1))
     for ((k=0; k < "${length}"; ++k)); do
         local char="${input:k:1}"
-        if [ "${char}" = "${EZB_NON_SPACE_LIST_DELIMITER}" ]; then
+        if [ "${char}" = "${EZB_CHAR_NON_SPACE_DELIMITER}" ]; then
             [ -n "${item}" ] && echo "${item}"
             item=""
         else
@@ -45,7 +45,7 @@ function ez_test_core_function_1() {
     echo "Name = ${name}"
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
-    echo "Pets = "; tr "${EZB_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${pets}"
+    echo "Pets = "; tr "${EZB_CHAR_NON_SPACE_DELIMITER}" "\n" <<< "${pets}"
     echo "Pets = "; ez_test_get_list "${pets}"
 }
 
@@ -83,7 +83,7 @@ function ez_test_core_function_2() {
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; tr "${EZB_NON_SPACE_LIST_DELIMITER}" "\n" <<< "${arg_l}"
+    echo "Argument List:"; tr "${EZB_CHAR_NON_SPACE_DELIMITER}" "\n" <<< "${arg_l}"
     echo "Dry Run   : ${dry_run}"
 }
 

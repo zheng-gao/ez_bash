@@ -12,6 +12,7 @@ export EZB_OPT_NONE="None"
 
 export EZB_CHAR_SHARP="_SHARP_"
 export EZB_CHAR_SPACE="_SPACE_"
+export EZB_CHAR_NON_SPACE_DELIMITER="#"
 
 export EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
 export EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"

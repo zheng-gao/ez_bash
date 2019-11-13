@@ -1,9 +1,4 @@
 ###################################################################################################
-# -------------------------------------- Export Variables --------------------------------------- #
-###################################################################################################
-export EZB_NON_SPACE_LIST_DELIMITER="#"
-
-###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
 EZB_FUNC_HELP="--help"
@@ -103,7 +98,7 @@ function ezb_function_print_help() {
     done
     [ -z "${function}" ] && function="${FUNCNAME[1]}"
     [ -z "${EZB_FUNC_SET[${function}]}" ] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
-    local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
+    local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     echo; echo "[Function Name] \"${function}\""; echo
     {
         echo $(ezb_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
@@ -193,7 +188,7 @@ function ezb_set_arg() {
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
     [[ "${short}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
     [[ "${long}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
-    local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
+    local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     # If the key has already been registered, then skip
     if [ -n "${short}" ] && [ -n "${long}" ]; then
         [ -n "${EZB_FUNC_S_ARG_SET[${function}${delimiter}${short}]}" ] &&
@@ -353,14 +348,14 @@ function ezb_get_arg() {
     fi
     local short_key=""; local long_key=""
     if [ -n "${short}" ]; then
-        short_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${short}"
+        short_key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${short}"
         if [ -z "${EZB_FUNC_S_ARG_SET[${short_key}]}" ]; then
             ezb_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
             return 2
         fi
     fi
     if [ -n "${long}" ]; then
-        long_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${long}"
+        long_key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${long}"
         if [ -z "${EZB_FUNC_L_ARG_SET[${long_key}]}" ]; then
             ezb_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
             return 2
@@ -390,7 +385,7 @@ function ezb_get_arg() {
         argument_default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP[${long_key}]}"
         argument_choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${long_key}]}"   
     fi
-    local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
+    local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     if [ -z "${argument_type}" ]; then
         ezb_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3
     fi
