@@ -27,7 +27,7 @@ else
     # To run this script
     if [[ "$(basename ${0})" = "ez_bash.sh" ]]; then
         if [[ "${1}" = "-i" ]] || [[ "${1}" = "--info" ]]; then echo "EZ-Bash Copyright: Zheng Gao, 2018-05-18"
-        elif [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then echo "0.0.4"
+        elif [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then echo "0.0.5"
         elif [[ "${1}" = "-r" ]] || [[ "${1}" = "--requirements" ]]; then echo "Bash 5.*"
         fi
     fi

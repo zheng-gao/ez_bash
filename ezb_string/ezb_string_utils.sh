@@ -47,10 +47,10 @@ function ezb_trim_string() {
     fi
 }
 
-function ez_string_check() {
+function ezb_string_check() {
     local valid_keys=("contains" "starts" "ends")
     local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_string_check" -d "Check if given string conforms the given pattern")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if given string conforms the given pattern")
     usage_string+=$(ezb_build_usage -o "add" -a "-s|--string" -d "The input string")
     usage_string+=$(ezb_build_usage -o "add" -a "-p|--pattern" -d "The input pattern")
     usage_string+=$(ezb_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}]")
