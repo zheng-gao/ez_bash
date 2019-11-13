@@ -1,13 +1,13 @@
-function ez_now() {
+function ezb_now() {
     date "+%Y-%m-%d %H:%M:%S"
 }
 
-function ez_clock() {
-    ez_now; sleep 1;
-    while true; do ez_clear -l 1; ez_now; sleep 1; done
+function ezb_clock() {
+    ezb_now; sleep 1;
+    while true; do ez_clear -l 1; ezb_now; sleep 1; done
 }
 
-function ez_get_cmd_timeout() {
+function ezb_cmd_timeout() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
         if ! ezb_check_cmd "gtimeout"; then ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
@@ -17,8 +17,8 @@ function ez_get_cmd_timeout() {
     fi
 }
 
-function ez_get_timestamp_from_epoch_seconds() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_get_timestamp_from_epoch_seconds" -d "Convert Epoch Seconds to Timestamp")
+function ezb_epoch_seconds_to_time() {
+    local usage_string=$(ezb_build_usage -o "init" -d "Convert Epoch Seconds to Timestamp")
     usage_string+=$(ezb_build_usage -o "add" -a "-e|--epoch" -d "Epoch Seconds")
     usage_string+=$(ezb_build_usage -o "add" -a "-f|--format" -d "Timestamp Format")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -29,7 +29,7 @@ function ez_get_timestamp_from_epoch_seconds() {
             "-e" | "--epoch") shift; epoch_second=${1-} ;;
             "-f" | "--format") shift; format=${1-} ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
@@ -42,8 +42,8 @@ function ez_get_timestamp_from_epoch_seconds() {
     fi
 }
 
-function ez_get_epoch_seconds_from_timestamp() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_get_epoch_seconds_from_timestamp" -d "Convert Human Readable Timestamp to Epoch Seconds")
+function ezb_time_to_epoch_seconds() {
+    local usage_string=$(ezb_build_usage -o "init" -d "Convert Human Readable Timestamp to Epoch Seconds")
     usage_string+=$(ezb_build_usage -o "add" -a "-d|--date" -d "YYYY-MM-DD, default is now")
     usage_string+=$(ezb_build_usage -o "add" -a "-t|--time" -d "HH:mm:SS, default is now")
     if [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -54,14 +54,14 @@ function ez_get_epoch_seconds_from_timestamp() {
             "-d" | "--date") shift; date=${1-} ;;
             "-t" | "--time") shift; time=${1-} ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if [[ "${date}" == "" ]] && [[ "${time}" == "" ]]; then date "+%s"
-    elif [[ "${date}" == "" ]]; then ez_print_log -l ERROR -m "Date cannot be empty if Time is given"; ezb_print_usage "${usage_string}"; return 1
-    elif [[ "${time}" == "" ]]; then ez_print_log -l ERROR -m "Time cannot be empty if Date is given"; ezb_print_usage "${usage_string}"; return 1
+    elif [[ "${date}" == "" ]]; then ezb_log_error "Date cannot be empty if Time is given"; ezb_print_usage "${usage_string}"; return 1
+    elif [[ "${time}" == "" ]]; then ezb_log_error "Time cannot be empty if Date is given"; ezb_print_usage "${usage_string}"; return 1
     else
         local os=$(ezb_os_name)
         if [[ "${os}" == "macos" ]]; then
@@ -72,10 +72,10 @@ function ez_get_epoch_seconds_from_timestamp() {
     fi
 }
 
-function ez_get_readable_time_from_seconds() {
+function ezb_seconds_to_readable_time() {
     local output_formats=("Mini" "Short" "Long")
     local output_formats_string=$(ez_print_array_with_delimiter -d ", " -a ${output_formats[@]})
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_get_readable_time_from_seconds" -d "Convert Seconds to Human Readable Timestamp")
+    local usage_string=$(ezb_build_usage -o "init" -d "Convert Seconds to Human Readable Timestamp")
     usage_string+=$(ezb_build_usage -o "add" -a "-s|--seconds" -d "Input Seconds")
     usage_string+=$(ezb_build_usage -o "add" -a "-f|--format" -d "Output Format [${output_formats_string[@]}], default = Mini")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -86,14 +86,14 @@ function ez_get_readable_time_from_seconds() {
             "-s" | "--seconds") shift; seconds=${1-} ;;
             "-f" | "--format") shift; format=${1-} ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if [[ "${format}" == "" ]]; then format="Mini"; fi
     if [[ $(ez_check_item_in_array -i "${format}" -a "${output_formats[@]}") != "${EZB_BOOL_TRUE}" ]]; then
-        ez_print_log -l ERROR -m "Invalid format \"${format}\""
+        ezb_log_error "Invalid format \"${format}\""
         ezb_print_usage "${usage_string}"; return 1
     fi
     local days=$((seconds / 86400))
@@ -114,8 +114,8 @@ function ez_get_readable_time_from_seconds() {
     echo "${output_string}"
 }
 
-function ez_get_duration_from_epoch_seconds_diff() {
-    local usage_string=$(ezb_build_usage -o "init" -a "get_duration_from_epoch_seconds_diff" -d "Print the time difference between start time and end time")
+function ezb_time_diff_from_epoch_seconds_diff() {
+    local usage_string=$(ezb_build_usage -o "init" -d "Print the time difference between start time and end time")
     usage_string+=$(ezb_build_usage -o "add" -a "-s|--start" -d "Start Time Epoch Seconds")
     usage_string+=$(ezb_build_usage -o "add" -a "-e|--end" -d "End Time Epoch Seconds")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -127,9 +127,7 @@ function ez_get_duration_from_epoch_seconds_diff() {
             "-s" | "--start") shift; start_time=${1-} ;;
             "-e" | "--end") shift; end_time=${1-} ;;
             "-f" | "--format") shift; format=${1-} ;;
-            *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
-                ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
@@ -145,6 +143,6 @@ function ez_get_duration_from_epoch_seconds_diff() {
         return 1
     fi
     local duration_seconds=$((end_time - start_time))
-    ez_get_readable_time_from_seconds -s ${duration_seconds}
+    ezb_seconds_to_readable_time -s ${duration_seconds}
 }
 

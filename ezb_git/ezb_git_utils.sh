@@ -1,7 +1,7 @@
-function ez_git_commit_stats() {
+function ezb_git_commit_stats() {
     local valid_time_formats=("Epoch" "Datetime")
     local valid_time_formats_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_time_formats[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_git_commit_stats" -d "Print Commit Statistics Of Git Repo")
+    local usage_string=$(ezb_build_usage -o "init" -d "Print Commit Statistics Of Git Repo")
     usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo Path")
     usage_string+=$(ezb_build_usage -o "add" -a "-f|--time-format" -d "Choose From: [${valid_time_formats_string}], default = Datetime")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -11,14 +11,14 @@ function ez_git_commit_stats() {
         case "${1-}" in
             "-r" | "--repo-path") shift; repo_path=${1-} ;;
             "-f" | "--time-format") shift; time_format=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if ! ez_argument_check -n "-f|--time-format" -v "${time_format}" -c "${valid_time_formats[@]}" -o "${usage_string}"; then return 1; fi
     if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
     if ! ez_command_check --silent --command "git"; then
-        ez_print_log -l ERROR -m "Command \"git\" not found!"
+        ezb_log_error "Command \"git\" not found!"
         ezb_print_usage "${usage_string}"; return 1
     fi
     local date_option="iso-strict"
@@ -28,10 +28,10 @@ function ez_git_commit_stats() {
 }
 
 
-function ez_git_file_stats() {
+function ezb_git_file_stats() {
     local valid_operation=("all" "exclude-head-files" "only-head-files")
     local valid_operation_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_operation[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_git_repo_file_stats" -d "Print files in git history")
+    local usage_string=$(ezb_build_usage -o "init" -d "Print files in git history")
     usage_string+=$(ezb_build_usage -o "add" -a "-o|--operation" -d "Choose from [${valid_operation_string}], default = \"all\"")
     usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo path")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -42,7 +42,7 @@ function ez_git_file_stats() {
             "-r" | "--repo-path") shift; repo_path=${1-} ;;
             "-o" | "--operation") shift; operation=${1-} ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
@@ -50,11 +50,11 @@ function ez_git_file_stats() {
     if ! ezb_check_cmd "git"; then ezb_log_error "Command \"git\" Not Found"; return 1; fi
     if ! ez_argument_check -n "-o|--operation" -v "${operation}" -c "${valid_operation[@]}" -o "${usage_string}"; then return 1; fi
     if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
-    if [ ! -e "${repo_path}" ]; then ez_print_log -l ERROR -m "\"${repo_path}\" Not Found!"; return 1; fi
+    if [ ! -e "${repo_path}" ]; then ezb_log_error "\"${repo_path}\" Not Found!"; return 1; fi
     if [[ "${operation}" == "only-head-files" ]]; then
          git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
-        local log_file="/var/tmp/ez_git_file_stats.log"
+        local log_file="${EZB_DIR_LOGS}/${FUNCNAME[0]}.log"
         git -C "${repo_path}" rev-list --objects --all \
         | git -C "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
         | sed -n 's/^blob //p' \

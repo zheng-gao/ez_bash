@@ -13,7 +13,7 @@ function ez_python_request() {
     if ez_command_check --command "${python_bin}" --silent; then
         ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
     else
-        ez_print_log -l ERROR -m "Command \"${python_bin}\" not found"
+        ezb_log_error "Command \"${python_bin}\" not found"
     fi
 }
 
@@ -22,6 +22,6 @@ function ez_python_table() {
     if ez_command_check --command "${python_bin}" --silent; then
         ${python_bin} "${EZ_BASH_PYTHON_TABLE}" "${@}"
     else
-        ez_print_log -l ERROR -m "Command \"${python_bin}\" not found"
+        ezb_log_error "Command \"${python_bin}\" not found"
     fi
 }

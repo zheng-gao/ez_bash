@@ -3,7 +3,7 @@ function ezb_string_length() {
     echo "${#input_string}"
 }
 
-function ez_string_repeat() {
+function ezb_string_repeat() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-s" --long "--substring" --required --default "=" --info "Substring to be repeated" &&
         ezb_set_arg --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
@@ -66,7 +66,7 @@ function ez_string_check() {
             "-p" | "--pattern") shift; pattern=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-k" | "--key") shift; key=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi

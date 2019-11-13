@@ -1,5 +1,5 @@
 function ez_command_check() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_command_check" -d "Check if the given command exist or not")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if the given command exist or not")
     usage_string+=$(ezb_build_usage -o "add" -a "-c|--command" -d "Command Name")
     usage_string+=$(ezb_build_usage -o "add" -a "-s|--silent" -d "Hide boolean output")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -10,7 +10,7 @@ function ez_command_check() {
             "-c" | "--command") shift; command="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-s" | "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
@@ -22,7 +22,7 @@ function ez_command_check() {
 }
 
 function ez_nonempty_check() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_nonempty_check" -d "Check if the variable is non-empty")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if the variable is non-empty")
     usage_string+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Argument Name")
     usage_string+=$(ezb_build_usage -o "add" -a "-v|--value" -d "Argument Value")
     usage_string+=$(ezb_build_usage -o "add" -a "-o|--output" -d "Output String")
@@ -58,13 +58,13 @@ function ez_nonempty_check() {
                 done
             fi
         else
-            ez_print_log -l ERROR -m "Unknown argument \"${1}\""
+            ezb_log_error "Unknown argument \"${1}\""
             ezb_print_usage "${usage_string}"; return 1
         fi
     done
     if [[ "${value[@]}" == "" ]]; then
         if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then
-            ez_print_log -l ERROR -m "\"${name}\" is empty!"
+            ezb_log_error "\"${name}\" is empty!"
             ezb_print_usage "${output}"
         fi
         if [[ "${print}" == "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_FALSE}"; fi
@@ -74,7 +74,7 @@ function ez_nonempty_check() {
 }
 
 function ez_variable_check() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_variable_check" -d "Check if the variable is set or not")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if the variable is set or not")
     usage_string+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Variable Name")
     usage_string+=$(ezb_build_usage -o "add" -a "-p|--print" -d "Print Variable Value")
     if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
@@ -85,7 +85,7 @@ function ez_variable_check() {
             "-n" | "--name") shift; variable_name="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-p" | "--print") shift; print_value="${EZB_BOOL_TRUE}" ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
@@ -101,7 +101,7 @@ function ez_variable_check() {
 
 function ez_argument_check() {
     local all_argument_names=("-n" "--name" "-v" "--value" "-o" "--output" "-c" "--choices")
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_argument_check" -d "Check if the argument option is valid")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if the argument option is valid")
     usage_string+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Argument Name")
     usage_string+=$(ezb_build_usage -o "add" -a "-v|--value" -d "Argument Value")
     usage_string+=$(ezb_build_usage -o "add" -a "-o|--output" -d "Output String")
@@ -127,12 +127,12 @@ function ez_argument_check() {
                 done
             fi
         else
-            ez_print_log -l ERROR -m "Unknown argument \"$1\""
+            ezb_log_error "Unknown argument \"$1\""
             ezb_print_usage "${usage_string}"; return 1
         fi
     done
     if [[ $(ez_check_item_in_array -i "${value}" -a "${choices[@]}") != "${EZB_BOOL_TRUE}" ]]; then
-        ez_print_log -l ERROR -m "Invalid value \"${value}\" for \"${name}\""
+        ezb_log_error "Invalid value \"${value}\" for \"${name}\""
         ezb_print_usage "${output}"
         return 1
     fi
@@ -141,7 +141,7 @@ function ez_argument_check() {
 function ez_path_check() {
     local valid_keys=("Nonempty-File" "Directory")
     local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_file_system_check" -d "Check if the given path is a valid file or directory")
+    local usage_string=$(ezb_build_usage -o "init" -d "Check if the given path is a valid file or directory")
     usage_string+=$(ezb_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}], default = \"nonempty-file\"")
     usage_string+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Given Path")
     usage_string+=$(ezb_build_usage -o "add" -a "-s|--silent" -d "[Optional][Bool] Does not print error log")
@@ -155,7 +155,7 @@ function ez_path_check() {
             "-p" | "--path") shift; path=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-s" | "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+                ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if ! ez_nonempty_check -n "-p|--path" -v "${path}" -o "${usage_string}"; then return 1; fi
@@ -183,7 +183,7 @@ function ez_sanity_check() {
     local command_list=("date" "uname" "printf")
     for command in "${command_list[@]}"; do
         if [[ $(ez_command_check -c "${command}") == "${EZB_BOOL_FALSE}" ]]; then
-            ez_print_log -l ERROR -m "\"${command}\" does not exist!"
+            ezb_log_error "\"${command}\" does not exist!"
         else
             ez_print_log -l INFO -m "\"${command}\" looks good!"
         fi

@@ -41,8 +41,8 @@ function ezb_sleep() {
     esac
     if [[ "${interval}" -eq 0 ]]; then sleep "${timeout_in_seconds}" && return; fi
     local wait_seconds=0
-    local timeout_string=$(ez_get_readable_time_from_seconds -s "${timeout_in_seconds}" -f "Mini")
-    local wait_seconds_string=$(ez_get_readable_time_from_seconds -s "${wait_seconds}" -f "Mini")
+    local timeout_string=$(ezb_seconds_to_readable_time -s "${timeout_in_seconds}" -f "Mini")
+    local wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
     ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
     while [[ "${wait_seconds}" -lt "${timeout_in_seconds}" ]]; do
         local seconds_left=$((timeout_in_seconds - wait_seconds))
@@ -50,13 +50,13 @@ function ezb_sleep() {
             ((wait_seconds += "${interval}"))
             sleep "${interval}"
             ezb_clear --lines 1
-            wait_seconds_string=$(ez_get_readable_time_from_seconds -s "${wait_seconds}" -f "Mini")
+            wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
             ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         else
             wait_seconds="${timeout_in_seconds}"
             sleep "${seconds_left}"
             ezb_clear --lines 1
-            wait_seconds_string=$(ez_get_readable_time_from_seconds -s "${wait_seconds}" -f "Mini")
+            wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
             ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         fi
     done

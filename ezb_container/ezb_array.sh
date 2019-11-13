@@ -9,7 +9,7 @@ function ez_split_string_into_array() {
         case "${1-}" in
             "-d" | "--delimiter") shift; delimiter=${1-} ;;
             "-s" | "--string") shift; input_string=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"${1}\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"${1}\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
@@ -34,7 +34,7 @@ function ez_print_array_with_delimiter() {
                     array+=("${1-}"); shift
                 done ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
@@ -67,7 +67,7 @@ function ez_check_item_in_array() {
                     if [[ "${1-}" == "-s" ]] || [[ "${1-}" == "--silent" ]]; then break; fi
                     array+=("${1-}"); shift
                 done ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     for item_x in "${array[@]}"; do
@@ -108,7 +108,7 @@ function ez_get_diff_between_two_sets() {
                     if [[ "${1-}" == "-r" ]] || [[ "${1-}" == "--right" ]]; then break; fi
                     right_set["${1-}"]="${EZB_BOOL_TRUE}"; shift
                 done ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${operation}" == "Intersection" ]]; then
@@ -129,7 +129,7 @@ function ez_get_diff_between_two_sets() {
             if [ ! ${left_set["${item}"]+_} ]; then echo "${item}"; fi
         done
     else
-        ez_print_log -l ERROR -m "Invalid Operation \"${operation}\""; ezb_print_usage "${usage_string}"; return 1
+        ezb_log_error "Invalid Operation \"${operation}\""; ezb_print_usage "${usage_string}"; return 1
     fi
 }
 
@@ -167,7 +167,7 @@ function ez_is_subset() {
                     if [[ "${1-}" == "-s" ]] || [[ "${1-}" == "--silent" ]]; then break; fi
                     set_b["${1-}"]="${EZB_BOOL_TRUE}"; shift
                 done ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if [[ "${operation}" == "A-IN-B" ]]; then
@@ -189,6 +189,6 @@ function ez_is_subset() {
         if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
         return 0
     else
-        ez_print_log -l ERROR -m "Invalid Operation \"${operation}\""; ezb_print_usage "${usage_string}"; return 1
+        ezb_log_error "Invalid Operation \"${operation}\""; ezb_print_usage "${usage_string}"; return 1
     fi
 }

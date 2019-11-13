@@ -10,7 +10,7 @@ function ez_url_encode() {
                     input_list+=("${1-}"); shift
                 done ;;
             *)
-                ez_print_log -l ERROR -m "Unknown argument \"$1\""
+                ezb_log_error "Unknown argument \"$1\""
                 ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done

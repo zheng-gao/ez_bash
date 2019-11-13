@@ -88,7 +88,7 @@ function ez_print_banner() {
                 ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
         esac
     done
-    local spliter=$(ez_string_repeat --substring "${substring}" --count ${count})
+    local spliter=$(ezb_string_repeat --substring "${substring}" --count ${count})
     if [[ "${prefix}" == "${EZB_BOOL_TRUE}" ]]; then
         ez_print_log -l INFO -m "${spliter}"
         ez_print_log -l INFO -m "${message[@]}"

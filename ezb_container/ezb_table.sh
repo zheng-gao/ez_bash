@@ -32,7 +32,7 @@ function ez_print_table() {
     for ((row=0; row < "${number_of_rows}"; ++row)); do
         local number_of_columns=$(awk -F "${col_delimiter}" "{print NF}" <<< "${rows[row]}")
         # Add Line Delimiter
-        if [[ "${row}" == "0" ]]; then table=$(printf "%s#+" $(ez_string_repeat --substring "#+" --count "${number_of_columns}")); fi
+        if [[ "${row}" == "0" ]]; then table=$(printf "%s#+" $(ezb_string_repeat --substring "#+" --count "${number_of_columns}")); fi
         # Add Header Or Body
         table="${table}\n"
         for ((column=1; column <= "${number_of_columns}"; ++column)); do
@@ -41,7 +41,7 @@ function ez_print_table() {
         table="${table}#|\n"
         # Add Line Delimiter
         if [[ "${row}" == "0" ]] || [[ $(expr "${row}" + 1) == "${number_of_rows}" ]]; then
-            table="${table}$(printf "%s#+" $(ez_string_repeat --substring "#+" --count "${number_of_columns}"))"
+            table="${table}$(printf "%s#+" $(ezb_string_repeat --substring "#+" --count "${number_of_columns}"))"
         fi
     done
     if [[ "$(ezb_os_name)" == "macos" ]]; then

@@ -147,7 +147,7 @@ function ez_mssh_cmd() {
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
     local failure_count=0; results["Failure"]=""
-    local cmd_timeout=$(ez_get_cmd_timeout); local cmd_md5=$(ezb_cmd_md5)
+    local cmd_timeout=$(ezb_cmd_timeout); local cmd_md5=$(ezb_cmd_md5)
     local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
     for host in $(echo "${hosts}" | sed "s/,/ /g"); do
