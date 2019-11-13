@@ -106,7 +106,7 @@ function ezb_function_print_help() {
     local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
     echo; echo "[Function Name] \"${function}\""; echo
     {
-        echo $(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
+        echo $(ezb_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
         local key=""; local short=""; local long=""; local type=""; local required=""; local choices=""; local default=""; local info=""
         for short in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${function}]}"); do
             key="${function}${delimiter}${short}"
@@ -116,7 +116,7 @@ function ezb_function_print_help() {
             choices="${EZB_FUNC_S_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
             default="${EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
-            echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+            echo $(ezb_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
         done
         for long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
             key="${function}${delimiter}${long}"
@@ -126,7 +126,7 @@ function ezb_function_print_help() {
             choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
             default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
-            [ -z "${short}" ] && short="${EZ_BASH_NONE}" && echo $(ez_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+            [ -z "${short}" ] && short="${EZ_BASH_NONE}" && echo $(ezb_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
         done
     } | column -t -s "${delimiter}"; echo
 }
@@ -137,7 +137,7 @@ function ezb_function_usage() {
 
 function ezb_set_arg() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local type_info="[$(ez_join ', ' ${!EZB_ARG_TYPE_SET[@]})], default = \"${EZB_ARG_TYPE_DEFAULT}\""
+        local type_info="[$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})], default = \"${EZB_ARG_TYPE_DEFAULT}\""
         local usage=$(ez_build_usage -o "init" -d "Register Function Argument")
         usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
         usage+=$(ez_build_usage -o "add" -a "-t|--type" -d "Choose from: ${type_info}")
@@ -187,7 +187,7 @@ function ezb_set_arg() {
     [ -z "${short}" ] && [ -z "${long}" ] && ez_log_error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [ -z "${EZB_ARG_TYPE_SET[${type}]}" ]; then
         ez_log_error "Invalid value \"${type}\" for \"-t|--type\""
-        ez_log_error "Please choose from [$(ez_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
+        ez_log_error "Please choose from [$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help

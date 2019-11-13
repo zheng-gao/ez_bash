@@ -53,7 +53,7 @@ EOF
         [[ "${status}" = "${EZ_BASH_BOOL_TRUE}" ]] && ez_log_error "Remote command failed, please check \"${data_file}\" for details"
         return 1
     else
-        [[ "${status}" = "${EZ_BASH_BOOL_TRUE}" ]] && ez_log_info "Remote command complete!"
+        [[ "${status}" = "${EZ_BASH_BOOL_TRUE}" ]] && ezb_log_info "Remote command complete!"
         rm -f "${data_file}"
         return 0
     fi
@@ -192,6 +192,6 @@ function ez_mssh_cmd() {
         echo "Timeout (${timeout_count}): ${results["Timeout"]}"
         echo "Failure (${failure_count}): ${results["Failure"]}"
         echo "Success (${success_count}): ${results["Success"]}"; echo
-        [[ "${failure_count}" -gt 0 ]] && ez_log_info "Please check \"${data_dir}\" for details"
+        [[ "${failure_count}" -gt 0 ]] && ezb_log_info "Please check \"${data_dir}\" for details"
     fi
 }

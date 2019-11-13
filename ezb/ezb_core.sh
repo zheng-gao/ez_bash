@@ -34,33 +34,33 @@ function ezb_exclude() {
     for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
 }
 
-function ez_join() {
+function ezb_join() {
     local delimiter="${1}"; local i=0; local out_put=""
     for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
 }
 
-function ez_log_stack() {
+function ezb_log_stack() {
     local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
     if [[ -n "${ignore_top_x}" ]]; then
         for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     else
-        # i > 0 to ignore self "ez_log_stack"
+        # i > 0 to ignore self "ezb_log_stack"
         for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     fi
     echo "${stack}"
 }
 
 function ez_log_error() {
-    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[ERROR] ${@}")
+    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[ERROR] ${@}")
 }
 
-function ez_log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[INFO] ${@}"
+function ezb_log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
 }
 
-function ez_log_warning() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ez_log_stack 1)[WARNING] ${@}"
+function ezb_log_warning() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[WARNING] ${@}"
 }
 
 function ez_print_usage() {

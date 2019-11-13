@@ -18,12 +18,12 @@ function ez_print_log() {
                     if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
                     message+=("${1-}"); shift
                 done ;;
-            *) echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
-               echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
+            *) echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
+               echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
                return 1 ;;
         esac
     done
-    echo "[${EZB_LOGO}][${time_stamp}]$(ez_log_stack 1)[${logger}] ${message[*]}"
+    echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack 1)[${logger}] ${message[*]}"
 }
 
 function ez_print_log_to_file() {
