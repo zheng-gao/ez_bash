@@ -1,4 +1,9 @@
 ###################################################################################################
+# -------------------------------------- Export Variables --------------------------------------- #
+###################################################################################################
+export EZB_NON_SPACE_LIST_DELIMITER="#"
+
+###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
 EZB_FUNC_HELP="--help"
@@ -8,8 +13,6 @@ declare -g -A EZB_ARG_TYPE_SET=(
     ["List"]="${EZ_BASH_BOOL_TRUE}"
     ["Flag"]="${EZ_BASH_BOOL_TRUE}"
 )
-
-export EZB_NON_SPACE_LIST_DELIMITER="#"
 
 # Do NOT move the following accociative arrays to other files
 declare -g -A EZB_FUNC_SET
@@ -67,7 +70,7 @@ ezb_function_unset_accociative_arrays
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_function_exist() {
+function ezb_function_exist() {
     # Should only be called by another function. If not, give the function name in 1st argument
     if [[ -z "${1}" ]]; then
         [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 1
@@ -79,8 +82,8 @@ function ez_function_exist() {
 }
 
 function ezb_function_check_help_keyword() {
-    [ -z "${1}" ] && return # Print help info if no argument given
-    if ! ezb_contain "${EZB_FUNC_HELP}" "${@}"; then return 1; fi
+    [ -z "${1}" ] && return 0 # Print help info if no argument given
+    ezb_exclude "${EZB_FUNC_HELP}" "${@}" && return 1 || return 0
 }
 
 function ezb_function_print_help() {
@@ -132,7 +135,7 @@ function ezb_function_usage() {
     ezb_function_check_help_keyword "${@}" && ezb_function_print_help -f "${FUNCNAME[1]}" && return || return 1
 }
 
-function ez_set_argument() {
+function ezb_set_arg() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
         local type_info="[$(ez_join ', ' ${!EZB_ARG_TYPE_SET[@]})], default = \"${EZB_ARG_TYPE_DEFAULT}\""
         local usage=$(ez_build_usage -o "init" -d "Register Function Argument")
@@ -297,18 +300,19 @@ function ez_set_argument() {
     fi
 }
 
-function ez_get_argument() {
+function ezb_get_arg() {
     if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
         local usage=$(ez_build_usage -o "init" -d "Get argument value from argument list")
         usage+=$(ez_build_usage -o "add" -a "-s|--short" -d "Short Identifier")
         usage+=$(ez_build_usage -o "add" -a "-l|--long" -d "Long Identifier")
         usage+=$(ez_build_usage -o "add" -a "-a|--arguments" -d "Argument List")
-        usage+="\n[Notes]\n"
-        usage+="    Can only be called by another function"
-        usage+="    The arguments to process must be at the end of this function's argument list\n"
-        usage+="[Example]\n"
-        usage+="    ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\"\n"
         ez_print_usage "${usage}"
+        echo "[Notes]"
+        echo "    Can only be called by another function"
+        echo "    The arguments to process must be at the end of this function's argument list"
+        echo "[Example]"
+        echo "    ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\""
+        echo
         return
     fi
     # Must Run Inside Other Functions
@@ -351,13 +355,15 @@ function ez_get_argument() {
     if [ -n "${short}" ]; then
         short_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${short}"
         if [ -z "${EZB_FUNC_S_ARG_SET[${short_key}]}" ]; then
-            ez_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""; return 2
+            ez_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
+            return 2
         fi
     fi
     if [ -n "${long}" ]; then
         long_key="${function}${EZB_NON_SPACE_LIST_DELIMITER}${long}"
         if [ -z "${EZB_FUNC_L_ARG_SET[${long_key}]}" ]; then
-            ez_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""; return 2
+            ez_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
+            return 2
         fi
     fi
     if [ -n "${short}" ] && [ -n "${long}" ]; then
@@ -385,7 +391,9 @@ function ez_get_argument() {
         argument_choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${long_key}]}"   
     fi
     local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
-    [ -z "${argument_type}" ] && ez_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found" && return 3
+    if [ -z "${argument_type}" ]; then
+        ez_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3
+    fi
     if [ "${argument_type}" = "Flag" ]; then
         for item in ${arguments[@]}; do
             if [ "${item}" = "${short}" -o "${item}" = "${long}" ]; then

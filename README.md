@@ -52,20 +52,20 @@ source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"
 ```
 ```
 function bar() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-        ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-        ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-        ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-        ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
+        ezb_set_arg --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
+        ezb_set_arg --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
+        ezb_set_arg --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
+        ezb_set_arg --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local arg_1; arg_1="$(ez_get_argument --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_2; arg_2="$(ez_get_argument --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_3; arg_3="$(ez_get_argument --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_l; arg_l="$(ez_get_argument --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local dry_run; dry_run="$(ez_get_argument --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_1; arg_1="$(ezb_get_arg --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_2; arg_2="$(ezb_get_arg --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_3; arg_3="$(ezb_get_arg --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_l; arg_l="$(ezb_get_arg --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local dry_run; dry_run="$(ezb_get_arg --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"

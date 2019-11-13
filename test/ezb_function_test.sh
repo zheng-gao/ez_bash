@@ -28,19 +28,19 @@ function ez_test_get_list() {
 }
 
 function ez_test_core_function_1() {
-    if ! ez_function_exist; then
-        ez_set_argument -s "-t" --required -i "Your Title" &&
-        ez_set_argument --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
-        ez_set_argument -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
-        ez_set_argument -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
-        ez_set_argument -s "-h" -l "--happy" -t "Flag" || return 1
+    if ! ezb_function_exist; then
+        ezb_set_arg -s "-t" --required -i "Your Title" &&
+        ezb_set_arg --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
+        ezb_set_arg -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
+        ezb_set_arg -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
+        ezb_set_arg -s "-h" -l "--happy" -t "Flag" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local title="$(ez_get_argument --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local name="$(ez_get_argument --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local gender="$(ez_get_argument --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local pets="$(ez_get_argument --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local happy="$(ez_get_argument --short '-h' --long "--happy" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local title; title="$(ez_get_arg --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local name; name="$(ez_get_arg --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local gender; gender="$(ezb_get_arg --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local pets; pets="$(ezb_get_arg --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local happy; happy="$(ezb_get_arg --short '-h' --long "--happy" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     echo "Title = ${title}"
     echo "Name = ${name}"
     echo "Gender = ${gender}"
@@ -67,19 +67,19 @@ ez_test_core_function_1 --happy; echo
 
 
 function ez_test_core_function_2() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-        ez_set_argument --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-        ez_set_argument --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-        ez_set_argument --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-        ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
+        ezb_set_arg --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
+        ezb_set_arg --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
+        ezb_set_arg --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
+        ezb_set_arg --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local arg_1="$(ez_get_argument --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_2="$(ez_get_argument --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_3="$(ez_get_argument --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_l="$(ez_get_argument --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local dry_run="$(ez_get_argument --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_1; arg_1="$(ezb_get_arg --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_2; arg_2="$(ezb_get_arg --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_3; arg_3="$(ezb_get_arg --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_l; arg_l="$(ezb_get_arg --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local dry_run; dry_run="$(ezb_get_arg --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"

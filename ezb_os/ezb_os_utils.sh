@@ -17,14 +17,14 @@ function ezb_cmd_md5() {
 }
 
 function ezb_file_descriptor_count() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-p" --long "--process-id" --info "Process ID" &&
-        ez_set_argument --short "-n" --long "--process-name" --info "Process Name, only works for linux" ||
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-p" --long "--process-id" --info "Process ID" &&
+        ezb_set_arg --short "-n" --long "--process-name" --info "Process Name, only works for linux" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local pid="$(ez_get_argument --short "-p" --long "--process-id" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local name="$(ez_get_argument --short "-n" --long "--process-name" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local pid; pid="$(ezb_get_arg --short "-p" --long "--process-id" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local name; name="$(ezb_get_arg --short "-n" --long "--process-name" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local fd_count=0
     local os=$(ezb_os_name)
     if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez_log_error "Cannot use --pid and --name together" && return 1

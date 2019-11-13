@@ -1,16 +1,16 @@
 function ez_print_table() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
-        ez_set_argument --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
-        ez_set_argument --short "-d" --long "--data" --info "The input data if file is not provided" && 
-        ez_set_argument --short "-f" --long "--file" --info "The input file path" ||
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
+        ezb_set_arg --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
+        ezb_set_arg --short "-d" --long "--data" --info "The input data if file is not provided" && 
+        ezb_set_arg --short "-f" --long "--file" --info "The input file path" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local col_delimiter="$(ez_get_argument --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local row_delimiter="$(ez_get_argument --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local file="$(ez_get_argument --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local data="$(ez_get_argument --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local col_delimiter; col_delimiter="$(ezb_get_arg --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local row_delimiter; row_delimiter="$(ezb_get_arg --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local file; file="$(ezb_get_arg --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local data; data="$(ezb_get_arg --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
         [[ -n "${data}" ]] && ez_log_error "Please use single source of truth --file or --data, do not provide both" && return 1

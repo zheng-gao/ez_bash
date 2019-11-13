@@ -1,16 +1,16 @@
-function ez_string_length() {
+function ezb_string_length() {
     local input_string="${1}"
     echo "${#input_string}"
 }
 
 function ez_string_repeat() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-s" --long "--substring" --required --default "=" --info "Substring to be repeated" &&
-        ez_set_argument --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-s" --long "--substring" --required --default "=" --info "Substring to be repeated" &&
+        ezb_set_arg --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local substring="$(ez_get_argument --short "-s" --long "--substring" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local count="$(ez_get_argument --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local substring; substring="$(ezb_get_arg --short "-s" --long "--substring" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local count; count="$(ezb_get_arg --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ "${count}" -ge 0 ]]; then
         local line=""; local index=0
         for ((; "${index}" < "${count}"; ++index)); do line+="${substring}"; done
@@ -20,44 +20,30 @@ function ez_string_repeat() {
     fi
 }
 
-function ez_trim_string() {
-    local valid_keys=("left" "right" "both" "any")
-    local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
-    local usage_string=$(ez_build_usage -o "init" -a "ez_trim_string" -d "Trim input string")
-    usage_string+=$(ez_build_usage -o "add" -a "-s|--string" -d "The string to be trimmed")
-    usage_string+=$(ez_build_usage -o "add" -a "-p|--pattern" -d "Substring Pattern, default=${EZB_CHAR_SPACE}")
-    usage_string+=$(ez_build_usage -o "add" -a "-c|--count" -d "Occurrence of the pattern, default is infinite")
-    usage_string+=$(ez_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}], default = any")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ez_print_usage "${usage_string}"; return 1; fi
-    local input_string=""
-    local pattern="${EZB_CHAR_SPACE}"
-    local key="any"
-    local count=""
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-s" | "--string") shift; input_string=${1-} ;;
-            "-p" | "--pattern") shift; pattern=${1-} ;;
-            "-k" | "--key") shift; key=${1-} ;;
-            "-c" | "--count") shift; count=${1-} ;;
-            *) ez_print_log -l ERROR -m "Unknown argument \"$1\""; ez_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi
-    if ! ez_nonempty_check -n "-s|--string" -v "${input_string}" -o "${usage_string}"; then return 1; fi
-    if ! ez_nonempty_check -n "-p|--pattern" -v "${pattern}" -o "${usage_string}"; then return 1; fi
+function ezb_trim_string() {
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-s" --long "--string" --required --info "The string to be trimmed" &&
+        ezb_set_arg --short "-p" --long "--pattern" --required --default "${EZB_CHAR_SPACE}" --info "Substring Pattern" &&
+        ezb_set_arg --short "-c" --long "--count" --info "Occurrence of the pattern" &&
+        ezb_set_arg --short "-k" --long "--key" --required --default "any" --choices "left" "right" "both" "any" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local string; string="$(ezb_get_arg --short "-s" --long "--substring" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local pattern; pattern="$(ezb_get_arg --short "-p" --long "--pattern" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local count; count="$(ezb_get_arg --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local key; key="$(ezb_get_arg --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ "${pattern}" =  "${EZB_CHAR_SPACE}" ]]; then pattern=" "; fi
     if [[ "${key}" = "any" ]]; then
-        echo "${input_string}" | sed "s/${pattern}//g"
+        echo "${string}" | sed "s/${pattern}//g"
     elif [[ "${key}" = "left" ]]; then
-        if [[ -z "${count}" ]]; then echo "${input_string}" | sed "s/^\(${pattern}\)\{1,\}//"
-        else echo "${input_string}" | sed "s/^\(${pattern}\)\{1,${count}\}//"; fi
+        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/^\(${pattern}\)\{1,\}//"
+        else echo "${string}" | sed "s/^\(${pattern}\)\{1,${count}\}//"; fi
     elif [[ "${key}" = "right" ]]; then
-        if [[ -z "${count}" ]]; then echo "${input_string}" | sed "s/\(${pattern}\)\{1,\}$//"
-        else echo "${input_string}" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
+        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/\(${pattern}\)\{1,\}$//"
+        else echo "${string}" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
     elif [[ "${key}" = "both" ]]; then
-        if [[ -z "${count}" ]]; then echo "${input_string}" | sed "s/^\(${pattern}\)\{1,\}//" | sed "s/\(${pattern}\)\{1,\}$//"
-        else echo "${input_string}" | sed "s/^\(${pattern}\)\{1,${count}\}//" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
+        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/^\(${pattern}\)\{1,\}//" | sed "s/\(${pattern}\)\{1,\}$//"
+        else echo "${string}" | sed "s/^\(${pattern}\)\{1,${count}\}//" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
     fi
 }
 

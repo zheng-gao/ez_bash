@@ -1,16 +1,16 @@
-function ez_file_get_lines() {
-    if ! ez_function_exist; then
-        ez_set_argument --short "-p" --long "--path" --required --info "Path to the file" &&
-        ez_set_argument --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
-        ez_set_argument --short "-f" --long "--from" --default "1" --info "From line, negative number for reverse order" &&
-        ez_set_argument --short "-t" --long "--to" --default "EOL" --required --info "To line" ||
+function ezb_file_get_lines() {
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-p" --long "--path" --required --info "Path to the file" &&
+        ezb_set_arg --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
+        ezb_set_arg --short "-f" --long "--from" --default "1" --info "From line, negative number for reverse order" &&
+        ezb_set_arg --short "-t" --long "--to" --default "EOL" --required --info "To line" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local ith="$(ez_get_argument --short "-i" --long "--i-th" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local path="$(ez_get_argument --short "-p" --long "--path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local from="$(ez_get_argument --short "-f" --long "--from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local to="$(ez_get_argument --short "-t" --long "--to" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local ith; ith="$(ezb_get_arg --short "-i" --long "--i-th" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local path; path="$(ezb_get_arg --short "-p" --long "--path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local from; from="$(ezb_get_arg --short "-f" --long "--from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local to; to="$(ezb_get_arg --short "-t" --long "--to" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ -f "${path}" ]]; then
         [[ "${to}" = "EOL" ]] && to=$(cat "${path}" | wc -l | bc)
         if [[ -n "${ith}" ]]; then
