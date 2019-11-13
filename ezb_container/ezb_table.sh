@@ -6,7 +6,7 @@ function ez_print_table() {
         ez_set_argument --short "-f" --long "--file" --info "The input file path" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local col_delimiter="$(ez_get_argument --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local row_delimiter="$(ez_get_argument --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local file="$(ez_get_argument --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1

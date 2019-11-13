@@ -8,7 +8,7 @@ function ez_string_repeat() {
         ez_set_argument --short "-s" --long "--substring" --required --default "=" --info "Substring to be repeated" &&
         ez_set_argument --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local substring="$(ez_get_argument --short "-s" --long "--substring" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local count="$(ez_get_argument --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ "${count}" -ge 0 ]]; then

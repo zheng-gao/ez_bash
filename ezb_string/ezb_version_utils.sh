@@ -7,7 +7,7 @@ function ez_compare_version() {
         ez_set_argument --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local operation; operation="$(ez_get_argument --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local delimiter; delimiter="$(ez_get_argument --short "-d" --long "--delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local left_version; left_version="$(ez_get_argument --short "-l" --long "--left-version" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1

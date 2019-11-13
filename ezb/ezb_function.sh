@@ -78,9 +78,58 @@ function ez_function_exist() {
     fi
 }
 
-function ez_ask_for_help() {
+function ezb_function_check_help_keyword() {
     [ -z "${1}" ] && return # Print help info if no argument given
-    if ! ez_contain "${EZB_FUNC_HELP}" "${@}"; then return 1; fi
+    if ! ezb_contain "${EZB_FUNC_HELP}" "${@}"; then return 1; fi
+}
+
+function ezb_function_print_help() {
+    if [ "${1}" = "-h" -o "${1}" = "--help" ]; then
+        local usage=$(ez_build_usage -o "init" -d "Check if the function is registered")
+        usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
+        ez_print_usage "${usage}"
+        return
+    fi
+    # Should only be called by another function
+    local function="${FUNCNAME[1]}"
+    while [ -n "${1}" ]; do
+        case "${1}" in
+            "-f" | "--function") shift; function=${1}; [ -n "${1}" ] && shift ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        esac
+    done
+    [ -z "${function}" ] && function="${FUNCNAME[1]}"
+    [ -z "${EZB_FUNC_SET[${function}]}" ] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
+    echo; echo "[Function Name] \"${function}\""; echo
+    {
+        echo $(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
+        local key=""; local short=""; local long=""; local type=""; local required=""; local choices=""; local default=""; local info=""
+        for short in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${function}]}"); do
+            key="${function}${delimiter}${short}"
+            long="${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${key}]}"; [ -z "${long}" ] && long="${EZ_BASH_NONE}"
+            type="${EZB_FUNC_S_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
+            required="${EZB_FUNC_S_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
+            choices="${EZB_FUNC_S_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            default="${EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
+            echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+        done
+        for long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
+            key="${function}${delimiter}${long}"
+            short="${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${key}]}"
+            type="${EZB_FUNC_L_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
+            required="${EZB_FUNC_L_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
+            choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
+            [ -z "${short}" ] && short="${EZ_BASH_NONE}" && echo $(ez_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+        done
+    } | column -t -s "${delimiter}"; echo
+}
+
+function ezb_function_usage() {
+    ezb_function_check_help_keyword "${@}" && ezb_function_print_help -f "${FUNCNAME[1]}" && return || return 1
 }
 
 function ez_set_argument() {
@@ -413,50 +462,5 @@ function ez_get_argument() {
         # Not Found, Use Default
         echo "${argument_default}"
     fi
-}
-
-function ez_function_help() {
-    if [ "${1}" = "-h" -o "${1}" = "--help" ]; then
-        local usage=$(ez_build_usage -o "init" -d "Check if the function is registered")
-        usage+=$(ez_build_usage -o "add" -a "-f|--function" -d "Function Name")
-        ez_print_usage "${usage}"
-        return
-    fi
-    # Should only be called by another function
-    local function="${FUNCNAME[1]}"
-    while [ -n "${1}" ]; do
-        case "${1}" in
-            "-f" | "--function") shift; function=${1}; [ -n "${1}" ] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
-        esac
-    done
-    [ -z "${function}" ] && function="${FUNCNAME[1]}"
-    [ -z "${EZB_FUNC_SET[${function}]}" ] && ez_log_error "Function \"${function}\" NOT registered" && return 2
-    local delimiter="${EZB_NON_SPACE_LIST_DELIMITER}"
-    echo; echo "[Function Name] \"${function}\""; echo
-    {
-        echo $(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Default]" "[Choices]" "[Description]")
-        local key=""; local short=""; local long=""; local type=""; local required=""; local choices=""; local default=""; local info=""
-        for short in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${function}]}"); do
-            key="${function}${delimiter}${short}"
-            long="${EZB_FUNC_S_ARG_TO_L_ARG_MAP[${key}]}"; [ -z "${long}" ] && long="${EZ_BASH_NONE}"
-            type="${EZB_FUNC_S_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
-            required="${EZB_FUNC_S_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
-            choices="${EZB_FUNC_S_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
-            default="${EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
-            echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
-        done
-        for long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
-            key="${function}${delimiter}${long}"
-            short="${EZB_FUNC_L_ARG_TO_S_ARG_MAP[${key}]}"
-            type="${EZB_FUNC_L_ARG_TO_TYPE_MAP[${key}]}"; [ -z "${type}" ] && type="${EZ_BASH_NONE}"
-            required="${EZB_FUNC_L_ARG_TO_REQUIRED_MAP[${key}]}"; [ -z "${required}" ] && required="${EZ_BASH_NONE}"
-            choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZ_BASH_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
-            default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZ_BASH_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_BASH_NONE}"
-            [ -z "${short}" ] && short="${EZ_BASH_NONE}" && echo $(ez_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
-        done
-    } | column -t -s "${delimiter}"; echo
 }
 

@@ -3,7 +3,7 @@ function ezb_random_int() {
         ez_set_argument --short "-l" --long "--lower-bound" --default 0 --info "Inclusive Lower Bound" &&
         ez_set_argument --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local lower_bound="$(ez_get_argument --short "-l" --long "--lower-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local upper_bound="$(ez_get_argument --short "-u" --long "--upper-bound" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     [ "${lower_bound}" -gt "${upper_bound}" ] && return 2

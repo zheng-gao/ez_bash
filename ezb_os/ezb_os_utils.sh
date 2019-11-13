@@ -22,7 +22,7 @@ function ezb_file_descriptor_count() {
         ez_set_argument --short "-n" --long "--process-name" --info "Process Name, only works for linux" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local pid="$(ez_get_argument --short "-p" --long "--process-id" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local name="$(ez_get_argument --short "-n" --long "--process-name" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local fd_count=0

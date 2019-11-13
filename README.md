@@ -60,7 +60,7 @@ function bar() {
         ez_set_argument --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local arg_1; arg_1="$(ez_get_argument --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local arg_2; arg_2="$(ez_get_argument --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local arg_3; arg_3="$(ez_get_argument --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1

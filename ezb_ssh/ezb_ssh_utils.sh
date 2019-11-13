@@ -13,7 +13,7 @@ function ez_ssh_sudo_cmd() {
         ez_set_argument --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local host="$(ez_get_argument --short "-h" --long "--host" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local command="$(ez_get_argument --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local user="$(ez_get_argument --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -71,7 +71,7 @@ function ez_mssh_sudo_cmd() {
         ez_set_argument --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local hosts="$(ez_get_argument --short "-h" --long "--hosts" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local command="$(ez_get_argument --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local user="$(ez_get_argument --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -134,7 +134,7 @@ function ez_mssh_cmd() {
         ez_set_argument --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" ||
         return 1
     fi
-    ez_ask_for_help "${@}" && ez_function_help && return
+    ezb_function_usage "${@}" && return
     local hosts="$(ez_get_argument --short "-h" --long "--hosts" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local command="$(ez_get_argument --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local user="$(ez_get_argument --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1

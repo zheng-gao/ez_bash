@@ -24,7 +24,7 @@ function ezb_check_cmd() {
     if ! which "${1}" &> "${EZB_DIR_LOGS}/null"; then return 1; else return 0; fi
 }
 
-function ez_contain() {
+function ezb_contain() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
     for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
 }
