@@ -18,6 +18,7 @@ EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
 EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
 EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
 
+EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
@@ -140,4 +141,60 @@ function ezb_source_dir() {
             if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
     fi
+}
+
+function ez_print_log() {
+    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then
+        local usage=$(ezb_build_usage -o "init" -d "Print log in \"EZ-BASH\" standard log format to console")
+        usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
+        usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "Message to print")
+        ezb_print_usage "${usage}"; return 1
+    fi
+    local time_stamp="$(date '+%Y-%m-%d %H:%M:%S')"; local logger="INFO"; local message=()
+    while [ -n "${1}" ]; do
+        case "${1-}" in
+            "-l" | "--logger") shift; logger="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-m" | "--message") shift
+                while [ -n "${1}" ]; do
+                    if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
+                    message+=("${1-}"); shift
+                done ;;
+            *) echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
+               echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
+               return 1 ;;
+        esac
+    done
+    echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack 1)[${logger}] ${message[*]}"
+}
+
+function ez_print_log_to_file() {
+    local usage_string=$(ezb_build_usage -o "init" -a "ez_print_log_to_file" -d "Print log in \"EZ-BASH\" standard log format to file")
+    usage_string+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
+    usage_string+=$(ezb_build_usage -o "add" -a "-m|--message" -d "Message to print")
+    usage_string+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path")
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
+    local logger="INFO"
+    local log_file="${EZB_DEFAULT_LOG}"
+    local message=()
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-l" | "--logger") shift; logger="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-f" | "--file") shift; log_file="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-m" | "--message") shift
+                while [[ ! -z "${1-}" ]]; do
+                    if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
+                    if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
+                    message+=("${1-}"); shift
+                done ;;
+            *) echo "[${EZB_LOGO}][ERROR] Unknown argument indentifier \"${1}\""
+               ezb_print_usage "${usage_string}"; return 1; ;;
+        esac
+    done
+    if [[ "${log_file}" == "" ]]; then log_file="${EZB_DEFAULT_LOG}"; fi
+    # Make sure the log_file exists and you have the write permission
+    if [ ! -e "${log_file}" ]; then touch "${log_file}"; fi
+    if [ ! -f "${log_file}" ] || [ ! -w "${log_file}" ]; then
+        ez_print_log -l "ERROR" -m "Log File \"${log_file}\" not exist or not writable"; return 1
+    fi
+    ez_print_log -l "${logger}" -m "${message[*]}" >> "${log_file}"
 }

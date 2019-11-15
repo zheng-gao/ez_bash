@@ -98,3 +98,45 @@ function ezb_string_check() {
         fi
     fi
 }
+
+function ez_print_banner() {
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then
+        local usage_string=$(ezb_build_usage -o "init" -a "ez_print_banner" -d "Print \"EZ-BASH\" standard banner")
+        usage_string+=$(ezb_build_usage -o "add" -a "-s|--substring" -d "The substring in the spliter, default is \"=\"")
+        usage_string+=$(ezb_build_usage -o "add" -a "-c|--count" -d "The count of the substrings, default is \"80\"")
+        usage_string+=$(ezb_build_usage -o "add" -a "-m|--message" -d "Message to print in the banner")
+        usage_string+=$(ezb_build_usage -o "add" -a "-p|--prefix" -d "Print EZ-BASH log prefix")
+        ezb_print_usage "${usage_string}"; return 1
+    fi
+    local count=80
+    local substring="="
+    local prefix="${EZB_BOOL_FALSE}"
+    local message=()
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-s" | "--substring") shift; substring="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-c" | "--count") shift; count="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-p" | "--prefix") prefix="${EZB_BOOL_TRUE}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-m" | "--message") shift
+                while [[ ! -z "${1-}" ]]; do
+                    if [[ "${1}" ==  "-s" ]] || [[ "${1}" ==  "--substring" ]]; then break; fi
+                    if [[ "${1}" ==  "-c" ]] || [[ "${1}" ==  "--count" ]]; then break; fi
+                    if [[ "${1}" ==  "-m" ]] || [[ "${1}" ==  "--message" ]]; then break; fi
+                    if [[ "${1}" ==  "-p" ]] || [[ "${1}" ==  "--prefix" ]]; then break; fi
+                    message+=("${1-}"); shift
+                done ;;
+            *)  ez_print_log -l "ERROR" -m "Unknown argument indentifier \"${1}\""
+                ez_print_log -m "For more info, please run \"${FUNCNAME[0]} --help\""; return 1; ;;
+        esac
+    done
+    local spliter=$(ezb_string_repeat --substring "${substring}" --count ${count})
+    if [[ "${prefix}" == "${EZB_BOOL_TRUE}" ]]; then
+        ez_print_log -l INFO -m "${spliter}"
+        ez_print_log -l INFO -m "${message[@]}"
+        ez_print_log -l INFO -m "${spliter}"
+    else
+        echo "${spliter}"
+        echo "${message[@]}"
+        echo "${spliter}"
+    fi
+}
