@@ -1,22 +1,22 @@
 ###################################################################################################
-# -------------------------------------- Export Variables --------------------------------------- #
+# -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-export EZB_LOGO="EZ-BASH"
+EZB_LOGO="EZ-BASH"
 
-export EZB_BOOL_TRUE="True"
-export EZB_BOOL_FALSE="False"
+EZB_BOOL_TRUE="True"
+EZB_BOOL_FALSE="False"
 
-export EZB_OPT_ALL="All"
-export EZB_OPT_ANY="Any"
-export EZB_OPT_NONE="None"
+EZB_OPT_ALL="All"
+EZB_OPT_ANY="Any"
+EZB_OPT_NONE="None"
 
-export EZB_CHAR_SHARP="_SHARP_"
-export EZB_CHAR_SPACE="_SPACE_"
-export EZB_CHAR_NON_SPACE_DELIMITER="#"
+EZB_CHAR_SHARP="EZB_SHARP"
+EZB_CHAR_SPACE="EZB_SPACE"
+EZB_CHAR_NON_SPACE_DELIMITER="#"
 
-export EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
-export EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
-export EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
+EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
+EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
+EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
