@@ -17,7 +17,7 @@ function foo() {
         case "${1-}" in
             "-a1" | "--argument-1") shift; arg_1="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-a2" | "--argument-2") shift; arg_2="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage}"; return 1 ;;
+            *) ezb_log_error "Unknown argument \"$1\""; return 1 ;;
         esac
     done
     echo "Argument 1: ${arg_1}"
@@ -69,7 +69,7 @@ function bar() {
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; tr "${EZB_CHAR_NON_SPACE_DELIMITER}" "\n" <<< "${arg_l}"
+    echo "Argument List:"; ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${arg_l}"
     echo "Dry Run   : ${dry_run}"
 }
 ```
