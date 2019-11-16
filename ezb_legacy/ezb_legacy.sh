@@ -128,10 +128,9 @@ function ez_path_check() {
     return 0
 }
 
-
 function ezb_sanity_check() {
     local command_list=("date" "uname" "printf")
-    for command in "${command_list[@]}"; do
+    local command=""; for command in "${command_list[@]}"; do
         if ! ezb_cmd_check "${command}"; then
             ezb_log_error "\"${command}\" does not exist!"
         else

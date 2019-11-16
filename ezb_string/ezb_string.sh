@@ -11,13 +11,8 @@ function ezb_string_repeat() {
     ezb_function_usage "${@}" && return
     local string; string="$(ezb_get_arg --short "-s" --long "--string" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local count; count="$(ezb_get_arg --short "-c" --long "--count" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    if [[ "${count}" -ge 0 ]]; then
-        local line=""; local index=0
-        for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done
-        echo "${line}"
-    else
-        ezb_log_error "Invalid Count \"${count}\"" && return 1
-    fi
+    [[ "${count}" -lt 0 ]] && ezb_log_error "Invalid Count \"${count}\"" && return 1
+    local line=""; local index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
 }
 
 function ezb_string_trim() {

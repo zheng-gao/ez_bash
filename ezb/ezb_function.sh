@@ -231,7 +231,7 @@ function ezb_set_arg() {
             unset EZB_FUNC_S_ARG_TO_INFO_MAP["${key}"]
             unset EZB_FUNC_S_ARG_TO_CHOICES_MAP["${key}"]
             unset EZB_FUNC_S_ARG_SET["${key}"]
-            local new_short_list_string=""
+            local new_short_list_string=""; local existing_short=""
             for existing_short in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${function}]}"); do
                 if [[ "${short_old}" != "${existing_short}" ]]; then
                     if [ -z "${new_short_list_string}" ]; then 
@@ -273,7 +273,7 @@ function ezb_set_arg() {
             unset EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]
             unset EZB_FUNC_L_ARG_TO_CHOICES_MAP["${key}"]
             unset EZB_FUNC_L_ARG_SET["${key}"]
-            local new_long_list_string=""
+            local new_long_list_string=""; local existing_long=""
             for existing_long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
                 if [[ "${long_old}" != "${existing_long}" ]]; then
                     if [ -z "${new_short_list_string}" ]; then 
@@ -383,7 +383,7 @@ function ezb_get_arg() {
         ezb_log_error "Arg-Type for \"${short}\" or \"${long}\" of function \"${function}\" Not Found"; return 3
     fi
     if [ "${argument_type}" = "Flag" ]; then
-        for item in ${arguments[@]}; do
+        local item=""; for item in ${arguments[@]}; do
             if [ "${item}" = "${short}" -o "${item}" = "${long}" ]; then
                 echo "${EZB_BOOL_TRUE}"; return
             fi

@@ -64,7 +64,7 @@ function ezb_git_file_stats() {
             cat "${log_file}"
         elif [[ "${operation}" == "exclude-head-files" ]]; then
             declare -A file_hashes_in_head
-            for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
+            local line=""; for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
                 file_hashes_in_head["${line}"]="true"
             done
             while read -r line; do

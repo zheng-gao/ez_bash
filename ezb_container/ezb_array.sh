@@ -89,6 +89,7 @@ function ezb_is_subset() {
             *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
+    local item=""
     if [[ "${operation}" == "A-IN-B" ]]; then
         for item in "${!set_a[@]}"; do
             if [ ! ${set_b["${item}"]+_} ]; then

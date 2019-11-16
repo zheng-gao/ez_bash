@@ -135,7 +135,7 @@ function ezb_print_progress() {
 }
 
 function ezb_print_list_with_progress_bar() {
-    local out=""; local i=0
+    local out=""; local i=0; local data=""
     for data in ${@}; do
         out+="${data} "
         ((++i))

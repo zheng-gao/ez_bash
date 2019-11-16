@@ -37,16 +37,16 @@ function ezb_to_upper() {
 
 function ezb_contain() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
+    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
 }
 
 function ezb_exclude() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
+    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
 }
 
 function ezb_join() {
-    local delimiter="${1}"; local i=0; local out_put=""
+    local delimiter="${1}"; local i=0; local out_put=""; local data=""
     for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
 }
@@ -153,11 +153,11 @@ function ezb_source_dir() {
     [[ ! -d "${path}" ]] && ezb_log_error "\"${path}\" is not a directory" && return 2
     [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
     if [[ "${exclude}" = "" ]]; then
-        for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
+        local sh_file_path=""; for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
             if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
     else
-        for sh_file_path in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
+        local sh_file_path=""; for sh_file_path in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
             if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
     fi

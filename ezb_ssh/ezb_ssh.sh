@@ -88,7 +88,7 @@ function ez_mssh_sudo_cmd() {
     local failure_count=0; results["Failure"]=""
     local output=""; local md5_string=""
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
-    for host in $(echo "${hosts}" | sed "s/,/ /g"); do
+    local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         ez_ssh_sudo_cmd --host "${host}" --user "${user}" --command "${command}" --password "${password}" \
                         --timeout "${timeout}" --prompt "${prompt}" --output "${output}"
@@ -106,7 +106,7 @@ function ez_mssh_sudo_cmd() {
         fi
     done
     ezb_banner -m "Command Output"
-    local host_count=0; local host=""
+    local host_count=0; local host=""; local key=""
     for key in "${!results[@]}"; do
         if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
             host_count=$(tr "," " " <<< "${results[${key}]}" | wc -w | bc)
@@ -150,7 +150,7 @@ function ez_mssh_cmd() {
     local cmd_timeout=$(ezb_cmd_timeout); local cmd_md5=$(ezb_cmd_md5)
     local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
-    for host in $(echo "${hosts}" | sed "s/,/ /g"); do
+    local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         if [[ -z "${user}" ]] || [[ "${user}" = "${USER}" ]]; then destination="${host}"; else destination="${user}@${host}"; fi
         is_successful=${EZB_BOOL_FALSE}
@@ -178,7 +178,7 @@ function ez_mssh_cmd() {
         fi
     done
     ezb_banner -m "Command Output"
-    local host_count=0; local host=""
+    local host_count=0; local host=""; local key=""
     for key in "${!results[@]}"; do
         if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
             host_count=$(echo "${results[${key}]}" | tr "," " " | wc -w | bc)
