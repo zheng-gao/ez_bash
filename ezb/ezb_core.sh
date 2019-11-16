@@ -57,12 +57,8 @@ function ezb_split() {
     local item=""; local tmp=""; local k=0
     while [[ "${k}" -lt "${s_length}" ]]; do
         tmp="${string:k:${d_length}}"
-        if [[ "${tmp}" = "${delimiter}" ]]; then
-            [[ -n "${item}" ]] && echo "${item}"
-            item=""; ((k += d_length))
-        else
-            item+="${string:k:1}"; ((++k))
-        fi
+        if [[ "${tmp}" = "${delimiter}" ]]; then [[ -n "${item}" ]] && echo "${item}"; item=""; ((k += d_length))
+        else item+="${string:k:1}"; ((++k)); fi
         [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && echo "${item}"
     done
 }
