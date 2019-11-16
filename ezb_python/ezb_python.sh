@@ -1,8 +1,8 @@
 ###################################################################################################
 # ------------------------------------------ Variables ------------------------------------------ #
 ###################################################################################################
-EZ_BASH_PYTHON_REQUEST="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_request.py"
-EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_table.py"
+EZ_BASH_PYTHON_REQUEST="${EZ_BASH_HOME}/ezb_python/ezb_python_request.py"
+EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ezb_python/ezb_python_table.py"
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
