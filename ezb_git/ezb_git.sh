@@ -1,57 +1,33 @@
 function ezb_git_commit_stats() {
-    local valid_time_formats=("Epoch" "Datetime")
-    local valid_time_formats_string=$(ezb_join ', ' "${valid_time_formats[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -d "Print Commit Statistics Of Git Repo")
-    usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo Path")
-    usage_string+=$(ezb_build_usage -o "add" -a "-f|--time-format" -d "Choose From: [${valid_time_formats_string}], default = Datetime")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local repo_path=""
-    local time_format="Datetime"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-r" | "--repo-path") shift; repo_path=${1-} ;;
-            "-f" | "--time-format") shift; time_format=${1-} ;;
-            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if ! ez_argument_check -n "-f|--time-format" -v "${time_format}" -c "${valid_time_formats[@]}" -o "${usage_string}"; then return 1; fi
-    if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
-    if ! ezb_cmd_check "git"; then
-        ezb_log_error "Command \"git\" not found!"
-        ezb_print_usage "${usage_string}"; return 1
+    if ! ezb_function_exist; then
+        local valid_time_formats=("Epoch" "Datetime")
+        ezb_set_arg --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
+        ezb_set_arg --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
     fi
+    ezb_function_usage "${@}" && return
+    local repo_path; repo_path="$(ezb_get_arg --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local time_format; time_format="$(ezb_get_arg --short "-t" --long "--time-format" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    if ! ezb_cmd_check "git"; then ezb_log_error "Command \"git\" not found!"; return 1; fi
+    [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
-    if [[ "${time_format}" == "Epoch" ]]; then date_option="unix"; fi
+    [[ "${time_format}" = "Epoch" ]] && date_option="unix"
     git -C "${repo_path}" config diff.renameLimit 999999
     git -C "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
 }
 
 
 function ezb_git_file_stats() {
-    local valid_operation=("all" "exclude-head-files" "only-head-files")
-    local valid_operation_string=$(ezb_join ', ' "${valid_operation[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -d "Print files in git history")
-    usage_string+=$(ezb_build_usage -o "add" -a "-o|--operation" -d "Choose from [${valid_operation_string}], default = \"all\"")
-    usage_string+=$(ezb_build_usage -o "add" -a "-r|--repo-path" -d "Repo path")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local operation="all"
-    local repo_path=""
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-r" | "--repo-path") shift; repo_path=${1-} ;;
-            "-o" | "--operation") shift; operation=${1-} ;;
-            *)
-                ezb_log_error "Unknown argument \"$1\""
-                ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if ! ezb_cmd_check "git"; then ezb_log_error "Command \"git\" Not Found"; return 1; fi
-    if ! ez_argument_check -n "-o|--operation" -v "${operation}" -c "${valid_operation[@]}" -o "${usage_string}"; then return 1; fi
-    if ! ez_nonempty_check -n "-r|--repo-path" -v "${repo_path}" -o "${usage_string}"; then return 1; fi
-    if [ ! -e "${repo_path}" ]; then ezb_log_error "\"${repo_path}\" Not Found!"; return 1; fi
-    if [[ "${operation}" == "only-head-files" ]]; then
+    if ! ezb_function_exist; then
+        local valid_operations=("${EZB_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
+        ezb_set_arg --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
+        ezb_set_arg --short "-o" --long "--operation" --required --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local repo_path; repo_path="$(ezb_get_arg --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local operation; operation="$(ezb_get_arg --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    if ! ezb_cmd_check "git"; then ezb_log_error "Command \"git\" not found!"; return 1; fi
+    [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
         local log_file="${EZB_DIR_LOGS}/${FUNCNAME[0]}.log"
@@ -60,9 +36,9 @@ function ezb_git_file_stats() {
         | sed -n 's/^blob //p' \
         | sort --numeric-sort --key=2 \
         | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest > "${log_file}"
-        if [[ "${operation}" == "all" ]]; then
+        if [[ "${operation}" = "${EZB_OPT_ALL}" ]]; then
             cat "${log_file}"
-        elif [[ "${operation}" == "exclude-head-files" ]]; then
+        elif [[ "${operation}" = "ExcludeHeadFiles" ]]; then
             declare -A file_hashes_in_head
             local line=""; for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
                 file_hashes_in_head["${line}"]="true"
