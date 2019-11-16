@@ -35,12 +35,12 @@ function ezb_to_upper() {
     tr "[:lower:]" "[:upper:]" <<< "${@}"
 }
 
-function ezb_contain() {
+function ezb_contains() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
     local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
 }
 
-function ezb_exclude() {
+function ezb_excludes() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
     local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
 }
@@ -192,7 +192,7 @@ function ezb_log() {
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    if ezb_exclude "${output_to}" "${valid_output_to[@]}"; then
+    if ezb_excludes "${output_to}" "${valid_output_to[@]}"; then
         ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ezb_join ', ' ${valid_output_to[@]})]"
         return 2
     fi

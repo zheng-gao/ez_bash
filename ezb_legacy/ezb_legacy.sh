@@ -64,16 +64,16 @@ function ez_argument_check() {
     local choices=()
     while [[ ! -z "${1-}" ]]; do
         if [[ "${1}" == "-n" ]] || [[ "${1}" == "--name" ]]; then shift
-            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then name="${1-}"; shift; fi
+            if ezb_excludes "${1-}" "${all_argument_names[@]}"; then name="${1-}"; shift; fi
         elif [[ "${1}" == "-v" ]] || [[ "${1}" == "--value" ]]; then shift
-            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then value="${1-}"; shift; fi
+            if ezb_excludes "${1-}" "${all_argument_names[@]}"; then value="${1-}"; shift; fi
         elif [[ "${1}" == "-o" ]] || [[ "${1}" == "--output" ]]; then shift
-            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then output="${1-}"; shift; fi
+            if ezb_excludes "${1-}" "${all_argument_names[@]}"; then output="${1-}"; shift; fi
         elif [[ "${1}" == "-c" ]] || [[ "${1}" == "--choices" ]]; then shift
             if [[ "${1-}" == "" ]]; then shift
             else
                 while [[ ! -z "${1-}" ]]; do
-                    if ezb_contain "${1-}" "${all_argument_names[@]}"; then break; fi
+                    if ezb_contains "${1-}" "${all_argument_names[@]}"; then break; fi
                     choices+=("${1-}"); shift
                 done
             fi
@@ -82,7 +82,7 @@ function ez_argument_check() {
             ezb_print_usage "${usage_string}"; return 1
         fi
     done
-    if ezb_exclude "${value}" "${choices[@]}"; then
+    if ezb_excludes "${value}" "${choices[@]}"; then
         ezb_log_error "Invalid value \"${value}\" for \"${name}\""
         ezb_print_usage "${output}"
         return 1

@@ -23,9 +23,9 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     if [[ -z "${1}" ]]; then
         # By default source ALL libs
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_os"; then return 2; fi
-        if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_container"; then return 2; fi
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_file"; then return 2; fi
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_math"; then return 2; fi
+        if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_set"; then return 2; fi
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_ssh"; then return 2; fi
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_string"; then return 2; fi
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_time"; then return 2; fi

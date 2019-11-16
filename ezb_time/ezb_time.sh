@@ -92,7 +92,7 @@ function ezb_seconds_to_readable_time() {
         if [[ ! -z "${1-}" ]]; then shift; fi
     done
     if [[ "${format}" == "" ]]; then format="Mini"; fi
-    if ezb_exclude "${format}" "${output_formats[@]}"; then
+    if ezb_excludes "${format}" "${output_formats[@]}"; then
         ezb_log_error "Invalid format \"${format}\""
         ezb_print_usage "${usage_string}"; return 1
     fi

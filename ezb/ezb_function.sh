@@ -78,7 +78,7 @@ function ezb_function_exist() {
 
 function ezb_function_check_help_keyword() {
     [ -z "${1}" ] && return 0 # Print help info if no argument given
-    ezb_exclude "${EZB_FUNC_HELP}" "${@}" && return 1 || return 0
+    ezb_excludes "${EZB_FUNC_HELP}" "${@}" && return 1 || return 0
 }
 
 function ezb_function_print_help() {
