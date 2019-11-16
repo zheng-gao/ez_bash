@@ -64,16 +64,16 @@ function ez_argument_check() {
     local choices=()
     while [[ ! -z "${1-}" ]]; do
         if [[ "${1}" == "-n" ]] || [[ "${1}" == "--name" ]]; then shift
-            if [[ $(ez_check_item_in_array -i "${1-}" -a "${all_argument_names[@]}") != "${EZB_BOOL_TRUE}" ]]; then name="${1-}"; shift; fi
+            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then name="${1-}"; shift; fi
         elif [[ "${1}" == "-v" ]] || [[ "${1}" == "--value" ]]; then shift
-            if [[ $(ez_check_item_in_array -i "${1-}" -a "${all_argument_names[@]}") != "${EZB_BOOL_TRUE}" ]]; then value="${1-}"; shift; fi
+            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then value="${1-}"; shift; fi
         elif [[ "${1}" == "-o" ]] || [[ "${1}" == "--output" ]]; then shift
-            if [[ $(ez_check_item_in_array -i "${1-}" -a "${all_argument_names[@]}") != "${EZB_BOOL_TRUE}" ]]; then output="${1-}"; shift; fi
+            if ezb_exclude "${1-}" "${all_argument_names[@]}"; then output="${1-}"; shift; fi
         elif [[ "${1}" == "-c" ]] || [[ "${1}" == "--choices" ]]; then shift
             if [[ "${1-}" == "" ]]; then shift
             else
                 while [[ ! -z "${1-}" ]]; do
-                    if [[ $(ez_check_item_in_array -i "${1-}" -a "${all_argument_names[@]}") == "${EZB_BOOL_TRUE}" ]]; then break; fi
+                    if ezb_contain "${1-}" "${all_argument_names[@]}"; then break; fi
                     choices+=("${1-}"); shift
                 done
             fi
@@ -82,7 +82,7 @@ function ez_argument_check() {
             ezb_print_usage "${usage_string}"; return 1
         fi
     done
-    if [[ $(ez_check_item_in_array -i "${value}" -a "${choices[@]}") != "${EZB_BOOL_TRUE}" ]]; then
+    if ezb_exclude "${value}" "${choices[@]}"; then
         ezb_log_error "Invalid value \"${value}\" for \"${name}\""
         ezb_print_usage "${output}"
         return 1
@@ -91,7 +91,7 @@ function ez_argument_check() {
 
 function ez_path_check() {
     local valid_keys=("Nonempty-File" "Directory")
-    local valid_keys_string=$(ez_print_array_with_delimiter -d ", " -a "${valid_keys[@]}")
+    local valid_keys_string=$(ezb_join ', ' "${valid_keys[@]}")
     local usage_string=$(ezb_build_usage -o "init" -d "Check if the given path is a valid file or directory")
     usage_string+=$(ezb_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}], default = \"nonempty-file\"")
     usage_string+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Given Path")

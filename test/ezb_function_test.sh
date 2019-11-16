@@ -9,24 +9,6 @@ if ! source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then exit 1; fi
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
 ###################################################################################################
-function ez_test_get_list() {
-    local input="${1}"
-    local item=""
-    local length="${#input}"
-    local last_index=0
-    ((last_index=length-1))
-    for ((k=0; k < "${length}"; ++k)); do
-        local char="${input:k:1}"
-        if [ "${char}" = "${EZB_CHAR_NON_SPACE_DELIMITER}" ]; then
-            [ -n "${item}" ] && echo "${item}"
-            item=""
-        else
-            item+="${char}"
-        fi
-        [ "${k}" -eq "${last_index}" ] && [ -n "${item}" ] && echo "${item}"
-    done
-}
-
 function ez_test_core_function_1() {
     if ! ezb_function_exist; then
         ezb_set_arg -s "-t" --required -i "Your Title" &&
@@ -36,8 +18,8 @@ function ez_test_core_function_1() {
         ezb_set_arg -s "-h" -l "--happy" -t "Flag" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local title; title="$(ez_get_arg --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local name; name="$(ez_get_arg --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local title; title="$(ezb_get_arg --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local name; name="$(ezb_get_arg --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local gender; gender="$(ezb_get_arg --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local pets; pets="$(ezb_get_arg --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local happy; happy="$(ezb_get_arg --short '-h' --long "--happy" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
@@ -46,7 +28,7 @@ function ez_test_core_function_1() {
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
     echo "Pets = "; tr "${EZB_CHAR_NON_SPACE_DELIMITER}" "\n" <<< "${pets}"
-    echo "Pets = "; ez_test_get_list "${pets}"
+    echo "Pets = "; ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${pets}"
 }
 
 echo "[Test 1]"

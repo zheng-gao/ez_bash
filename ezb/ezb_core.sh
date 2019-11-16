@@ -51,6 +51,22 @@ function ezb_join() {
     echo "${out_put}"
 }
 
+function ezb_split() {
+    local delimiter="${1}"; local string="${2}"
+    local d_length="${#delimiter}"; local s_length="${#string}"
+    local item=""; local tmp=""; local k=0
+    while [[ "${k}" -lt "${s_length}" ]]; do
+        tmp="${string:k:${d_length}}"
+        if [[ "${tmp}" = "${delimiter}" ]]; then
+            [[ -n "${item}" ]] && echo "${item}"
+            item=""; ((k += d_length))
+        else
+            item+="${string:k:1}"; ((++k))
+        fi
+        [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && echo "${item}"
+    done
+}
+
 function ezb_log_stack() {
     local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
     if [[ -n "${ignore_top_x}" ]]; then
