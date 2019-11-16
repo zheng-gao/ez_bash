@@ -89,45 +89,6 @@ function ez_argument_check() {
     fi
 }
 
-function ez_path_check() {
-    local valid_keys=("Nonempty-File" "Directory")
-    local valid_keys_string=$(ezb_join ', ' "${valid_keys[@]}")
-    local usage_string=$(ezb_build_usage -o "init" -d "Check if the given path is a valid file or directory")
-    usage_string+=$(ezb_build_usage -o "add" -a "-k|--key" -d "Valid Keys: [${valid_keys_string}], default = \"nonempty-file\"")
-    usage_string+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Given Path")
-    usage_string+=$(ezb_build_usage -o "add" -a "-s|--silent" -d "[Optional][Bool] Does not print error log")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local key=""
-    local path=""
-    local silent="${EZB_BOOL_FALSE}"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-k" | "--key") shift; key=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-p" | "--path") shift; path=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-s" | "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
-            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-    done
-    if ! ez_nonempty_check -n "-p|--path" -v "${path}" -o "${usage_string}"; then return 1; fi
-    if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi
-    if [[ ! -e "${path}" ]]; then ezb_log_error "${path} does not exist"; return 1; fi
-    if [[ "${key}" == "Nonempty-File" ]]; then
-        if [[ ! -f "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is not a file"; fi
-            return 1
-        elif [[ ! -s "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is empty"; fi
-            return 1
-        fi
-    elif [[ "${key}" == "Directory" ]]; then
-        if [[ ! -d "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is not a directory"; fi
-            return 1
-        fi
-    fi
-    return 0
-}
-
 function ezb_sanity_check() {
     local command_list=("date" "uname" "printf")
     local command=""; for command in "${command_list[@]}"; do
