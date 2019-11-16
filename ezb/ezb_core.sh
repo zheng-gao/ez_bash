@@ -27,6 +27,14 @@ function ezb_check_cmd() {
     if ! which "${1}" &> "${EZB_DIR_LOGS}/null"; then return 1; else return 0; fi
 }
 
+function ezb_to_lower() {
+    tr "[:upper:]" "[:lower:]" <<< "${@}"
+}
+
+function ezb_to_upper() {
+    tr "[:lower:]" "[:upper:]" <<< "${@}"
+}
+
 function ezb_contain() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
     for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
@@ -74,7 +82,7 @@ function ezb_print_usage() {
 }
 
 function ezb_build_usage() {
-    if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         # column delimiter = "#"
         local usage="[Function Name]#ezb_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
         usage+="-o|--operation#Choose from: [\"add\", \"init\"]\n"
@@ -105,15 +113,15 @@ function ezb_build_usage() {
 }
 
 function ezb_source() {
-    [ -z "${1}" ] && ezb_log_error "Empty file path" && return 1
+    [[ -z "${1}" ]] && ezb_log_error "Empty file path" && return 1
     local file_path="${1}"
-    [ ! -f "${file_path}" ] && ezb_log_error "Invalid file path \"${file_path}\"" && return 2
-    [ ! -r "${file_path}" ] && ezb_log_error "Unreadable file \"${file_path}\"" && return 3
+    [[ ! -f "${file_path}" ]] && ezb_log_error "Invalid file path \"${file_path}\"" && return 2
+    [[ ! -r "${file_path}" ]] && ezb_log_error "Unreadable file \"${file_path}\"" && return 3
     if ! source "${file_path}"; then ezb_log_error "Failed to source \"${file_path}\"" && return 4; fi
 }
 
 function ezb_source_dir() {
-    if [ "${1}" = "" -o "${1}" = "-h" -o "${1}" = "--help" ]; then
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
         usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
         usage+=$(ezb_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
@@ -121,18 +129,18 @@ function ezb_source_dir() {
         return
     fi
     local path="."; local exclude=""
-    while [ -n "${1}" ]; do
+    while [[ -n "${1}" ]]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1} && [ -n "${1}" ] && shift ;;
             "-r" | "--exclude") shift; exclude=${1} && [ -n "${1}" ] && shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    [ -z "${path}" ] && ezb_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
+    [[ -z "${path}" ]] && ezb_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
     path="${path%/}" # Remove a trailing slash if there is one
-    [ ! -d "${path}" ] && ezb_log_error "\"${path}\" is not a directory" && return 2
-    [ ! -r "${path}" ] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
-    if [ "${exclude}" = "" ]; then
+    [[ ! -d "${path}" ]] && ezb_log_error "\"${path}\" is not a directory" && return 2
+    [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
+    if [[ "${exclude}" = "" ]]; then
         for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
             if ! ezb_source "${sh_file_path}"; then return 4; fi
         done
@@ -143,58 +151,60 @@ function ezb_source_dir() {
     fi
 }
 
-function ez_print_log() {
-    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then
-        local usage=$(ezb_build_usage -o "init" -d "Print log in \"EZ-BASH\" standard log format to console")
-        usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
-        usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "Message to print")
-        ezb_print_usage "${usage}"; return 1
+function ezb_log() {
+    local valid_output_to=("Console" "File" "${EZB_OPT_ALL}")
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        local usage=$(ezb_build_usage -o "init" -d "Print log to file in \"EZ-BASH\" standard log format")
+        usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type, default = \"INFO\"")
+        usage+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path, default = \"${EZB_DEFAULT_LOG}\"")
+        usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "The message to print")
+        usage+=$(ezb_build_usage -o "add" -a "-s|--simple" -d "Hide function stack")
+        usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [$(ezb_join ', ' ${valid_output_to[@]})], default = \"Console\"")
+        ezb_print_usage "${usage}"
+        return
     fi
-    local time_stamp="$(date '+%Y-%m-%d %H:%M:%S')"; local logger="INFO"; local message=()
-    while [ -n "${1}" ]; do
-        case "${1-}" in
-            "-l" | "--logger") shift; logger="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-m" | "--message") shift
-                while [ -n "${1}" ]; do
-                    if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
-                    message+=("${1-}"); shift
-                done ;;
-            *) echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] Unknown argument indentifier \"${1}\""
-               echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack)[ERROR] For more info, please run \"${FUNCNAME[0]} --help\""
-               return 1 ;;
-        esac
-    done
-    echo "[${EZB_LOGO}][${time_stamp}]$(ezb_log_stack 1)[${logger}] ${message[*]}"
-}
-
-function ez_print_log_to_file() {
-    local usage_string=$(ezb_build_usage -o "init" -a "ez_print_log_to_file" -d "Print log in \"EZ-BASH\" standard log format to file")
-    usage_string+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type such as INFO, WARN, ERROR, ...")
-    usage_string+=$(ezb_build_usage -o "add" -a "-m|--message" -d "Message to print")
-    usage_string+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
+    declare -A arg_set_of_ezb_log_to_file=(
+        ["-l"]="1" ["--logger"]="1"
+        ["-m"]="1" ["--message"]="1"
+        ["-f"]="1" ["--file"]="1"
+        ["-s"]="1" ["--simple"]="1"
+        ["-o"]="1" ["--output-to"]="1"
+    )
     local logger="INFO"
-    local log_file="${EZB_DEFAULT_LOG}"
+    local file=""
+    local output_to="Console"
+    local simple="${EZB_BOOL_FALSE}"
     local message=()
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-l" | "--logger") shift; logger="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-f" | "--file") shift; log_file="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-m" | "--message") shift
-                while [[ ! -z "${1-}" ]]; do
-                    if [[ "${1-}" == "-l" ]] || [[ "${1-}" == "--logger" ]]; then break; fi
-                    if [[ "${1-}" == "-f" ]] || [[ "${1-}" == "--file" ]]; then break; fi
-                    message+=("${1-}"); shift
-                done ;;
-            *) echo "[${EZB_LOGO}][ERROR] Unknown argument indentifier \"${1}\""
-               ezb_print_usage "${usage_string}"; return 1; ;;
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-l" | "--logger") shift; logger=${1}; [[ -n "${1}" ]] && shift ;;
+            "-f" | "--file") shift; file=${1}; [[ -n "${1}" ]] && shift ;;
+            "-o" | "--output-to") shift; output_to=${1}; [[ -n "${1}" ]] && shift ;;
+            "-s" | "--simple") shift; simple="${EZB_BOOL_TRUE}" ;;
+            "-m" | "--message") shift;
+                while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break; message+=("${1}"); shift; done ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    if [[ "${log_file}" == "" ]]; then log_file="${EZB_DEFAULT_LOG}"; fi
-    # Make sure the log_file exists and you have the write permission
-    if [ ! -e "${log_file}" ]; then touch "${log_file}"; fi
-    if [ ! -f "${log_file}" ] || [ ! -w "${log_file}" ]; then
-        ez_print_log -l "ERROR" -m "Log File \"${log_file}\" not exist or not writable"; return 1
+    if ezb_exclude "${output_to}" "${valid_output_to[@]}"; then
+        ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ezb_join ', ' ${valid_output_to[@]})]"
+        return 2
     fi
-    ez_print_log -l "${logger}" -m "${message[*]}" >> "${log_file}"
+    local function_stack=""
+    [[ "${simple}" = "${EZB_BOOL_FALSE}" ]] && function_stack="$(ezb_log_stack 1)"
+    if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
+        if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
+            (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}")
+        else
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}"
+        fi
+    fi
+    if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
+        [[ -z "${file}" ]] && file="${EZB_DEFAULT_LOG}"
+        # Make sure the log_file exists and you have the write permission
+        [[ ! -e "${file}" ]] && touch "${file}"
+        [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
+        [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}" >> "${file}"
+    fi
 }

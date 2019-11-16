@@ -43,7 +43,7 @@ function ezb_sleep() {
     local wait_seconds=0
     local timeout_string=$(ezb_seconds_to_readable_time -s "${timeout_in_seconds}" -f "Mini")
     local wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
-    ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
+    ezb_log_info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
     while [[ "${wait_seconds}" -lt "${timeout_in_seconds}" ]]; do
         local seconds_left=$((timeout_in_seconds - wait_seconds))
         if [[ "${seconds_left}" -ge "${interval}" ]]; then
@@ -51,13 +51,13 @@ function ezb_sleep() {
             sleep "${interval}"
             ezb_clear --lines 1
             wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
-            ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
+            ezb_log_info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         else
             wait_seconds="${timeout_in_seconds}"
             sleep "${seconds_left}"
             ezb_clear --lines 1
             wait_seconds_string=$(ezb_seconds_to_readable_time -s "${wait_seconds}" -f "Mini")
-            ez_print_log -l INFO -m "Sleeping... (${wait_seconds_string} / ${timeout_string})"
+            ezb_log_info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         fi
     done
 }
@@ -82,12 +82,12 @@ function ezb_print_progress() {
     local delete_0; delete_0="$(ezb_get_arg --short "-d0" --long "--delete-0" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     local delete_1; delete_1="$(ezb_get_arg --short "-d1" --long "--delete-1" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     local delete_x; delete_x="$(ezb_get_arg --short "-dx" --long "--delete-x" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    [[ "${delete_0}" -lt 0 ]] && ez_print_log -l "ERROR" -m "Invalid value \"${delete_0}\" for \"-d0|--delete-0\"" && return 1
-    [[ "${delete_1}" -lt 0 ]] && ez_print_log -l "ERROR" -m "Invalid value \"${delete_1}\" for \"-d1|--delete-1\"" && return 1
-    [[ "${delete_x}" -lt 0 ]] && ez_print_log -l "ERROR" -m "Invalid value \"${delete_x}\" for \"-dx|--delete-x\"" && return 1
-    [[ "${current_step}" -lt 0 ]] && ez_print_log -l "ERROR" -m "Invalid value \"${current_step}\" for \"-c|--current\"" && return 1
-    [[ "${total_steps}" -le 0 ]] && ez_print_log -l "ERROR" -m "Invalid value \"${total_steps}\" for \"-t|--total\"" && return 1
-    [[ "${total_steps}" -lt "${current_step}" ]] && ez_print_log -l "ERROR" -m "\"-t|--total\" ${total_steps} less than \"-c|--current\" ${current_step}" && return 1
+    [[ "${delete_0}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_0}\" for \"-d0|--delete-0\"" && return 1
+    [[ "${delete_1}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_1}\" for \"-d1|--delete-1\"" && return 1
+    [[ "${delete_x}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_x}\" for \"-dx|--delete-x\"" && return 1
+    [[ "${current_step}" -lt 0 ]] && ezb_log_error "Invalid value \"${current_step}\" for \"-c|--current\"" && return 1
+    [[ "${total_steps}" -le 0 ]] && ezb_log_error "Invalid value \"${total_steps}\" for \"-t|--total\"" && return 1
+    [[ "${total_steps}" -lt "${current_step}" ]] && ezb_log_error "\"-t|--total\" ${total_steps} less than \"-c|--current\" ${current_step}" && return 1
     local terminal_length="$(tput cols)"
     local percentage_string=""
     local integer_part=0

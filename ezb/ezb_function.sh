@@ -145,7 +145,7 @@ function ezb_set_arg() {
         ezb_print_usage "${usage}"
         return
     fi
-    declare -A arg_set=(
+    declare -A arg_set_of_ezb_set_arg=(
         ["-f"]="1" ["--function"]="1"
         ["-t"]="1" ["--type"]="1"
         ["-s"]="1" ["--short"]="1"
@@ -172,9 +172,9 @@ function ezb_set_arg() {
             "-i" | "--info") shift; info=${1}; [ -n "${1}" ] && shift ;;
             "-r" | "--required") shift; required="${EZB_BOOL_TRUE}" ;;
             "-d" | "--default") shift;
-                while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; default+=("${1}"); shift; done ;;
+                while [ -n "${1}" ]; do [ -n "${arg_set_of_ezb_set_arg["${1}"]}" ] && break; default+=("${1}"); shift; done ;;
             "-c" | "--choices") shift
-                while [ -n "${1}" ]; do [ -n "${arg_set["${1}"]}" ] && break; choices+=("${1}"); shift; done ;;
+                while [ -n "${1}" ]; do [ -n "${arg_set_of_ezb_set_arg["${1}"]}" ] && break; choices+=("${1}"); shift; done ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -191,21 +191,14 @@ function ezb_set_arg() {
     local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     # If the key has already been registered, then skip
     if [ -n "${short}" ] && [ -n "${long}" ]; then
-        [ -n "${EZB_FUNC_S_ARG_SET[${function}${delimiter}${short}]}" ] &&
-        [ -n "${EZB_FUNC_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
-    elif [ -n "${short}" ]; then
-        [ -n "${EZB_FUNC_S_ARG_SET[${function}${delimiter}${short}]}" ] && return
-    else
-        [ -n "${EZB_FUNC_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
+        [ -n "${EZB_FUNC_S_ARG_SET[${function}${delimiter}${short}]}" ] && [ -n "${EZB_FUNC_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
+    elif [ -n "${short}" ]; then [ -n "${EZB_FUNC_S_ARG_SET[${function}${delimiter}${short}]}" ] && return
+    else [ -n "${EZB_FUNC_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
     fi
     local default_str=""; local i=0
-    for ((; i < ${#default[@]}; ++i)); do
-        [ "${i}" -eq 0 ] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"
-    done
+    for ((; i < ${#default[@]}; ++i)); do [ "${i}" -eq 0 ] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"; done
     local choices_str=""; local i=0
-    for ((; i < ${#choices[@]}; ++i)); do
-        [ "${i}" -eq 0 ] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"
-    done
+    for ((; i < ${#choices[@]}; ++i)); do [ "${i}" -eq 0 ] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"; done
     # Register Function
     EZB_FUNC_SET["${function}"]="${EZB_BOOL_TRUE}"
     local key=""

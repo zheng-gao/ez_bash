@@ -154,24 +154,23 @@ function ez_path_check() {
             "-k" | "--key") shift; key=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-p" | "--path") shift; path=${1-}; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-s" | "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
-            *)
-                ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
+            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
         esac
     done
     if ! ez_nonempty_check -n "-p|--path" -v "${path}" -o "${usage_string}"; then return 1; fi
     if ! ez_argument_check -n "-k|--key" -v "${key}" -c "${valid_keys[@]}" -o "${usage_string}"; then return 1; fi
-    if [[ ! -e "${path}" ]]; then ez_print_log -l "ERROR" -m "${path} does not exist"; return 1; fi
+    if [[ ! -e "${path}" ]]; then ezb_log_error "${path} does not exist"; return 1; fi
     if [[ "${key}" == "Nonempty-File" ]]; then
         if [[ ! -f "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is not a file"; fi
+            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is not a file"; fi
             return 1
         elif [[ ! -s "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is empty"; fi
+            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is empty"; fi
             return 1
         fi
     elif [[ "${key}" == "Directory" ]]; then
         if [[ ! -d "${path}" ]]; then
-            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ez_print_log -l "ERROR" -m "${path} is not a directory"; fi
+            if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then ezb_log_error "${path} is not a directory"; fi
             return 1
         fi
     fi
@@ -185,7 +184,7 @@ function ez_sanity_check() {
         if [[ $(ez_command_check -c "${command}") == "${EZB_BOOL_FALSE}" ]]; then
             ezb_log_error "\"${command}\" does not exist!"
         else
-            ez_print_log -l INFO -m "\"${command}\" looks good!"
+            ezb_log_info "\"${command}\" looks good!"
         fi
     done
 }
