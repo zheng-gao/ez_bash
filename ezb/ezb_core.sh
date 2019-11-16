@@ -23,7 +23,7 @@ EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_check_cmd() {
+function ezb_cmd_check() {
     if ! which "${1}" &> "${EZB_DIR_LOGS}/null"; then return 1; else return 0; fi
 }
 
@@ -164,17 +164,11 @@ function ezb_log() {
         return
     fi
     declare -A arg_set_of_ezb_log_to_file=(
-        ["-l"]="1" ["--logger"]="1"
-        ["-m"]="1" ["--message"]="1"
-        ["-f"]="1" ["--file"]="1"
-        ["-s"]="1" ["--simple"]="1"
-        ["-o"]="1" ["--output-to"]="1"
+        ["-l"]="1" ["--logger"]="1" ["-f"]="1" ["--file"]="1" ["-m"]="1" ["--message"]="1"
+        ["-s"]="1" ["--simple"]="1" ["-o"]="1" ["--output-to"]="1"
     )
-    local logger="INFO"
-    local file=""
-    local output_to="Console"
-    local simple="${EZB_BOOL_FALSE}"
-    local message=()
+    local logger="INFO"; local file=""; local message=()
+    local simple="${EZB_BOOL_FALSE}"; local output_to="Console"
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-l" | "--logger") shift; logger=${1}; [[ -n "${1}" ]] && shift ;;
@@ -208,3 +202,30 @@ function ezb_log() {
         echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}" >> "${file}"
     fi
 }
+
+function ezb_variable_check() {
+    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then 
+        local usage=$(ezb_build_usage -o "init" -d "Check if the variable is set or not")
+        usage+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Variable Name")
+        usage+=$(ezb_build_usage -o "add" -a "-v|--verbose" -d "Print Result")
+        ezb_print_usage "${usage}" && return
+    fi
+    local name=""
+    local verbose="${EZB_BOOL_FALSE}"
+    while [[ ! -z "${1-}" ]]; do
+        case "${1-}" in
+            "-n" | "--name") shift; name="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+            "-v" | "--verbose") shift; verbose="${EZB_BOOL_TRUE}" ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        esac
+    done
+    [[ -z "${name}" ]] && ezb_log_error "Invalid value \"${name}\" for \"-n|--name\"" && return 1
+    if [[ -v "${name}" ]]; then
+        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is set to \"${!name}\""
+        return 0
+    else
+        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is unset"
+        return 1
+    fi
+}
+

@@ -35,8 +35,8 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         if ! ezb_source_dir --path "${EZ_BASH_HOME}/ezb_legacy"; then return 2; fi
     else
         # Source the designated libraries
-        for ezb_lib in "${@}"; do if ! ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_lib}"; then return 2; fi; done
-        unset ezb_lib
+        for ezb_library_name in "${@}"; do if ! ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}"; then return 2; fi; done
+        unset ezb_library_name
     fi
 else
     # To run this script

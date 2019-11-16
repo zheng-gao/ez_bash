@@ -8,20 +8,14 @@ EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ez_bash_python/ez_bash_python_table.py"
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ez_python_request() {
+function ezb_python_request() {
     local python_bin="python3"
-    if ez_command_check --command "${python_bin}" --silent; then
-        ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
-    else
-        ezb_log_error "Command \"${python_bin}\" not found"
-    fi
+    if ezb_cmd_check "${python_bin}"; then ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
+    else ezb_log_error "Command \"${python_bin}\" not found"; fi
 }
 
-function ez_python_table() {
+function ezb_python_table() {
     local python_bin="python3"
-    if ez_command_check --command "${python_bin}" --silent; then
-        ${python_bin} "${EZ_BASH_PYTHON_TABLE}" "${@}"
-    else
-        ezb_log_error "Command \"${python_bin}\" not found"
-    fi
+    if ezb_cmd_check "${python_bin}"; then ${python_bin} "${EZ_BASH_PYTHON_TABLE}" "${@}"
+    else ezb_log_error "Command \"${python_bin}\" not found"; fi
 }

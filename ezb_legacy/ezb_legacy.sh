@@ -1,26 +1,3 @@
-function ez_command_check() {
-    local usage_string=$(ezb_build_usage -o "init" -d "Check if the given command exist or not")
-    usage_string+=$(ezb_build_usage -o "add" -a "-c|--command" -d "Command Name")
-    usage_string+=$(ezb_build_usage -o "add" -a "-s|--silent" -d "Hide boolean output")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local command=""
-    local silent="${EZB_BOOL_FALSE}"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-c" | "--command") shift; command="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-s" | "--silent") shift; silent="${EZB_BOOL_TRUE}" ;;
-            *)
-                ezb_log_error "Unknown argument \"$1\""
-                ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-    done
-    if ! which "${command}" &> /dev/null; then
-        if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then echo "${EZB_BOOL_FALSE}"; fi
-        return 1
-    fi
-    if [[ "${silent}" == "${EZB_BOOL_FALSE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
-}
-
 function ez_nonempty_check() {
     local usage_string=$(ezb_build_usage -o "init" -d "Check if the variable is non-empty")
     usage_string+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Argument Name")
@@ -71,32 +48,6 @@ function ez_nonempty_check() {
         return 1
     fi
     if [[ "${print}" == "${EZB_BOOL_TRUE}" ]]; then echo "${EZB_BOOL_TRUE}"; fi
-}
-
-function ez_variable_check() {
-    local usage_string=$(ezb_build_usage -o "init" -d "Check if the variable is set or not")
-    usage_string+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Variable Name")
-    usage_string+=$(ezb_build_usage -o "add" -a "-p|--print" -d "Print Variable Value")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local variable_name=""
-    local print_value="${EZB_BOOL_FALSE}"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-n" | "--name") shift; variable_name="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-p" | "--print") shift; print_value="${EZB_BOOL_TRUE}" ;;
-            *)
-                ezb_log_error "Unknown argument \"$1\""
-                ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-    done
-    if ! ez_nonempty_check -n "-n|--name" -v "${variable_name}" -o "${usage_string}"; then return 1; fi
-    if [ -v "${variable_name}" ]; then
-        if [[ "${print_value}" == "${EZB_BOOL_TRUE}" ]]; then echo "Variable \"${variable_name}\" is set to \"${!variable_name}\""; fi
-        return 0
-    else
-        if [[ "${print_value}" == "${EZB_BOOL_TRUE}" ]]; then echo "Variable \"${variable_name}\" is unset"; fi
-        return 1
-    fi
 }
 
 function ez_argument_check() {
@@ -178,10 +129,10 @@ function ez_path_check() {
 }
 
 
-function ez_sanity_check() {
+function ezb_sanity_check() {
     local command_list=("date" "uname" "printf")
     for command in "${command_list[@]}"; do
-        if [[ $(ez_command_check -c "${command}") == "${EZB_BOOL_FALSE}" ]]; then
+        if ! ezb_cmd_check "${command}"; then
             ezb_log_error "\"${command}\" does not exist!"
         else
             ezb_log_info "\"${command}\" looks good!"
