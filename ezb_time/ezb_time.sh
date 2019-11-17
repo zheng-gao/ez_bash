@@ -10,8 +10,11 @@ function ezb_clock() {
 function ezb_cmd_timeout() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
-        if ! ezb_cmd_check "gtimeout"; then ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
-        else echo "gtimeout"; fi
+        if ! ezb_command_check "gtimeout"; then
+            ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
+        else
+            echo "gtimeout"
+        fi
     elif [[ "${os}" = "linux" ]]; then
         echo "timeout" # Should be installed by default
     fi

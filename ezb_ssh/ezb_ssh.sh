@@ -1,3 +1,12 @@
+###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+if ! ezb_dependency_check "expect"; then return 1; fi
+
+###################################################################################################
+# -------------------------------------- EZ Bash Functions -------------------------------------- #
+###################################################################################################
+
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
 function ez_ssh_sudo_cmd() {
@@ -28,7 +37,6 @@ function ez_ssh_sudo_cmd() {
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
     prompt=$(sed "s/${EZB_CHAR_SPACE}/ /g" <<< "${prompt}")
     prompt=$(sed "s/${EZB_CHAR_SHARP}-/#/g" <<< "${prompt}")
-    if ! ezb_cmd_check "expect"; then ezb_log_error "Command \"expect\" Not Found!"; return 1; fi
     local start_banner="EZ-BASH-Command-Start"; local status_banner="EZ-BASH-Command-Status"
     {
         expect << EOF

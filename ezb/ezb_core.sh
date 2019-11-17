@@ -1,8 +1,11 @@
 ###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+if ! ezb_dependency_check "date" "printf" "column" "sed"; then return 1; fi
+
+###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZB_LOGO="EZ-BASH"
-
 EZB_BOOL_TRUE="True"
 EZB_BOOL_FALSE="False"
 
@@ -14,19 +17,9 @@ EZB_CHAR_SHARP="EZB_SHARP"
 EZB_CHAR_SPACE="EZB_SPACE"
 EZB_CHAR_NON_SPACE_DELIMITER="#"
 
-EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
-EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
-EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
-
-EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-
-function ezb_cmd_check() {
-    if ! which "${1}" &> "${EZB_DIR_LOGS}/null"; then return 1; else return 0; fi
-}
-
 function ezb_to_lower() {
     tr "[:upper:]" "[:lower:]" <<< "${@}"
 }

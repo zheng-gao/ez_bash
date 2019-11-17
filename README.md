@@ -2,6 +2,7 @@
 Bash Tools for Linux and MacOS<br/>
 Setup Environment Variable "EZ_BASH_HOME"
 ```
+export EZ_BASH_HOME=".../ez_bash"
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
 # Example 1

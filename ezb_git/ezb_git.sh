@@ -1,3 +1,11 @@
+###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+if ! ezb_dependency_check "git"; then return 1; fi
+
+###################################################################################################
+# -------------------------------------- EZ Bash Functions -------------------------------------- #
+###################################################################################################
 function ezb_git_commit_stats() {
     if ! ezb_function_exist; then
         local valid_time_formats=("Epoch" "Datetime")
@@ -7,7 +15,6 @@ function ezb_git_commit_stats() {
     ezb_function_usage "${@}" && return
     local repo_path; repo_path="$(ezb_get_arg --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local time_format; time_format="$(ezb_get_arg --short "-t" --long "--time-format" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    if ! ezb_cmd_check "git"; then ezb_log_error "Command \"git\" not found!"; return 1; fi
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
@@ -25,7 +32,6 @@ function ezb_git_file_stats() {
     ezb_function_usage "${@}" && return
     local repo_path; repo_path="$(ezb_get_arg --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local operation; operation="$(ezb_get_arg --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    if ! ezb_cmd_check "git"; then ezb_log_error "Command \"git\" not found!"; return 1; fi
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t

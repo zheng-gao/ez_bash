@@ -1,4 +1,9 @@
 ###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+if ! ezb_dependency_check "python3"; then return 1; fi
+
+###################################################################################################
 # ------------------------------------------ Variables ------------------------------------------ #
 ###################################################################################################
 EZ_BASH_PYTHON_REQUEST="${EZ_BASH_HOME}/ezb_python/ezb_python_request.py"
@@ -9,13 +14,9 @@ EZ_BASH_PYTHON_TABLE="${EZ_BASH_HOME}/ezb_python/ezb_python_table.py"
 ###################################################################################################
 
 function ezb_python_request() {
-    local python_bin="python3"
-    if ezb_cmd_check "${python_bin}"; then ${python_bin} "${EZ_BASH_PYTHON_REQUEST}" "${@}"
-    else ezb_log_error "Command \"${python_bin}\" not found"; fi
+    python3 "${EZ_BASH_PYTHON_REQUEST}" "${@}"
 }
 
 function ezb_python_table() {
-    local python_bin="python3"
-    if ezb_cmd_check "${python_bin}"; then ${python_bin} "${EZ_BASH_PYTHON_TABLE}" "${@}"
-    else ezb_log_error "Command \"${python_bin}\" not found"; fi
+    python3 "${EZ_BASH_PYTHON_TABLE}" "${@}"
 }
