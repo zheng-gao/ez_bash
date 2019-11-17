@@ -9,7 +9,7 @@ if ! ezb_dependency_check "expect"; then return 1; fi
 
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
-function ez_ssh_sudo_cmd() {
+function ezb_ssh_sudo_cmd() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-h" --long "--host" --required --info "The host to run the command on" &&
         ezb_set_arg --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
@@ -67,7 +67,7 @@ EOF
     fi
 }
 
-function ez_mssh_sudo_cmd() {
+function ezb_mssh_sudo_cmd() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_set_arg --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
@@ -98,7 +98,7 @@ function ez_mssh_sudo_cmd() {
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
     local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
-        ez_ssh_sudo_cmd --host "${host}" --user "${user}" --command "${command}" --password "${password}" \
+        ezb_ssh_sudo_cmd --host "${host}" --user "${user}" --command "${command}" --password "${password}" \
                         --timeout "${timeout}" --prompt "${prompt}" --output "${output}"
         local exit_code="${?}"
         if  [[ "${exit_code}" -eq 0 ]]; then
@@ -130,7 +130,7 @@ function ez_mssh_sudo_cmd() {
     fi
 }
 
-function ez_mssh_cmd() {
+function ezb_mssh_cmd() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_set_arg --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
