@@ -215,8 +215,7 @@ function ezb_variable_check() {
         usage+=$(ezb_build_usage -o "add" -a "-v|--verbose" -d "Print Result")
         ezb_print_usage "${usage}" && return
     fi
-    local name=""
-    local verbose="${EZB_BOOL_FALSE}"
+    local name=""; local verbose="${EZB_BOOL_FALSE}"
     while [[ ! -z "${1-}" ]]; do
         case "${1-}" in
             "-n" | "--name") shift; name="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
@@ -226,11 +225,9 @@ function ezb_variable_check() {
     done
     [[ -z "${name}" ]] && ezb_log_error "Invalid value \"${name}\" for \"-n|--name\"" && return 1
     if [[ -v "${name}" ]]; then
-        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is set to \"${!name}\""
-        return 0
+        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is set to \"${!name}\""; return 0
     else
-        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is unset"
-        return 1
+        [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "Variable \"${name}\" is unset"; return 1
     fi
 }
 
