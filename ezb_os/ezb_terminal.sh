@@ -1,3 +1,18 @@
+# Set prompt "[USER@HOST (TIME) PATH]$"
+PS1='[\u@\h \[\e[1;34m\](\t) \[\e[1;31m\]\w\[\e[0m\]]\$ '
+# Set color
+export LSCOLORS=GxFxCxDxBxegedabagaced
+export CLICOLOR=1
+# Set alias
+alias ll="ls -l"
+alias ld="ls -ld"
+alias la="ls -la"
+alias ssh="ssh -K"
+alias less="less -N"
+
+###################################################################################################
+# -------------------------------------- EZ Bash Functions -------------------------------------- #
+###################################################################################################
 function ezb_clear() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
@@ -11,7 +26,7 @@ function ezb_clear() {
     fi
 }
 
-function ez_set_terminal_title() {
+function ezb_terminal_set_title() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-t" --long "--title" --type "String" --required --default "hostname" --info "Terminal Title" || return 1
     fi

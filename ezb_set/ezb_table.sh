@@ -1,4 +1,4 @@
-function ez_print_table() {
+function ezb_table_print() {
     if ! ezb_function_exist; then
         ezb_set_arg --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
         ezb_set_arg --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
