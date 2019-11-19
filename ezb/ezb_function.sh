@@ -145,7 +145,7 @@ function ezb_set_arg() {
             "-l" | "--long") shift; long=${1}; [ -n "${1}" ] && shift ;;
             "-i" | "--info") shift; info=${1}; [ -n "${1}" ] && shift ;;
             "-r" | "--required") shift; required="${EZB_BOOL_TRUE}" ;;
-            "-d" | "--default") shift;
+            "-d" | "--default") shift
                 while [ -n "${1}" ]; do [ -n "${arg_set_of_ezb_set_arg["${1}"]}" ] && break; default+=("${1}"); shift; done ;;
             "-c" | "--choices") shift
                 while [ -n "${1}" ]; do [ -n "${arg_set_of_ezb_set_arg["${1}"]}" ] && break; choices+=("${1}"); shift; done ;;
@@ -358,9 +358,7 @@ function ezb_get_arg() {
     fi
     if [ "${argument_type}" = "Flag" ]; then
         local item=""; for item in ${arguments[@]}; do
-            if [ "${item}" = "${short}" -o "${item}" = "${long}" ]; then
-                echo "${EZB_BOOL_TRUE}"; return
-            fi
+            if [[ "${item}" = "${short}" ]] || [[ "${item}" = "${long}" ]]; then echo "${EZB_BOOL_TRUE}" && return; fi
         done
         echo "${EZB_BOOL_FALSE}"; return
     elif [ "${argument_type}" = "String" ]; then
