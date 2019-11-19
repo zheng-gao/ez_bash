@@ -56,23 +56,14 @@ function ezb_string_check() {
     local key; key="$(ezb_get_arg --short "-k" --long "--key" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local verbose; verbose="$(ezb_get_arg --short "-v" --long "--verbose" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     if [[ "${key}" = "Contains" ]]; then
-        if [[ "${string}" = *"${pattern}"* ]]; then
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
-        else
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2
-        fi
+        if [[ "${string}" = *"${pattern}"* ]]; then [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
+        else [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2; fi
     elif [[ "${key}" == "Starts" ]]; then
-        if [[ "${string}" =~ ^"${pattern}".* ]]; then
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
-        else
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2
-        fi
+        if [[ "${string}" =~ ^"${pattern}".* ]]; then [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
+        else [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2; fi
     elif [[ "${key}" == "Ends" ]]; then
-        if [[ "${string}" =~ .*"${pattern}"$ ]]; then
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
-        else
-            [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2
-        fi
+        if [[ "${string}" =~ .*"${pattern}"$ ]]; then [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_TRUE}"; return 0
+        else [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 2; fi
     fi
 }
 
@@ -90,13 +81,6 @@ function ezb_banner() {
     local message; message="$(ezb_get_arg --short "-m" --long "--message" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local log_prefix; log_prefix="$(ezb_get_arg --short "-l" --long "--log-prefix" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local line_spliter=$(ezb_string_repeat --string "${string}" --count ${count})
-    if [[ "${log_prefix}" = "${EZB_BOOL_TRUE}" ]]; then
-        ezb_log_info "${line_spliter}"
-        ezb_log_info "${message}"
-        ezb_log_info "${line_spliter}"
-    else
-        echo "${line_spliter}"
-        echo "${message}"
-        echo "${line_spliter}"
-    fi
+    if [[ "${log_prefix}" = "${EZB_BOOL_TRUE}" ]]; then ezb_log_info "${line_spliter}"; ezb_log_info "${message}"; ezb_log_info "${line_spliter}"
+    else echo "${line_spliter}"; echo "${message}"; echo "${line_spliter}"; fi
 }
