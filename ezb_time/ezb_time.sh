@@ -39,77 +39,40 @@ function ezb_time_to_epoch_seconds() {
     fi
 }
 
-function ezb_seconds_to_readable_time() {
-    local output_formats=("Mini" "Short" "Long")
-    local output_formats_string=$(ezb_join ', ' ${output_formats[@]})
-    local usage_string=$(ezb_build_usage -o "init" -d "Convert Seconds to Human Readable Timestamp")
-    usage_string+=$(ezb_build_usage -o "add" -a "-s|--seconds" -d "Input Seconds")
-    usage_string+=$(ezb_build_usage -o "add" -a "-f|--format" -d "Output Format [${output_formats_string[@]}], default = Mini")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local seconds=""
-    local format=""
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-s" | "--seconds") shift; seconds=${1-} ;;
-            "-f" | "--format") shift; format=${1-} ;;
-            *)
-                ezb_log_error "Unknown argument \"$1\""
-                ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if [[ "${format}" == "" ]]; then format="Mini"; fi
-    if ezb_excludes "${format}" "${output_formats[@]}"; then
-        ezb_log_error "Invalid format \"${format}\""
-        ezb_print_usage "${usage_string}"; return 1
+function ezb_time_seconds_to_readable() {
+    if ! ezb_function_exist; then
+        local output_formats=("Mini" "Short" "Long")
+        ezb_set_arg --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
+        ezb_set_arg --short "-f" --long "--format" --required --default "Mini" --choices "${output_formats[@]}" || return 1
     fi
+    ezb_function_usage "${@}" && return
+    local seconds; seconds="$(ezb_get_arg --short "-s" --long "--seconds" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local format; format="$(ezb_get_arg --short "-f" --long "--format" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     local days=$((seconds / 86400))
     local hours=$((seconds / 3600 % 24))
     local minutes=$((seconds / 60 % 60))
     local seconds=$((seconds % 60))
     local output_string=""
-    if [[ "${format}" == "Mini" ]]; then
+    if [[ "${format}" = "Mini" ]]; then
         if [ ${days} -gt 0 ]; then output_string+="${days}d"; fi
         if [ ${hours} -gt 0 ]; then output_string+="${hours}h"; fi
         if [ ${minutes} -gt 0 ]; then output_string+="${minutes}m"; fi
         if [ ${seconds} -ge 0 ]; then output_string+="${seconds}s"; fi
-    elif [[ "${format}" == "Short" ]]; then
-        output_string="${days} D ${hours} H ${minutes} M ${seconds} S"
-    elif [[ "${format}" == "Long" ]]; then
-        output_string="${days} Days ${hours} Hours ${minutes} Minutes ${seconds} Seconds"
+    elif [[ "${format}" = "Short" ]]; then output_string="${days} D ${hours} H ${minutes} M ${seconds} S"
+    elif [[ "${format}" = "Long" ]]; then output_string="${days} Days ${hours} Hours ${minutes} Minutes ${seconds} Seconds"
     fi
     echo "${output_string}"
 }
 
-function ezb_time_diff_from_epoch_seconds_diff() {
-    local usage_string=$(ezb_build_usage -o "init" -d "Print the time difference between start time and end time")
-    usage_string+=$(ezb_build_usage -o "add" -a "-s|--start" -d "Start Time Epoch Seconds")
-    usage_string+=$(ezb_build_usage -o "add" -a "-e|--end" -d "End Time Epoch Seconds")
-    if [[ "${1}" == "" ]] || [[ "${1}" == "-h" ]] || [[ "${1}" == "--help" ]]; then ezb_print_usage "${usage_string}"; return 1; fi
-    local start_time=""
-    local end_time=""
-    local format="+%Y-%m-%d %H:%M:%S"
-    while [[ ! -z "${1-}" ]]; do
-        case "${1-}" in
-            "-s" | "--start") shift; start_time=${1-} ;;
-            "-e" | "--end") shift; end_time=${1-} ;;
-            "-f" | "--format") shift; format=${1-} ;;
-            *) ezb_log_error "Unknown argument \"$1\""; ezb_print_usage "${usage_string}"; return 1; ;;
-        esac
-        if [[ ! -z "${1-}" ]]; then shift; fi
-    done
-    if [[ "${start_time}" == "" ]]; then
-        ezb_log_error "Start Time cannot be empty"
-        return 1
-    elif [[ "${end_time}" == "" ]]; then
-        ezb_log_error "End Time cannot be empty"
-        return 1
+function ezb_time_elapsed() {
+    if ! ezb_function_exist; then
+        ezb_set_arg --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
+        ezb_set_arg --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
     fi
-    if [ "${start_time}" -gt "${end_time}" ]; then
-        ezb_log_error "Start Time \"${start_time}\" Cannot Be Greater Than End Time \"${end_time}\""
-        return 1
-    fi
-    local duration_seconds=$((end_time - start_time))
-    ezb_seconds_to_readable_time -s ${duration_seconds}
+    ezb_function_usage "${@}" && return
+    local start; start="$(ezb_get_arg --short "-s" --long "--start" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local end; end="$(ezb_get_arg --short "-e" --long "--end" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    [[ "${start}" -gt "${end}" ]] && ezb_log_error "Start Time \"${start}\" Cannot Be Greater Than End Time \"${end}\"" && return 1
+    ezb_time_seconds_to_readable -s "$((end - start))"
 }
 
