@@ -9,58 +9,32 @@ declare -g -A EZB_ARG_TYPE_SET=(
     ["Flag"]="${EZB_BOOL_TRUE}"
 )
 
-# Do NOT move the following accociative arrays to other files
-declare -g -A EZB_FUNC_SET
-# Key Format: function + "::" + long name
-declare -g -A EZB_FUNC_L_ARG_SET
-declare -g -A EZB_FUNC_L_ARG_TO_S_ARG_MAP
-declare -g -A EZB_FUNC_L_ARG_TO_TYPE_MAP
-declare -g -A EZB_FUNC_L_ARG_TO_REQUIRED_MAP
-declare -g -A EZB_FUNC_L_ARG_TO_DEFAULT_MAP
-declare -g -A EZB_FUNC_L_ARG_TO_INFO_MAP
-declare -g -A EZB_FUNC_L_ARG_TO_CHOICES_MAP
-# Key Format: function + "::" + short name
-declare -g -A EZB_FUNC_S_ARG_SET
-declare -g -A EZB_FUNC_S_ARG_TO_L_ARG_MAP
-declare -g -A EZB_FUNC_S_ARG_TO_TYPE_MAP
-declare -g -A EZB_FUNC_S_ARG_TO_REQUIRED_MAP
-declare -g -A EZB_FUNC_S_ARG_TO_DEFAULT_MAP
-declare -g -A EZB_FUNC_S_ARG_TO_INFO_MAP
-declare -g -A EZB_FUNC_S_ARG_TO_CHOICES_MAP
-# Key Format: function
-declare -g -A EZB_FUNC_TO_L_ARG_MAP
-declare -g -A EZB_FUNC_TO_S_ARG_MAP
-
-# MUST unset the above accociative arrays inside a function for each key
-function ezb_function_unset_accociative_arrays() {
-    local k=""
-    # Function
-    for k in "${!EZB_FUNC_SET[@]}"; do unset EZB_FUNC_SET["${k}"]; done
-    # Long/Short Argument Names
-    for k in "${!EZB_FUNC_L_ARG_SET[@]}"; do unset EZB_FUNC_L_ARG_SET["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_SET[@]}"; do unset EZB_FUNC_S_ARG_SET["${k}"]; done
-    # Long Argument Attributes
-    for k in "${!EZB_FUNC_L_ARG_TO_S_ARG_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_S_ARG_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_L_ARG_TO_TYPE_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_TYPE_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_L_ARG_TO_REQUIRED_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_REQUIRED_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_L_ARG_TO_DEFAULT_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_L_ARG_TO_INFO_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_INFO_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_L_ARG_TO_CHOICES_MAP[@]}"; do unset EZB_FUNC_L_ARG_TO_CHOICES_MAP["${k}"]; done
-    # Short Argument Attribute
-    for k in "${!EZB_FUNC_S_ARG_TO_L_ARG_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_L_ARG_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_TO_TYPE_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_TYPE_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_TO_REQUIRED_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_REQUIRED_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_TO_DEFAULT_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_DEFAULT_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_TO_INFO_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_INFO_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_S_ARG_TO_CHOICES_MAP[@]}"; do unset EZB_FUNC_S_ARG_TO_CHOICES_MAP["${k}"]; done
-    # Long/Short Matching
-    for k in "${!EZB_FUNC_TO_L_ARG_MAP[@]}"; do unset EZB_FUNC_TO_L_ARG_MAP["${k}"]; done
-    for k in "${!EZB_FUNC_TO_S_ARG_MAP[@]}"; do unset EZB_FUNC_TO_S_ARG_MAP["${k}"]; done
+function ezb_function_reset_accociative_arrays() {
+    unset EZB_FUNC_SET;                                   declare -g -A EZB_FUNC_SET
+    # Key Format: function + "::" + long name
+    unset EZB_FUNC_L_ARG_SET;                             declare -g -A EZB_FUNC_L_ARG_SET
+    unset EZB_FUNC_L_ARG_TO_S_ARG_MAP;                    declare -g -A EZB_FUNC_L_ARG_TO_S_ARG_MAP
+    unset EZB_FUNC_L_ARG_TO_TYPE_MAP;                     declare -g -A EZB_FUNC_L_ARG_TO_TYPE_MAP
+    unset EZB_FUNC_L_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_FUNC_L_ARG_TO_REQUIRED_MAP
+    unset EZB_FUNC_L_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_FUNC_L_ARG_TO_DEFAULT_MAP
+    unset EZB_FUNC_L_ARG_TO_INFO_MAP;                     declare -g -A EZB_FUNC_L_ARG_TO_INFO_MAP
+    unset EZB_FUNC_L_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_FUNC_L_ARG_TO_CHOICES_MAP
+    # Key Format: function + "::" + short name
+    unset EZB_FUNC_S_ARG_SET;                             declare -g -A EZB_FUNC_S_ARG_SET
+    unset EZB_FUNC_S_ARG_TO_L_ARG_MAP;                    declare -g -A EZB_FUNC_S_ARG_TO_L_ARG_MAP
+    unset EZB_FUNC_S_ARG_TO_TYPE_MAP;                     declare -g -A EZB_FUNC_S_ARG_TO_TYPE_MAP
+    unset EZB_FUNC_S_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_FUNC_S_ARG_TO_REQUIRED_MAP
+    unset EZB_FUNC_S_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_FUNC_S_ARG_TO_DEFAULT_MAP
+    unset EZB_FUNC_S_ARG_TO_INFO_MAP;                     declare -g -A EZB_FUNC_S_ARG_TO_INFO_MAP
+    unset EZB_FUNC_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_FUNC_S_ARG_TO_CHOICES_MAP
+    # Key Format: function
+    unset EZB_FUNC_TO_L_ARG_MAP;                          declare -g -A EZB_FUNC_TO_L_ARG_MAP
+    unset EZB_FUNC_TO_S_ARG_MAP;                          declare -g -A EZB_FUNC_TO_S_ARG_MAP
 }
 
 # Source this file should clean all these accociative arrays
 # Do not source this file more than once
-ezb_function_unset_accociative_arrays
+ezb_function_reset_accociative_arrays
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
