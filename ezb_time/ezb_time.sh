@@ -1,23 +1,10 @@
-function ezb_now() {
+function ezb_time_now() {
     [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
 }
 
-function ezb_clock() {
-    ezb_now; sleep 1;
-    while true; do ez_clear -l 1; ezb_now; sleep 1; done
-}
-
-function ezb_cmd_timeout() {
-    local os=$(ezb_os_name)
-    if [[ "${os}" = "macos" ]]; then
-        if ! ezb_command_check "gtimeout"; then
-            ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
-        else
-            echo "gtimeout"
-        fi
-    elif [[ "${os}" = "linux" ]]; then
-        echo "timeout" # Should be installed by default
-    fi
+function ezb_time_clock() {
+    ezb_time_now; sleep 1;
+    while true; do ez_clear -l 1; ezb_time_now; sleep 1; done
 }
 
 function ezb_epoch_seconds_to_time() {
