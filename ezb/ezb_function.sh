@@ -95,7 +95,7 @@ function ezb_function_print_help() {
             choices="${EZB_FUNC_L_ARG_TO_CHOICES_MAP[${key}]}"; [ -z "${choices}" ] && choices="${EZB_OPT_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
             default="${EZB_FUNC_L_ARG_TO_DEFAULT_MAP["${key}"]}"; [ -z "${default}" ] && default="${EZB_OPT_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZB_FUNC_L_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZB_OPT_NONE}"
-            [ -z "${short}" ] && short="${EZB_OPT_NONE}" && echo $(ezb_join "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
+            [ -z "${short}" ] && short="${EZB_OPT_NONE}" && echo $(ezb_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${default}" "${choices}" "${info}")
         done
     } | column -t -s "${delimiter}"; echo
 }
