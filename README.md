@@ -54,19 +54,19 @@ source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"
 ```
 function bar() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-        ezb_set_arg --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-        ezb_set_arg --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-        ezb_set_arg --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-        ezb_set_arg --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
+        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
+        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
+        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
+        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
+        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local arg_1; arg_1="$(ezb_get_arg --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_2; arg_2="$(ezb_get_arg --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_3; arg_3="$(ezb_get_arg --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_l; arg_l="$(ezb_get_arg --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local dry_run; dry_run="$(ezb_get_arg --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_1; arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_2; arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_3; arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_l; arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local dry_run; dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
@@ -100,7 +100,7 @@ Dry Run   : False
 The first argument is required, if we ignore it
 ```
 $ bar -a2 "Second Arg" -a3 "Third Arg"
-[2019-07-30 21:35:23][EZ-BASH][bar][ezb_get_arg][ERROR] Argument "-a1" is required
+[2019-07-30 21:35:23][EZ-BASH][bar][ezb_arg_get][ERROR] Argument "-a1" is required
 ```
 The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
 ```
@@ -116,7 +116,7 @@ Dry Run   : False
 The third argument has choices, we could not use other value
 ```
 $ bar -a1 "First Arg" -a3 "Arg 3"
-[2019-07-30 21:37:02][EZ-BASH][bar][ezb_get_arg][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
+[2019-07-30 21:37:02][EZ-BASH][bar][ezb_arg_get][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
 ```
 If we give the dry run flag, it become "True"
 ```

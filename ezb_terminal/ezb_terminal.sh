@@ -1,9 +1,9 @@
 function ezb_clear() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
+        ezb_arg_set --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local lines; lines="$(ezb_get_arg --short "-l" --long "--lines" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local lines; lines="$(ezb_arg_get --short "-l" --long "--lines" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     if [[ "${lines}" -gt 0 ]]; then
         local i=0; for ((; i < "${lines}"; ++i)); do tput cuu1 && tput el; done # cursor up one line and clean
     else
@@ -13,24 +13,24 @@ function ezb_clear() {
 
 function ezb_terminal_set_title() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-t" --long "--title" --type "String" --required --default "hostname" --info "Terminal Title" || return 1
+        ezb_arg_set --short "-t" --long "--title" --type "String" --required --default "hostname" --info "Terminal Title" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local title; title="$(ezb_get_arg --short "-t" --long "--title" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local title; title="$(ezb_arg_get --short "-t" --long "--title" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     if [[ "${title}" == "hostname" ]]; then title=$(hostname); fi
     echo -n -e "\033]0;${title}\007"
 }
 
 function ezb_sleep() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-u" --long "--unit" --required --default "Second" --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name"&&
-        ezb_set_arg --short "-v" --long "--value" --required --info "Number of units to sleep" &&
-        ezb_set_arg --short "-n" --long "--interval" --required --default 1 --info "Output refresh frequency in seconds, 0 for no output" || return 1
+        ezb_arg_set --short "-u" --long "--unit" --required --default "Second" --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name"&&
+        ezb_arg_set --short "-v" --long "--value" --required --info "Number of units to sleep" &&
+        ezb_arg_set --short "-n" --long "--interval" --required --default 1 --info "Output refresh frequency in seconds, 0 for no output" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local unit; unit="$(ezb_get_arg --short "-u" --long "--unit" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local value; value="$(ezb_get_arg --short "-v" --long "--value" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local interval; interval="$(ezb_get_arg --short "-n" --long "--interval" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local unit; unit="$(ezb_arg_get --short "-u" --long "--unit" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local value; value="$(ezb_arg_get --short "-v" --long "--value" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local interval; interval="$(ezb_arg_get --short "-n" --long "--interval" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     if [[ "${interval}" -lt 0 ]]; then interval=1; fi
     local timeout_in_seconds=0
     case "${unit}" in
@@ -64,24 +64,24 @@ function ezb_sleep() {
 
 function ezb_print_progress() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
-        ezb_set_arg --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
-        ezb_set_arg --short "-t" --long "--total" --required --info "Total Steps" &&
-        ezb_set_arg --short "-c" --long "--current" --required --default 0 --info "Current Step" &&
-        ezb_set_arg --short "-d0" --long "--delete-0" --required --default 0 --info "Delete lines on step 0" &&
-        ezb_set_arg --short "-d1" --long "--delete-1" --required --default 1 --info "Delete lines on step 1" &&
-        ezb_set_arg --short "-dx" --long "--delete-x" --required --default 1 --info "Delete lines on other steps" &&
-        ezb_set_arg --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
+        ezb_arg_set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
+        ezb_arg_set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
+        ezb_arg_set --short "-t" --long "--total" --required --info "Total Steps" &&
+        ezb_arg_set --short "-c" --long "--current" --required --default 0 --info "Current Step" &&
+        ezb_arg_set --short "-d0" --long "--delete-0" --required --default 0 --info "Delete lines on step 0" &&
+        ezb_arg_set --short "-d1" --long "--delete-1" --required --default 1 --info "Delete lines on step 1" &&
+        ezb_arg_set --short "-dx" --long "--delete-x" --required --default 1 --info "Delete lines on other steps" &&
+        ezb_arg_set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local filler_symbol; filler_symbol="$(ezb_get_arg --short "-f" --long "--filler" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local blank_symbol; blank_symbol="$(ezb_get_arg --short "-b" --long "--blank" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local total_steps; total_steps="$(ezb_get_arg --short "-t" --long "--total" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local current_step; current_step="$(ezb_get_arg --short "-c" --long "--current" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local show_percentage; show_percentage="$(ezb_get_arg --short "-p" --long "--percentage" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local delete_0; delete_0="$(ezb_get_arg --short "-d0" --long "--delete-0" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local delete_1; delete_1="$(ezb_get_arg --short "-d1" --long "--delete-1" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local delete_x; delete_x="$(ezb_get_arg --short "-dx" --long "--delete-x" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local filler_symbol; filler_symbol="$(ezb_arg_get --short "-f" --long "--filler" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local blank_symbol; blank_symbol="$(ezb_arg_get --short "-b" --long "--blank" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local total_steps; total_steps="$(ezb_arg_get --short "-t" --long "--total" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local current_step; current_step="$(ezb_arg_get --short "-c" --long "--current" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local show_percentage; show_percentage="$(ezb_arg_get --short "-p" --long "--percentage" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local delete_0; delete_0="$(ezb_arg_get --short "-d0" --long "--delete-0" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local delete_1; delete_1="$(ezb_arg_get --short "-d1" --long "--delete-1" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local delete_x; delete_x="$(ezb_arg_get --short "-dx" --long "--delete-x" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
     [[ "${delete_0}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_0}\" for \"-d0|--delete-0\"" && return 1
     [[ "${delete_1}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_1}\" for \"-d1|--delete-1\"" && return 1
     [[ "${delete_x}" -lt 0 ]] && ezb_log_error "Invalid value \"${delete_x}\" for \"-dx|--delete-x\"" && return 1

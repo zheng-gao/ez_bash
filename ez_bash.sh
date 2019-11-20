@@ -7,11 +7,13 @@
 # > source "${EZ_BASH_HOME}/ez_bash.sh"
 # To import some ez_bash libraries
 # > source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
-
+[[ -z "${EZ_BASH_HOME}" ]] && echo "[ERROR] \"\${EZ_BASH_HOME}\" not set!" && return 1
+[[ ! -d "${EZ_BASH_HOME}" ]] && echo "[ERROR] Invalid directory \"${EZ_BASH_HOME}\"" && return 1
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
 EZB_LOGO="EZ-Bash"
+EZB_VERSION="0.1.1"
 EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
 EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
 EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
@@ -47,12 +49,12 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     if ! bash --version | grep "version ${EZB_DEFAULT_BASH_VERSION}\." &> "${EZB_DEFAULT_LOG}"; then
         echo "[${EZB_LOGO}][ERROR] \"Bash ${EZB_DEFAULT_BASH_VERSION}\" not found!"; return 1
     fi
-    [[ -z "${EZ_BASH_HOME}" ]] && echo "\"\${EZ_BASH_HOME}\" not set!" && return 1
-    [[ ! -d "${EZ_BASH_HOME}" ]] && echo "Invalid directory \"${EZ_BASH_HOME}\"" && return 1
     # Source EZ-Bash Core, Command & Function
-    if ! source "${EZ_BASH_HOME}/ezb/ezb.sh"; then echo "[${EZB_LOGO}][ERROR] Failed to source \"${EZ_BASH_HOME}/ezb/ezb.sh\""; return 1; fi
-    if ! ezb_source "${EZ_BASH_HOME}/ezb/ezb_cmd.sh"; then return 1; fi
-    if ! ezb_source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then return 1; fi
+    if ! source "${EZ_BASH_HOME}/ezb_core/ezb.sh"; then
+        echo "[${EZB_LOGO}][ERROR] Failed to source \"${EZ_BASH_HOME}/ezb_core/ezb.sh\"" && return 1
+    fi
+    if ! ezb_source "${EZ_BASH_HOME}/ezb_core/ezb_cmd.sh"; then return 1; fi
+    if ! ezb_source "${EZ_BASH_HOME}/ezb_core/ezb_function.sh"; then return 1; fi
     # Source Other Libs
     if [[ -z "${1}" ]]; then
         # By default source ALL other libs
@@ -75,9 +77,21 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
 else
     # To run this script
     if [[ "$(basename ${0})" = "ez_bash.sh" ]]; then
-        if [[ "${1}" = "-i" ]] || [[ "${1}" = "--info" ]]; then echo "EZ-Bash Copyright: Zheng Gao, 2018-05-18"
-        elif [[ "${1}" = "-v" ]] || [[ "${1}" = "--version" ]]; then echo "0.1.0"
-        elif [[ "${1}" = "-r" ]] || [[ "${1}" = "--requirements" ]]; then echo "Bash 5.*"
+        if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+            echo; echo "[Usage]"
+            echo "  -i|--info              Show Copyright"
+            echo "  -v|--version           Show Version"
+            echo "  -r|--requirements      Show Requirements"; echo
+            echo "To import EZ-Bash libraries: \"source ${EZ_BASH_HOME}/ez_bash.sh\""; echo
         fi
+        while [[ -n "${1}" ]]; do
+            case "${1}" in
+                "-i" | "--info") shift; echo "EZ-Bash Copyright: Zheng Gao, 2018-05-18" ;;
+                "-v" | "--version") shift; echo "${EZB_VERSION}" ;;
+                "-r" | "--requirements") shift; echo "Bash ${EZB_DEFAULT_BASH_VERSION}" ;;
+                *) echo "[${EZB_LOGO}][ERROR] Unknown argument identifier \"${1}\""; exit 1 ;;
+            esac
+            [[ -n "${1}" ]] && shift
+        done
     fi
 fi

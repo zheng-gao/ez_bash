@@ -8,17 +8,17 @@ if ! ezb_dependency_check "awk"; then return 1; fi
 ###################################################################################################
 function ezb_table_print() {
     if ! ezb_function_exist; then
-        ezb_set_arg --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
-        ezb_set_arg --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
-        ezb_set_arg --short "-d" --long "--data" --info "The input data if file is not provided" && 
-        ezb_set_arg --short "-f" --long "--file" --info "The input file path" ||
+        ezb_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
+        ezb_arg_set --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
+        ezb_arg_set --short "-d" --long "--data" --info "The input data if file is not provided" && 
+        ezb_arg_set --short "-f" --long "--file" --info "The input file path" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local col_delimiter; col_delimiter="$(ezb_get_arg --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local row_delimiter; row_delimiter="$(ezb_get_arg --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local file; file="$(ezb_get_arg --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local data; data="$(ezb_get_arg --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local col_delimiter; col_delimiter="$(ezb_arg_get --short "-cd" --long "--col-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local row_delimiter; row_delimiter="$(ezb_arg_get --short "-rd" --long "--row-delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local file; file="$(ezb_arg_get --short "-f" --long "--file" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local data; data="$(ezb_arg_get --short "-d" --long "--data" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
         [[ -n "${data}" ]] && ezb_log_error "Please use single source of truth --file or --data, do not provide both" && return 1
