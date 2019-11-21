@@ -26,7 +26,8 @@ function foo() {
         case "${1-}" in
             "-a1" | "--argument-1") shift; arg_1="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-a2" | "--argument-2") shift; arg_2="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *) ezb_log_error "Unknown argument \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"
+            *) ezb_log_error "Unknown argument identifier \"${1}\""
+               ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info" 
                return 1 ;;
         esac
     done
@@ -53,7 +54,8 @@ Argument 2: 2nd Arg
 Give the wrong argument
 ```
 $ foo --wrong-arg "First Arg"
-[2019-11-21 13:47:25][EZ-Bash][foo][ERROR] Unknown argument "--wrong-arg". Run "foo --help" for more info
+[2019-11-21 14:26:57][EZ-Bash][foo][ERROR] Unknown argument identifier "--wrong-arg"
+[2019-11-21 14:26:57][EZ-Bash][foo][ERROR] Run "foo --help" for more info
 ```
 ## Example 2
 The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"
@@ -61,10 +63,10 @@ The new helper support keywords "--default", "--required", "--choices", "--flag"
 function bar() {
     if ! ezb_function_exist; then
         ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" &&
-        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "2nd argument" &&
-        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "3rd argument" &&
-        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "List argument" &&
-        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Flag argument" ||
+        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" &&
+        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" &&
+        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" &&
+        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Boolean Flag" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
@@ -89,10 +91,10 @@ $ bar --help
 
 [Short]  [Long]        [Type]  [Required]  [Default]       [Choices]           [Description]
 -a1      --argument-1  String  True        None            None                1st argument
--a2      --argument-2  String  False       2nd Arg Def     None                2nd argument
--a3      --argument-3  String  False       None            3rd Arg, Third Arg  3rd argument
--l       --arg-list    List    False       Item 1, Item 2  None                List argument
--d       --dry-run     Flag    False       None            None                Flag argument
+-a2      --argument-2  String  False       2nd Arg Def     None                None
+-a3      --argument-3  String  False       None            3rd Arg, Third Arg  None
+-l       --arg-list    List    False       Item 1, Item 2  None                None
+-d       --dry-run     Flag    False       None            None                Boolean Flag
 
 ```
 Give the correct arguments
@@ -110,7 +112,7 @@ Dry Run   : False
 The first argument is required, if we ignore it
 ```
 $ bar -a2 "Second Arg" -a3 "Third Arg"
-[2019-11-21 13:50:18][EZ-Bash][bar][ezb_arg_get][ERROR] Argument "-a1" is required
+[2019-11-21 14:29:57][EZ-Bash][bar][ezb_arg_get][ERROR] Argument "-a1" is required
 ```
 The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
 ```
