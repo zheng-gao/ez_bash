@@ -1,31 +1,32 @@
 # ez_bash
-Bash Tools for Linux and MacOS<br/>
-## Clone this project
+Bash Tools for Linux and MacOS
+### Clone this project
 ```
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-## Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
+### Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-## Import all ez_bash libraries
+### Import all ez_bash libraries
 ```
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
-# Example 1
+## Example 1
 ```
 function foo() {
-    local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
-    usage+=$(ezb_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
-    usage+=$(ezb_build_usage -o "add" -a "-a2|--argument-2" -d "The 2nd argument")
-    if [ -z "${1}" ] || [ "${1}" = "-h" ] || [ "${1}" = "--help" ]; then ezb_print_usage "${usage}"; return 1; fi
-    local arg_1=""
-    local arg_2=""
-    while [ -n "${1}" ]; do
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
+        usage+=$(ezb_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
+        usage+=$(ezb_build_usage -o "add" -a "-a2|--argument-2" -d "The 2nd argument")
+        ezb_print_usage "${usage}" && return 0
+    fi
+    local arg_1; local arg_2
+    while [[ -n "${1}" ]]; do
         case "${1-}" in
             "-a1" | "--argument-1") shift; arg_1="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
             "-a2" | "--argument-2") shift; arg_2="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            *) ezb_log_error "Unknown argument \"$1\""; return 1 ;;
+            *) ezb_log_error "Unknown argument \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     echo "Argument 1: ${arg_1}"
@@ -34,11 +35,13 @@ function foo() {
 ```
 Run with --helper
 ```
-$ foo --help                        
-[Function Name]    "foo"
-[Function Info]    This is a test function foo
--a1|--argument-1    The 1st argument
--a2|--argument-2    The 2nd argument
+$ foo --help
+
+[Function Name]   "foo"
+[Function Info]   This is a test function foo
+-a1|--argument-1  The 1st argument
+-a2|--argument-2  The 2nd argument
+
 ```
 Give the correct arguments
 ```
@@ -49,18 +52,18 @@ Argument 2: 2nd Arg
 Give the wrong argument
 ```
 $ foo --wrong-arg "First Arg"
-[EZ-BASH][2019-07-30 21:02:36][foo][ERROR] Unknown argument "--wrong-arg"
+[2019-11-21 13:47:25][EZ-Bash][foo][ERROR] Unknown argument "--wrong-arg". Run "foo --help" for more info
 ```
-# Example 2
-The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"<br/>
+## Example 2
+The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"
 ```
 function bar() {
     if ! ezb_function_exist; then
-        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
-        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
-        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
-        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" ||
+        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" &&
+        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "2nd argument" &&
+        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "3rd argument" &&
+        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "List argument" &&
+        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Flag argument" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
@@ -79,13 +82,16 @@ function bar() {
 Run with --helper
 ```
 $ bar --help
+
 [Function Name] "bar"
-[Arg Short]  [Arg Long]    [Arg Type]  [Arg Required]  [Arg Default]   [Arg Choices]       [Arg Description]
--a1          --argument-1  String      True            NONE            NONE                The 1st argument
--a2          --argument-2  String      False           2nd Arg Def     NONE                The 2nd argument
--a3          --argument-3  String      False           NONE            3rd Arg, Third Arg  The 3rd argument
--l           --arg-list    List        False           Item 1, Item 2  NONE                The list argument
--d           --dry-run     Flag        False           NONE            NONE                The flag argument
+
+[Short]  [Long]        [Type]  [Required]  [Default]       [Choices]           [Description]
+-a1      --argument-1  String  True        None            None                1st argument
+-a2      --argument-2  String  False       2nd Arg Def     None                2nd argument
+-a3      --argument-3  String  False       None            3rd Arg, Third Arg  3rd argument
+-l       --arg-list    List    False       Item 1, Item 2  None                List argument
+-d       --dry-run     Flag    False       None            None                Flag argument
+
 ```
 Give the correct arguments
 ```
@@ -102,7 +108,7 @@ Dry Run   : False
 The first argument is required, if we ignore it
 ```
 $ bar -a2 "Second Arg" -a3 "Third Arg"
-[2019-07-30 21:35:23][EZ-BASH][bar][ezb_arg_get][ERROR] Argument "-a1" is required
+[2019-11-21 13:50:18][EZ-Bash][bar][ezb_arg_get][ERROR] Argument "-a1" is required
 ```
 The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
 ```
