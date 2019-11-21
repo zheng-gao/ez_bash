@@ -124,7 +124,7 @@ Dry Run   : False
 The third argument has choices, we could not use other value
 ```
 $ bar -a1 "First Arg" -a3 "Arg 3"
-[2019-07-30 21:37:02][EZ-BASH][bar][ezb_arg_get][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
+[2019-11-21 13:50:42][EZ-Bash][bar][ezb_arg_get][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
 ```
 If we give the dry run flag, it become "True"
 ```
