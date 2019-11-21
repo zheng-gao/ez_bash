@@ -109,7 +109,7 @@ function ezb_build_usage() {
     case "${operation}" in
         "init")
             [[ -z "${argument}" ]] && argument="${FUNCNAME[1]}"
-            echo "[Function Name]#${argument}"
+            echo "[Function Name]#\"${argument}\""
             echo "[Function Info]#${description}\n" ;;
         "add")
             echo "${argument}#${description}\n" ;;

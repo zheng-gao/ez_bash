@@ -1,8 +1,15 @@
 # ez_bash
 Bash Tools for Linux and MacOS<br/>
-Setup Environment Variable "EZ_BASH_HOME"
+Clone this project
 ```
-export EZ_BASH_HOME=".../ez_bash"
+git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}
+```
+Setup environment variable "EZ_BASH_HOME"
+```
+export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
+```
+Import all ez_bash libraries
+```
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
 # Example 1
@@ -46,11 +53,6 @@ $ foo --wrong-arg "First Arg"
 ```
 # Example 2
 The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"<br/>
-You need to source 2 files to get the new feature
-```
-source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_core.sh"
-source "${EZ_BASH_HOME}/ez_bash_core/ez_bash_function.sh"
-```
 ```
 function bar() {
     if ! ezb_function_exist; then
