@@ -1,19 +1,19 @@
 # ez_bash
 Bash Tools for Linux and MacOS
 ### Clone this project
-```
+```bash
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
 ### Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
-```
+```bash
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
 ### Import all the "ez_bash" libraries
-```
+```bash
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
 ## Example 1
-```
+```bash
 function foo() {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
@@ -34,7 +34,7 @@ function foo() {
 }
 ```
 Run with --helper
-```
+```bash
 $ foo --help
 
 [Function Name]   "foo"
@@ -44,19 +44,19 @@ $ foo --help
 
 ```
 Give the correct arguments
-```
+```bash
 $ foo -a1 "First Arg" --argument-2 "2nd Arg"
 Argument 1: First Arg
 Argument 2: 2nd Arg
 ```
 Give the wrong argument
-```
+```bash
 $ foo --wrong-arg "First Arg"
 [2019-11-21 13:47:25][EZ-Bash][foo][ERROR] Unknown argument "--wrong-arg". Run "foo --help" for more info
 ```
 ## Example 2
 The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"
-```
+```bash
 function bar() {
     if ! ezb_function_exist; then
         ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" &&
@@ -80,7 +80,7 @@ function bar() {
 }
 ```
 Run with --helper
-```
+```bash
 $ bar --help
 
 [Function Name] "bar"
@@ -94,7 +94,7 @@ $ bar --help
 
 ```
 Give the correct arguments
-```
+```bash
 $ bar -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"
 Argument 1: First Arg
 Argument 2: Second Arg
@@ -106,12 +106,12 @@ data3
 Dry Run   : False
 ```
 The first argument is required, if we ignore it
-```
+```bash
 $ bar -a2 "Second Arg" -a3 "Third Arg"
 [2019-11-21 13:50:18][EZ-Bash][bar][ezb_arg_get][ERROR] Argument "-a1" is required
 ```
 The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
-```
+```bash
 $ bar -a1 "First Arg" -a3 "Third Arg"
 Argument 1: First Arg
 Argument 2: 2nd Arg Def
@@ -122,12 +122,12 @@ Item 2
 Dry Run   : False
 ```
 The third argument has choices, we could not use other value
-```
+```bash
 $ bar -a1 "First Arg" -a3 "Arg 3"
 [2019-11-21 13:50:42][EZ-Bash][bar][ezb_arg_get][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
 ```
 If we give the dry run flag, it become "True"
-```
+```bash
 $ bar -a1 "First Arg" --dry-run -a3 "3rd Arg"
 Argument 1: First Arg
 Argument 2: 2nd Arg Def
