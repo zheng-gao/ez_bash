@@ -145,14 +145,11 @@ function ezb_source_dir() {
     path="${path%/}" # Remove a trailing slash if there is one
     [[ ! -d "${path}" ]] && ezb_log_error "\"${path}\" is not a directory" && return 2
     [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
-    if [[ "${exclude}" = "" ]]; then
-        local sh_file_path=""; for sh_file_path in $(find "${path}" -type f -name "*.sh"); do
-            if ! ezb_source "${sh_file_path}"; then return 4; fi
-        done
+    local sh_file=""
+    if [[ -z "${exclude}" ]]; then
+        for sh_file in $(find "${path}" -type f -name "*.sh"); do ezb_source "${sh_file}" || return 4; done
     else
-        local sh_file_path=""; for sh_file_path in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
-            if ! ezb_source "${sh_file_path}"; then return 4; fi
-        done
+        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do ezb_source "${sh_file}" || return 4; done
     fi
 }
 
