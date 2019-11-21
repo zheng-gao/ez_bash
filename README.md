@@ -1,14 +1,14 @@
 # ez_bash
 Bash Tools for Linux and MacOS<br/>
-Clone this project
+##lone this project
 ```
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-Setup environment variable: [__EZ_BASH_HOME__]()
+## Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-Import all ez_bash libraries
+##Import all ez_bash libraries
 ```
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
