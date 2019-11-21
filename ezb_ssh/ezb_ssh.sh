@@ -19,19 +19,20 @@ function ezb_ssh_sudo_cmd() {
         ezb_arg_set --short "-s" --long "--status" --type "Flag" --info "Print status" &&
         ezb_arg_set --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
         ezb_arg_set --short "-o" --long "--output" --info "File path for output" &&
-        ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
+        ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local host; host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local command; command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local user; user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local password; password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local timeout; timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local status; status="$(ezb_arg_get --short "-s" --long "--status" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local console; console="$(ezb_arg_get --short "-C" --long "--console" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local output; output="$(ezb_arg_get --short "-o" --long "--output" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local prompt; prompt="$(ezb_arg_get --short "-P" --long "--prompt" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local host && host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
+    local command && command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" &&
+    local timeout && timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local status && status="$(ezb_arg_get --short "-s" --long "--status" --arguments "${@}")" &&
+    local console && console="$(ezb_arg_get --short "-C" --long "--console" --arguments "${@}")" &&
+    local output && output="$(ezb_arg_get --short "-o" --long "--output" --arguments "${@}")" &&
+    local prompt && prompt="$(ezb_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     local data_file="${EZB_DIR_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
     [[ "${user}" = "root" ]] && user=""; [[ "${user}" = "${USER}" ]] && user="-"
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
@@ -76,18 +77,19 @@ function ezb_mssh_sudo_cmd() {
         ezb_arg_set --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
         ezb_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
         ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
-        ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
+        ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local hosts; hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local command; command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local user; user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local password; password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local timeout; timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local stats; stats="$(ezb_arg_get --short "-s" --long "--stats" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local print_failure; print_failure="$(ezb_arg_get --short "-f" --long "--failure" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local prompt; prompt="$(ezb_arg_get --short "-P" --long "--prompt" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local command && command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" &&
+    local timeout && timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local stats && stats="$(ezb_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
+    local print_failure && print_failure="$(ezb_arg_get --short "-f" --long "--failure" --arguments "${@}")" &&
+    local prompt && prompt="$(ezb_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
     local cmd_md5=$(ezb_cmd_md5)
     declare -A results
@@ -143,14 +145,14 @@ function ezb_mssh_cmd() {
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local hosts; hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local command; command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local user; user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local port; port="$(ezb_arg_get --short "-p" --long "--port" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local private_key; private_key="$(ezb_arg_get --short "-i" --long "--private-key" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local timeout; timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local stats; stats="$(ezb_arg_get --short "-s" --long "--stats" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local print_failure; print_failure="$(ezb_arg_get --short "-f" --long "--failure" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local command && command="$(ezb_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local port && port="$(ezb_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
+    local private_key && private_key="$(ezb_arg_get --short "-i" --long "--private-key" --arguments "${@}")" &&
+    local timeout && timeout="$(ezb_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local stats && stats="$(ezb_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
+    local print_failure && print_failure="$(ezb_arg_get --short "-f" --long "--failure" --arguments "${@}")" || return 1
     declare -A results
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""

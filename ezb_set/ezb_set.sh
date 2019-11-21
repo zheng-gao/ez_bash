@@ -6,9 +6,9 @@ function ezb_set_operation() {
         ezb_arg_set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." || return 1
     fi
     ezb_function_usage "${@}" && return
-    local operation; operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local left; left="$(ezb_arg_get --short "-l" --long "--left" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local right; right="$(ezb_arg_get --short "-r" --long "--right" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
+    local left && left="$(ezb_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
+    local right && right="$(ezb_arg_get --short "-r" --long "--right" --arguments "${@}")" || return 1
     declare -A left_set; declare -A right_set; local item=""
     for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${left}"); do left_set["${item}"]=0; done
     for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${right}"); do right_set["${item}"]=0; done
@@ -33,9 +33,9 @@ function ezb_set_contains() {
         ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local large; large="$(ezb_arg_get --short "-l" --long "--large" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local small; small="$(ezb_arg_get --short "-s" --long "--small" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local verbose; verbose="$(ezb_arg_get --short "-v" --long "--verbose" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local large && large="$(ezb_arg_get --short "-l" --long "--large" --arguments "${@}")" &&
+    local small && small="$(ezb_arg_get --short "-s" --long "--small" --arguments "${@}")" &&
+    local verbose && verbose="$(ezb_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
     declare -A large_set; declare -A small_set; local item=""
     for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${large}"); do large_set["${item}"]=0; done
     for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${small}"); do small_set["${item}"]=0; done

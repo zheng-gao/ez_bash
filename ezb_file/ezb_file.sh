@@ -7,10 +7,10 @@ function ezb_file_get_lines() {
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local ith; ith="$(ezb_arg_get --short "-i" --long "--i-th" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local path; path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local from; from="$(ezb_arg_get --short "-f" --long "--from" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local to; to="$(ezb_arg_get --short "-t" --long "--to" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local ith && ith="$(ezb_arg_get --short "-i" --long "--i-th" --arguments "${@}")" &&
+    local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local from && from="$(ezb_arg_get --short "-f" --long "--from" --arguments "${@}")" &&
+    local to && to="$(ezb_arg_get --short "-t" --long "--to" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
         [[ "${to}" = "EOL" ]] && to=$(cat "${path}" | wc -l | bc)
         if [[ -n "${ith}" ]]; then
@@ -37,8 +37,8 @@ function ezb_file_descriptor_count() {
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local pid; pid="$(ezb_arg_get --short "-p" --long "--process-id" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local name; name="$(ezb_arg_get --short "-n" --long "--process-name" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local pid && pid="$(ezb_arg_get --short "-p" --long "--process-id" --arguments "${@}")" &&
+    local name && name="$(ezb_arg_get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
     local fd_count=0; local os=$(ezb_os_name)
     if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ezb_log_error "Cannot use --pid and --name together" && return 1
     elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ezb_log_error "Must provide --pid or --name" && return 1
@@ -62,8 +62,8 @@ function ezb_backup() {
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local source; source="$(ezb_arg_get --short "-s" --long "--source" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local backup; backup="$(ezb_arg_get --short "-b" --long "--backup" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local source && source="$(ezb_arg_get --short "-s" --long "--source" --arguments "${@}")" &&
+    local backup && backup="$(ezb_arg_get --short "-b" --long "--backup" --arguments "${@}")" || return 1
     [[ -n "${backup}" ]] && mkdir -p "${backup}"
     [[ ! -d "${backup}" ]] && ezb_log_error "Backup directory \"${backup}\" not found" && return 1
     local source_basename="$(basename "${source}")"

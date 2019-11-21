@@ -8,11 +8,11 @@ function ezb_compare_version() {
         return 1
     fi
     ezb_function_usage "${@}" && return
-    local operation; operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local delimiter; delimiter="$(ezb_arg_get --short "-d" --long "--delimiter" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local left_version; left_version="$(ezb_arg_get --short "-l" --long "--left-version" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local right_version; right_version="$(ezb_arg_get --short "-r" --long "--right-version" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local check_length; check_length="$(ezb_arg_get --short '-c' --long "--check-length" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
+    local delimiter && delimiter="$(ezb_arg_get --short "-d" --long "--delimiter" --arguments "${@}")" &&
+    local left_version && left_version="$(ezb_arg_get --short "-l" --long "--left-version" --arguments "${@}")" &&
+    local right_version && right_version="$(ezb_arg_get --short "-r" --long "--right-version" --arguments "${@}")" &&
+    local check_length && check_length="$(ezb_arg_get --short '-c' --long "--check-length" --arguments "${@}")" || return 1
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
     if [[ "${check_length}" = "${EZB_BOOL_TRUE}" ]] && [[ "${left_length}" -ne "${right_length}" ]]; then

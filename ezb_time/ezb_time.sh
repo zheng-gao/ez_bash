@@ -13,8 +13,8 @@ function ezb_time_from_epoch_seconds() {
         ezb_arg_set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local epoch; epoch="$(ezb_arg_get --short "-e" --long "--epoch" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local format; format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local epoch && epoch="$(ezb_arg_get --short "-e" --long "--epoch" --arguments "${@}")" &&
+    local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then date -r "${epoch}" "${format}"
     elif [[ "${os}" = "linux" ]]; then date "${format}" -d "@${epoch}"
@@ -28,8 +28,8 @@ function ezb_time_to_epoch_seconds() {
         ezb_arg_set --short "-t" --long "--time" --required --default "Now" --info "HH:mm:SS" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local date; date="$(ezb_arg_get --short "-d" --long "--date" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local time; time="$(ezb_arg_get --short "-t" --long "--time" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local date && date="$(ezb_arg_get --short "-d" --long "--date" --arguments "${@}")" &&
+    local time && time="$(ezb_arg_get --short "-t" --long "--time" --arguments "${@}")" || return 1
     [[ "${date}" = "Today" ]] && date=$(date "+%F")
     [[ "${time}" = "Now" ]] && time=$(date "+%H:%M:%S")
     local os=$(ezb_os_name)
@@ -46,8 +46,8 @@ function ezb_time_seconds_to_readable() {
         ezb_arg_set --short "-f" --long "--format" --required --default "Mini" --choices "${output_formats[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local seconds; seconds="$(ezb_arg_get --short "-s" --long "--seconds" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local format; format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local seconds && seconds="$(ezb_arg_get --short "-s" --long "--seconds" --arguments "${@}")" &&
+    local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local days=$((seconds / 86400))
     local hours=$((seconds / 3600 % 24))
     local minutes=$((seconds / 60 % 60))
@@ -70,8 +70,8 @@ function ezb_time_elapsed() {
         ezb_arg_set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local start; start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
-    local end; end="$(ezb_arg_get --short "-e" --long "--end" --arguments "${@}")"; [[ "${?}" -ne 0 ]] && return 1
+    local start && start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
+    local end && end="$(ezb_arg_get --short "-e" --long "--end" --arguments "${@}")" || return 1
     [[ "${start}" -gt "${end}" ]] && ezb_log_error "Start Time \"${start}\" Cannot Be Greater Than End Time \"${end}\"" && return 1
     ezb_time_seconds_to_readable -s "$((end - start))"
 }

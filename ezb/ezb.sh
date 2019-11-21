@@ -1,11 +1,8 @@
 ###################################################################################################
-# -------------------------------------- Dependency Check --------------------------------------- #
-###################################################################################################
-if ! ezb_dependency_check "date" "printf" "column" "sed"; then return 1; fi
-
-###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
+EZB_LOGO="EZ-Bash"
+
 EZB_BOOL_TRUE="True"
 EZB_BOOL_FALSE="False"
 
@@ -17,9 +14,37 @@ EZB_CHAR_SHARP="EZB_SHARP"
 EZB_CHAR_SPACE="EZB_SPACE"
 EZB_CHAR_NON_SPACE_DELIMITER="#"
 
+EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
+EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
+EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
+
+EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
+###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+function ezb_command_check() {
+    which "${1}" &> "${EZB_DEFAULT_LOG}" && return 0 || return 1
+}
+
+function ezb_dependency_check() {
+    local cmd=""; for cmd in "${@}"; do
+        ezb_command_check "${cmd}" || { echo "[${EZB_LOGO}][ERROR] Command \"${cmd}\" not found"; return 1; }
+    done
+}
+
+# Check Dependencies
+if ! ezb_dependency_check "date" "printf" "column" "sed"; then return 1; fi
+
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_os_name() {
+    local name="$(uname -s)"
+    if [[ "${name}" = "Darwin" ]]; then echo "macos"
+    elif [[ "${name}" = "Linux" ]]; then echo "linux"
+    else echo "unknown"; fi
+}
+
 function ezb_to_lower() {
     tr "[:upper:]" "[:lower:]" <<< "${@}"
 }

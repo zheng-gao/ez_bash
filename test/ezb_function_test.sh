@@ -2,9 +2,8 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
-
-if ! source "${EZ_BASH_HOME}/ezb/ezb_core.sh"; then exit 1; fi
-if ! source "${EZ_BASH_HOME}/ezb/ezb_function.sh"; then exit 1; fi
+source "${EZ_BASH_HOME}/ezb/ezb.sh" || exit 1
+source "${EZ_BASH_HOME}/ezb/ezb_function.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
@@ -18,11 +17,11 @@ function ez_test_core_function_1() {
         ezb_arg_set -s "-h" -l "--happy" -t "Flag" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local title; title="$(ezb_arg_get --short '-t' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local name; name="$(ezb_arg_get --short '-n' --long '--name' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local gender; gender="$(ezb_arg_get --short '-g' --long '--gender' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local pets; pets="$(ezb_arg_get --short '-p' --long '--pets' --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local happy; happy="$(ezb_arg_get --short '-h' --long "--happy" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local title && title="$(ezb_arg_get --short '-t' --arguments "${@}")" &&
+    local name && name="$(ezb_arg_get --short '-n' --long '--name' --arguments "${@}")" &&
+    local gender && gender="$(ezb_arg_get --short '-g' --long '--gender' --arguments "${@}")" &&
+    local pets && pets="$(ezb_arg_get --short '-p' --long '--pets' --arguments "${@}")" &&
+    local happy && happy="$(ezb_arg_get --short '-h' --long "--happy" --arguments "${@}")" || return 1
     echo "Title = ${title}"
     echo "Name = ${name}"
     echo "Gender = ${gender}"
@@ -57,11 +56,11 @@ function ez_test_core_function_2() {
         ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local arg_1; arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_2; arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_3; arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local arg_l; arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local dry_run; dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local arg_1 && arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" &&
+    local arg_2 && arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" &&
+    local arg_3 && arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" &&
+    local arg_l && arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" &&
+    local dry_run && dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")" || return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"

@@ -13,8 +13,8 @@ function ezb_git_commit_stats() {
         ezb_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local repo_path; repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local time_format; time_format="$(ezb_arg_get --short "-t" --long "--time-format" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local time_format && time_format="$(ezb_arg_get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
@@ -30,8 +30,8 @@ function ezb_git_file_stats() {
         ezb_arg_set --short "-o" --long "--operation" --required --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local repo_path; repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
-    local operation; operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
