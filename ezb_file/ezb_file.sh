@@ -55,3 +55,22 @@ function ezb_file_descriptor_count() {
     echo "${fd_count}"
 }
 
+function ezb_backup() {
+    if ! ezb_function_exist; then
+        ezb_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
+        ezb_arg_set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||
+        return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local source; source="$(ezb_arg_get --short "-s" --long "--source" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    local backup; backup="$(ezb_arg_get --short "-b" --long "--backup" --arguments "${@}")"; [ "${?}" -ne 0 ] && return 1
+    [[ -n "${backup}" ]] && mkdir -p "${backup}"
+    [[ ! -d "${backup}" ]] && ezb_log_error "Backup directory \"${backup}\" not found" && return 1
+    local source_basename="$(basename "${source}")"
+    [[ -z "${source_basename}" ]] && ezb_log_error "Invalid source basename \"${source_basename}\"" && return 1
+    local destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
+    [[ -e "${destination_path}" ]] && sleep 1 && destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
+    cp -r "${source}" "${destination_path}"
+    ls -lah "${backup}" | grep "${source_basename}"
+    ezb_log --simple --logger "Complete" --message  "Backup at ${destination_path}"; echo
+}
