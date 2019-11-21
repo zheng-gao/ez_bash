@@ -2,9 +2,9 @@
 Bash Tools for Linux and MacOS<br/>
 Clone this project
 ```
-git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}
+git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-Setup environment variable "EZ_BASH_HOME"
+Setup environment variable `EZ_BASH_HOME`
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
