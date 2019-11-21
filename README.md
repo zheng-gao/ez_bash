@@ -4,7 +4,9 @@ Clone this project
 ```
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-Setup environment variable ![#f03c15]EZ_BASH_HOME`#f03c15`
+Setup environment variable
+```diff
+- EZ_BASH_HOME
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
