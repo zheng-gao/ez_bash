@@ -1,6 +1,6 @@
 # ez_bash
 Bash Tools for Linux and MacOS<br/>
-##lone this project
+## Clone this project
 ```
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
@@ -8,7 +8,7 @@ git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-##Import all ez_bash libraries
+## Import all ez_bash libraries
 ```
 source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
