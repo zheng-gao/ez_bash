@@ -63,9 +63,7 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         ezb_source_dir --path "${EZ_BASH_HOME}/ezb_string"   || return 1
         ezb_source_dir --path "${EZ_BASH_HOME}/ezb_time"     || return 1
         ezb_source_dir --path "${EZ_BASH_HOME}/ezb_terminal" || return 1
-        # External Lib
         ezb_source_dir --path "${EZ_BASH_HOME}/ezb_git"      || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_python"   || return 1
         echo "[${EZB_LOGO}][INFO] Complete loading EZ-Bash libraries!"
     else
         # Source the designated libraries
