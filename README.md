@@ -4,7 +4,7 @@ Clone this project
 ```
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-Setup environment variable <span style="color:red;">EZ_BASH_HOME</span>
+Setup environment variable **EZ_BASH_HOME**
 ```
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
