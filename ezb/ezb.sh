@@ -117,14 +117,6 @@ function ezb_build_usage() {
     esac
 }
 
-function ezb_source() {
-    [[ -z "${1}" ]] && ezb_log_error "Empty file path" && return 1
-    local file_path="${1}"
-    [[ ! -f "${file_path}" ]] && ezb_log_error "Invalid file path \"${file_path}\"" && return 2
-    [[ ! -r "${file_path}" ]] && ezb_log_error "Unreadable file \"${file_path}\"" && return 3
-    if ! source "${file_path}"; then ezb_log_error "Failed to source \"${file_path}\"" && return 4; fi
-}
-
 function ezb_source_dir() {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
@@ -147,9 +139,9 @@ function ezb_source_dir() {
     [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
     local sh_file=""
     if [[ -z "${exclude}" ]]; then
-        for sh_file in $(find "${path}" -type f -name "*.sh"); do ezb_source "${sh_file}" || return 4; done
+        for sh_file in $(find "${path}" -type f -name "*.sh"); do source "${sh_file}" || return 4; done
     else
-        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do ezb_source "${sh_file}" || return 4; done
+        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do source "${sh_file}" || return 4; done
     fi
 }
 
