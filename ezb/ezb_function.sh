@@ -406,7 +406,7 @@ function ezb_arg_get() {
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument indentifier "-" or end of line
-                    [[ "${arguments[${index}]}" =~ "-"[-,a-zA-Z].* ]] && break
+                    [[ "${arguments[${index}]}" =~ "^-"[-,a-zA-Z].* ]] && break
                     [ "${count}" -eq 0 ] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done
