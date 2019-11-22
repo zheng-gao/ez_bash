@@ -3,7 +3,7 @@ function ezb_set_operation() {
         local valid_operation=("Intersection" "Union" "LeftOnly" "RightOnly")
         ezb_arg_set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
         ezb_arg_set --short "-l" --long "--left" --type "List" --info "Left Set: Item_l1 Item_l2 ..." &&
-        ezb_arg_set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." || return 1
+        ezb_arg_set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." || return 0
     fi
     ezb_function_usage "${@}" && return
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
@@ -30,7 +30,7 @@ function ezb_set_contains() {
     if ! ezb_function_exist; then
         ezb_arg_set --short "-l" --long "--large" --type "List" --info "Large Set: Item_l1 Item_l2 ..." &&
         ezb_arg_set --short "-s" --long "--small" --type "List" --info "Small Set: Item_r1 Item_r2 ..." &&
-        ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
+        ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 0
     fi
     ezb_function_usage "${@}" && return
     local large && large="$(ezb_arg_get --short "-l" --long "--large" --arguments "${@}")" &&

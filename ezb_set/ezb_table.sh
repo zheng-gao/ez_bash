@@ -11,7 +11,7 @@ function ezb_table_print() {
         ezb_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
         ezb_arg_set --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
         ezb_arg_set --short "-d" --long "--data" --info "The input data if file is not provided" && 
-        ezb_arg_set --short "-f" --long "--file" --info "The input file path" || return 1
+        ezb_arg_set --short "-f" --long "--file" --info "The input file path" || return 0
     fi
     ezb_function_usage "${@}" && return
     local col_delimiter && col_delimiter="$(ezb_arg_get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&

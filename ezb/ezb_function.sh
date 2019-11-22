@@ -59,8 +59,7 @@ function ezb_function_print_help() {
     if [ "${1}" = "-h" -o "${1}" = "--help" ]; then
         local usage=$(ezb_build_usage -o "init" -d "Check if the function is registered")
         usage+=$(ezb_build_usage -o "add" -a "-f|--function" -d "Function Name")
-        ezb_print_usage "${usage}"
-        return
+        ezb_print_usage "${usage}" && return 0
     fi
     # Should only be called by another function
     local function="${FUNCNAME[1]}"
@@ -116,8 +115,7 @@ function ezb_arg_set() {
         usage+=$(ezb_build_usage -o "add" -a "-d|--default" -d "Default Value")
         usage+=$(ezb_build_usage -o "add" -a "-c|--choices" -d "Choices for the argument")
         usage+=$(ezb_build_usage -o "add" -a "-i|--info" -d "Argument Description")
-        ezb_print_usage "${usage}"
-        return
+        ezb_print_usage "${usage}" && return 0
     fi
     declare -A arg_set_of_ezb_arg_set=(
         ["-f"]="1" ["--function"]="1"
@@ -268,8 +266,7 @@ function ezb_arg_get() {
         echo "    The arguments to process must be at the end of this function's argument list"
         echo "[Example]"
         echo "    ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\""
-        echo
-        return
+        echo; return 0
     fi
     # Must Run Inside Other Functions
     local function="${FUNCNAME[1]}"

@@ -1,6 +1,7 @@
 function ezb_clear() {
     if ! ezb_function_exist; then
-        ezb_arg_set --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
+        ezb_arg_set --short "-l" --long "--lines" --required --default "0" \
+                    --info "Lines to clean, non-positve clear console" || return 0
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local lines && lines="$(ezb_arg_get --short "-l" --long "--lines" --arguments "${@}")" || return 1
@@ -26,7 +27,8 @@ function ezb_sleep() {
         ezb_arg_set --short "-u" --long "--unit" --required --default "Second" \
                     --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name"&&
         ezb_arg_set --short "-v" --long "--value" --required --info "Number of units to sleep" &&
-        ezb_arg_set --short "-n" --long "--interval" --required --default 1 --info "Output refresh frequency in seconds, 0 for no output" || return 1
+        ezb_arg_set --short "-n" --long "--interval" --required --default 1 \
+                    --info "Output refresh frequency in seconds, 0 for no output" || return 0
     fi
     ezb_function_usage "${@}" && return
     local unit && unit="$(ezb_arg_get --short "-u" --long "--unit" --arguments "${@}")" &&
@@ -68,11 +70,11 @@ function ezb_print_progress() {
         ezb_arg_set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
         ezb_arg_set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
         ezb_arg_set --short "-t" --long "--total" --required --info "Total Steps" &&
-        ezb_arg_set --short "-c" --long "--current" --required --default 0 --info "Current Step" &&
-        ezb_arg_set --short "-d0" --long "--delete-0" --required --default 0 --info "Delete lines on step 0" &&
-        ezb_arg_set --short "-d1" --long "--delete-1" --required --default 1 --info "Delete lines on step 1" &&
-        ezb_arg_set --short "-dx" --long "--delete-x" --required --default 1 --info "Delete lines on other steps" &&
-        ezb_arg_set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
+        ezb_arg_set --short "-c" --long "--current" --required --default "0" --info "Current Step" &&
+        ezb_arg_set --short "-d0" --long "--delete-0" --required --default "0" --info "Delete lines on step 0" &&
+        ezb_arg_set --short "-d1" --long "--delete-1" --required --default "1" --info "Delete lines on step 1" &&
+        ezb_arg_set --short "-dx" --long "--delete-x" --required --default "1" --info "Delete lines on other steps" &&
+        ezb_arg_set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 0
     fi
     ezb_function_usage "${@}" && return
     local filler_symbol && filler_symbol="$(ezb_arg_get --short "-f" --long "--filler" --arguments "${@}")" &&

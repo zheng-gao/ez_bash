@@ -118,8 +118,7 @@ function ezb_build_usage() {
         usage+="-o|--operation#Choose from: [\"add\", \"init\"]\n"
         usage+="-a|--argument#Argument Name\n"
         usage+="-d|--description#Argument Description\n"
-        ezb_print_usage "${usage}"
-        return
+        ezb_print_usage "${usage}" && return 0
     fi
     local operation=""; local argument=""; local description="No Description"
     while [[ -n "${1}" ]]; do
@@ -147,8 +146,7 @@ function ezb_source_dir() {
         local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
         usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
         usage+=$(ezb_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
-        ezb_print_usage "${usage}"
-        return
+        ezb_print_usage "${usage}" && return 0
     fi
     local path="."; local exclude=""
     while [[ -n "${1}" ]]; do
@@ -179,8 +177,7 @@ function ezb_log() {
         usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "The message to print")
         usage+=$(ezb_build_usage -o "add" -a "-s|--simple" -d "Hide function stack")
         usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [$(ezb_join ', ' ${valid_output_to[@]})], default = \"Console\"")
-        ezb_print_usage "${usage}"
-        return
+        ezb_print_usage "${usage}" && return 0
     fi
     declare -A arg_set_of_ezb_log_to_file=(
         ["-l"]="1" ["--logger"]="1" ["-f"]="1" ["--file"]="1" ["-m"]="1" ["--message"]="1"
@@ -227,7 +224,7 @@ function ezb_variable_check() {
         local usage=$(ezb_build_usage -o "init" -d "Check if the variable is set or not")
         usage+=$(ezb_build_usage -o "add" -a "-n|--name" -d "Variable Name")
         usage+=$(ezb_build_usage -o "add" -a "-v|--verbose" -d "Print Result")
-        ezb_print_usage "${usage}" && return
+        ezb_print_usage "${usage}" && return 0
     fi
     local name=""; local verbose="${EZB_BOOL_FALSE}"
     while [[ ! -z "${1-}" ]]; do

@@ -20,8 +20,7 @@ function ezb_ssh_sudo_cmd() {
         ezb_arg_set --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
         ezb_arg_set --short "-o" --long "--output" --info "File path for output" &&
         ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
-                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
-        return 1
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 0
     fi
     ezb_function_usage "${@}" && return
     local host && host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
@@ -78,8 +77,7 @@ function ezb_mssh_sudo_cmd() {
         ezb_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
         ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
         ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
-                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" ||
-        return 1
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 0
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
@@ -141,8 +139,7 @@ function ezb_mssh_cmd() {
         ezb_arg_set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
         ezb_arg_set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
         ezb_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
-        ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" ||
-        return 1
+        ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 0
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&

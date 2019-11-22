@@ -1,5 +1,5 @@
 function ezb_min() {
-    [[ "${#}" -eq 0 ]] && return
+    [[ "${#}" -eq 0 ]] && return 1
     local min=2147483647; local data=""
     for data in "${@}"; do
         if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi
@@ -8,7 +8,7 @@ function ezb_min() {
 }
 
 function ezb_max() {
-    [[ "${#}" -eq 0 ]] && return
+    [[ "${#}" -eq 0 ]] && return 1
     local max=-2147483647; local data=""
     for data in "${@}"; do
         if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi
@@ -17,7 +17,7 @@ function ezb_max() {
 }
 
 function ezb_sum() {
-    [[ "${#}" -eq 0 ]] && return
+    [[ "${#}" -eq 0 ]] && return 1
     local sum=0; local data=""
     for data in "${@}"; do
         sum=$(ezb_math "${sum} + ${data}")
@@ -26,12 +26,12 @@ function ezb_sum() {
 }
 
 function ezb_average() {
-    [[ "${#}" -eq 0 ]] && return
+    [[ "${#}" -eq 0 ]] && return 1
     ezb_math "$(ezb_sum ${@}) / ${#}"
 }
 
 function ezb_variance() {
-    [[ "${#}" -eq 0 ]] && return
+    [[ "${#}" -eq 0 ]] && return 1
     local average=$(ezb_average ${@}); local variance=0; local data=""
     for data in "${@}"; do
         variance=$(ezb_math "${variance} + (${data} - ${average}) * (${data} - ${average})")

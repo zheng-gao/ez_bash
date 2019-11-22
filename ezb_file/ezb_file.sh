@@ -3,8 +3,7 @@ function ezb_file_get_lines() {
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
         ezb_arg_set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
         ezb_arg_set --short "-f" --long "--from" --default "1" --info "From line, negative number for reverse order" &&
-        ezb_arg_set --short "-t" --long "--to" --default "EOL" --required --info "To line" ||
-        return 1
+        ezb_arg_set --short "-t" --long "--to" --default "EOL" --required --info "To line" || return 0
     fi
     ezb_function_usage "${@}" && return
     local ith && ith="$(ezb_arg_get --short "-i" --long "--i-th" --arguments "${@}")" &&
@@ -33,8 +32,7 @@ function ezb_file_get_lines() {
 function ezb_file_descriptor_count() {
     if ! ezb_function_exist; then
         ezb_arg_set --short "-p" --long "--process-id" --info "Process ID" &&
-        ezb_arg_set --short "-n" --long "--process-name" --info "Process Name, only works for linux" ||
-        return 1
+        ezb_arg_set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 0
     fi
     ezb_function_usage "${@}" && return
     local pid && pid="$(ezb_arg_get --short "-p" --long "--process-id" --arguments "${@}")" &&
@@ -59,7 +57,7 @@ function ezb_backup() {
     if ! ezb_function_exist; then
         ezb_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
         ezb_arg_set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||
-        return 1
+        return 0
     fi
     ezb_function_usage "${@}" && return
     local source && source="$(ezb_arg_get --short "-s" --long "--source" --arguments "${@}")" &&

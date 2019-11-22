@@ -66,16 +66,14 @@ function bar() {
         ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" &&
         ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" &&
         ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" &&
-        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Boolean Flag" ||
-        return 1
+        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Boolean Flag" || return 0
     fi
     ezb_function_usage "${@}" && return
     local arg_1 && arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" &&
     local arg_2 && arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" &&
     local arg_3 && arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" &&
     local arg_l && arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" &&
-    local dry_run && dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")" ||
-    return 1
+    local dry_run && dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")" || return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
