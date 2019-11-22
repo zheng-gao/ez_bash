@@ -25,8 +25,7 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     }
     # Source EZ-Bash Core, Command & Function
     source "${EZ_BASH_HOME}/ezb/ezb.sh"                                 || return 1
-    source "${EZ_BASH_HOME}/ezb/ezb_command.sh"                         || return 1
-    source "${EZ_BASH_HOME}/ezb/ezb_function.sh"                        || return 1
+    ezb_source_dir --path "${EZ_BASH_HOME}/ezb"                         || return 1
     # Source Other Libs
     if [[ -z "${1}" ]]; then
         # By default source ALL other libs
