@@ -1,7 +1,7 @@
 function ezb_random_int() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--lower-bound" --default 0 --info "Inclusive Lower Bound" &&
-        ezb_arg_set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 0
+        ezb_arg_set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
     fi
     ezb_function_usage "${@}" && return
     local lower_bound && lower_bound="$(ezb_arg_get --short "-l" --long "--lower-bound" --arguments "${@}")" &&

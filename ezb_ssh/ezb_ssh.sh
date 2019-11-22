@@ -1,7 +1,7 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-if ! ezb_dependency_check "expect"; then return 1; fi
+ezb_dependency_check "expect" "sed" "grep" "tail" "date" "cut" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -10,7 +10,7 @@ if ! ezb_dependency_check "expect"; then return 1; fi
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
 function ezb_ssh_sudo_cmd() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--host" --required --info "The host to run the command on" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
@@ -20,7 +20,7 @@ function ezb_ssh_sudo_cmd() {
         ezb_arg_set --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
         ezb_arg_set --short "-o" --long "--output" --info "File path for output" &&
         ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
-                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 0
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
     ezb_function_usage "${@}" && return
     local host && host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
@@ -68,7 +68,7 @@ EOF
 }
 
 function ezb_mssh_sudo_cmd() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
@@ -77,7 +77,7 @@ function ezb_mssh_sudo_cmd() {
         ezb_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
         ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
         ezb_arg_set --short "-P" --long "--prompt" --required --default "${EZB_CHAR_SHARP}-${EZB_CHAR_SPACE}" \
-                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 0
+                    --info "Use \"\\\$${EZB_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
@@ -131,7 +131,7 @@ function ezb_mssh_sudo_cmd() {
 }
 
 function ezb_mssh_cmd() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
         ezb_arg_set --short "-u" --long "--user" --info "SSH user" &&
@@ -139,7 +139,7 @@ function ezb_mssh_cmd() {
         ezb_arg_set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
         ezb_arg_set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
         ezb_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
-        ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 0
+        ezb_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&

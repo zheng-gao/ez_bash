@@ -19,6 +19,8 @@ EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
 EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
 
 EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
+
+declare -g -A EZB_DEPENDENCY_SET
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
@@ -27,22 +29,27 @@ function ezb_command_check() {
 }
 
 function ezb_dependency_check() {
-    local cmd=""; for cmd in "${@}"; do
-        ezb_command_check "${cmd}" || { echo "[${EZB_LOGO}][ERROR] Command \"${cmd}\" not found"; return 1; }
+    local cmd=""
+    for cmd in "${@}"; do
+        if [[ -z "${EZB_DEPENDENCY_SET[${cmd}]}" ]]; then
+            ezb_command_check "${cmd}" || { echo "[${EZB_LOGO}][ERROR] Command \"${cmd}\" not found"; return 1; }
+            EZB_DEPENDENCY_SET["${cmd}"]="${EZB_BOOL_TRUE}"
+        fi
     done
 }
 
 # Check Dependencies
-if ! ezb_dependency_check "date" "printf" "column" "sed"; then return 1; fi
+ezb_dependency_check "date" "printf" "column" "find" "grep" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ezb_os_name() {
     local name="$(uname -s)"
-    if [[ "${name}" = "Darwin" ]]; then echo "macos"
-    elif [[ "${name}" = "Linux" ]]; then echo "linux"
-    else echo "unknown"; fi
+    if [[ "${name}" = "Darwin" ]]; then echo "macos" && return 0
+    elif [[ "${name}" = "Linux" ]]; then echo "linux" && return 0
+    else echo "unknown" && return 1
+    fi
 }
 
 function ezb_to_lower() {
@@ -162,9 +169,13 @@ function ezb_source_dir() {
     [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
     local sh_file=""
     if [[ -z "${exclude}" ]]; then
-        for sh_file in $(find "${path}" -type f -name "*.sh"); do source "${sh_file}" || return 4; done
+        for sh_file in $(find "${path}" -type f -name "*.sh"); do
+            if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
+        done
     else
-        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do source "${sh_file}" || return 4; done
+        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
+            if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
+        done
     fi
 }
 

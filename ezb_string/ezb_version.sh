@@ -1,11 +1,12 @@
 function ezb_compare_version() {
-    if ! ezb_function_exist; then
-        ezb_arg_set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required --info "Must quote operation \">\" and \">=\"" &&
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
+                    --info "Must quote operation \">\" and \">=\"" &&
         ezb_arg_set --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
         ezb_arg_set --short "-l" --long "--left-version" --required --info "The version on left side" &&
         ezb_arg_set --short "-r" --long "--right-version" --required --info "The version on right side" &&
         ezb_arg_set --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" &&
-        ezb_arg_set --short "-p" --long "--print" --type "Flag" --info "Print boolean result" || return 0
+        ezb_arg_set --short "-p" --long "--print" --type "Flag" --info "Print boolean result" || return 1
     fi
     ezb_function_usage "${@}" && return
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&

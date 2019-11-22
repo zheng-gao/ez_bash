@@ -1,3 +1,11 @@
+###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+ezb_dependency_check "date" || return 1
+
+###################################################################################################
+# -------------------------------------- EZ Bash Functions -------------------------------------- #
+###################################################################################################
 function ezb_time_now() {
     [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
 }
@@ -8,9 +16,9 @@ function ezb_time_clock() {
 }
 
 function ezb_time_from_epoch_seconds() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
-        ezb_arg_set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 0
+        ezb_arg_set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local epoch && epoch="$(ezb_arg_get --short "-e" --long "--epoch" --arguments "${@}")" &&
@@ -23,9 +31,9 @@ function ezb_time_from_epoch_seconds() {
 }
 
 function ezb_time_to_epoch_seconds() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--date" --required --default "Today" --info "YYYY-MM-DD" &&
-        ezb_arg_set --short "-t" --long "--time" --required --default "Now" --info "HH:mm:SS" || return 0
+        ezb_arg_set --short "-t" --long "--time" --required --default "Now" --info "HH:mm:SS" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local date && date="$(ezb_arg_get --short "-d" --long "--date" --arguments "${@}")" &&
@@ -40,10 +48,10 @@ function ezb_time_to_epoch_seconds() {
 }
 
 function ezb_time_seconds_to_readable() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local output_formats=("Mini" "Short" "Long")
         ezb_arg_set --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
-        ezb_arg_set --short "-f" --long "--format" --required --default "Mini" --choices "${output_formats[@]}" || return 0
+        ezb_arg_set --short "-f" --long "--format" --required --default "Mini" --choices "${output_formats[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
     local seconds && seconds="$(ezb_arg_get --short "-s" --long "--seconds" --arguments "${@}")" &&
@@ -65,9 +73,9 @@ function ezb_time_seconds_to_readable() {
 }
 
 function ezb_time_elapsed() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
-        ezb_arg_set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 0
+        ezb_arg_set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
     fi
     ezb_function_usage "${@}" && return
     local start && start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")" &&

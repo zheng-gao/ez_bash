@@ -1,17 +1,17 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-if ! ezb_dependency_check "awk"; then return 1; fi
+ezb_dependency_check "cat" "sed" "column" "awk" "printf" "expr" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ezb_table_print() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
         ezb_arg_set --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
         ezb_arg_set --short "-d" --long "--data" --info "The input data if file is not provided" && 
-        ezb_arg_set --short "-f" --long "--file" --info "The input file path" || return 0
+        ezb_arg_set --short "-f" --long "--file" --info "The input file path" || return 1
     fi
     ezb_function_usage "${@}" && return
     local col_delimiter && col_delimiter="$(ezb_arg_get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&

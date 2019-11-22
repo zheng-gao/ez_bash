@@ -4,9 +4,9 @@ function ezb_string_length() {
 }
 
 function ezb_string_repeat() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
-        ezb_arg_set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 0
+        ezb_arg_set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
     fi
     ezb_function_usage "${@}" && return
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
@@ -16,12 +16,12 @@ function ezb_string_repeat() {
 }
 
 function ezb_string_trim() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local valid_keys=("Left" "Right" "Both" "Any")
         ezb_arg_set --short "-s" --long "--string" --required --info "The string to be trimmed" &&
         ezb_arg_set --short "-p" --long "--pattern" --required --default "${EZB_CHAR_SPACE}" --info "Substring Pattern" &&
         ezb_arg_set --short "-c" --long "--count" --info "Occurrence of the pattern" &&
-        ezb_arg_set --short "-k" --long "--key" --required --default "Any" --choices "${valid_keys[@]}" || return 0
+        ezb_arg_set --short "-k" --long "--key" --required --default "Any" --choices "${valid_keys[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
@@ -43,12 +43,12 @@ function ezb_string_trim() {
 }
 
 function ezb_string_check() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ezb_arg_set --short "-s" --long "--string" --required --info "The string to be checked" &&
         ezb_arg_set --short "-p" --long "--pattern" --required --info "Substring Pattern" &&
         ezb_arg_set --short "-k" --long "--key" --required --default "Contains" --choices "${valid_keys[@]}" &&
-        ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print result" || return 0
+        ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print result" || return 1
     fi
     ezb_function_usage "${@}" && return
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
@@ -68,12 +68,12 @@ function ezb_string_check() {
 }
 
 function ezb_banner() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ezb_arg_set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&
         ezb_arg_set --short "-c" --long "--count" --required --default "80" --info "The number of the strings in the line spliter" &&
         ezb_arg_set --short "-m" --long "--message" --default "${EZB_LOGO}" --info "Message to print in the banner" &&
-        ezb_arg_set --short "-l" --long "--log-prefix" --type "Flag" --info "Print EZ-BASH log prefix" || return 0
+        ezb_arg_set --short "-l" --long "--log-prefix" --type "Flag" --info "Print EZ-BASH log prefix" || return 1
     fi
     ezb_function_usage "${@}" && return
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&

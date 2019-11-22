@@ -9,12 +9,12 @@ source "${EZ_BASH_HOME}/ezb/ezb_function.sh" || exit 1
 # --------------------------------------- Main Function ----------------------------------------- #
 ###################################################################################################
 function ez_test_core_function_1() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set -s "-t" --required -i "Your Title" &&
         ezb_arg_set --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
         ezb_arg_set -s "-g" --long "--gender" -d "Both Genders" --choices "Both Genders" "Male" "Female" --info "Your Gender" &&
         ezb_arg_set -s "-p" -l "--pets" --type "List" -d "Chiwawa Dog" "Cat" "Beta Fish" -i "Pets List" &&
-        ezb_arg_set -s "-h" -l "--happy" -t "Flag" || return 0
+        ezb_arg_set -s "-h" -l "--happy" -t "Flag" || return 1
     fi
     ezb_function_usage "${@}" && return
     local title && title="$(ezb_arg_get --short "-t" --arguments "${@}")" &&
@@ -48,12 +48,12 @@ ez_test_core_function_1 --happy; echo
 
 
 function ez_test_core_function_2() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         ezb_arg_set --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
         ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
         ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" --info "The 3rd argument" &&
         ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" --info "The list argument" &&
-        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 0
+        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "The flag argument" || return 1
     fi
     ezb_function_usage "${@}" && return
     local arg_1 && arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" &&

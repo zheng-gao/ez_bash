@@ -12,7 +12,7 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZB_VERSION="0.1.1"
+EZB_VERSION="0.1.2"
 EZB_DEFAULT_BASH_VERSION="5"
 
 ###################################################################################################
@@ -24,24 +24,26 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         echo "[EZ-Bash][ERROR] \"Bash ${EZB_DEFAULT_BASH_VERSION}\" not found!"; return 1
     }
     # Source EZ-Bash Core, Command & Function
-    source "${EZ_BASH_HOME}/ezb/ezb.sh"                      || return 1
-    source "${EZ_BASH_HOME}/ezb/ezb_command.sh"              || return 1
-    source "${EZ_BASH_HOME}/ezb/ezb_function.sh"             || return 1
+    source "${EZ_BASH_HOME}/ezb/ezb.sh"                                 || return 1
+    source "${EZ_BASH_HOME}/ezb/ezb_command.sh"                         || return 1
+    source "${EZ_BASH_HOME}/ezb/ezb_function.sh"                        || return 1
     # Source Other Libs
     if [[ -z "${1}" ]]; then
         # By default source ALL other libs
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_file"     || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_math"     || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_set"      || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_ssh"      || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_string"   || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_time"     || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_terminal" || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_git"      || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_file"                || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_math"                || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_set"                 || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_ssh"                 || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_string"              || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_time"                || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_terminal"            || return 1
+        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_git"                 || return 1
         echo "[EZ-Bash][INFO] Complete loading EZ-Bash libraries!"
     else
         # Source the designated libraries
-        for ezb_library_name in "${@}"; do ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1; done
+        for ezb_library_name in "${@}"; do
+            ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
+        done
         unset ezb_library_name
     fi
 else

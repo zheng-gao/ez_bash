@@ -1,16 +1,16 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-if ! ezb_dependency_check "git"; then return 1; fi
+ezb_dependency_check "git" "sort" "awk" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ezb_git_commit_stats() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
         ezb_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 0
+        ezb_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
     local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
@@ -24,10 +24,10 @@ function ezb_git_commit_stats() {
 
 
 function ezb_git_file_stats() {
-    if ! ezb_function_exist; then
+    if ezb_function_unregistered; then
         local valid_operations=("${EZB_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
         ezb_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-o" --long "--operation" --required --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 0
+        ezb_arg_set --short "-o" --long "--operation" --required --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
     local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
