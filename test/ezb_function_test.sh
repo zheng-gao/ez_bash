@@ -17,11 +17,11 @@ function ez_test_core_function_1() {
         ezb_arg_set -s "-h" -l "--happy" -t "Flag" || return 0
     fi
     ezb_function_usage "${@}" && return
-    local title && title="$(ezb_arg_get --short '-t' --arguments "${@}")" &&
-    local name && name="$(ezb_arg_get --short '-n' --long '--name' --arguments "${@}")" &&
-    local gender && gender="$(ezb_arg_get --short '-g' --long '--gender' --arguments "${@}")" &&
-    local pets && pets="$(ezb_arg_get --short '-p' --long '--pets' --arguments "${@}")" &&
-    local happy && happy="$(ezb_arg_get --short '-h' --long "--happy" --arguments "${@}")" || return 1
+    local title && title="$(ezb_arg_get --short "-t" --arguments "${@}")" &&
+    local name && name="$(ezb_arg_get --short "-n" --long "--name" --arguments "${@}")" &&
+    local gender && gender="$(ezb_arg_get --short "-g" --long "--gender" --arguments "${@}")" &&
+    local pets && pets="$(ezb_arg_get --short "-p" --long "--pets" --arguments "${@}")" &&
+    local happy && happy="$(ezb_arg_get --short "-h" --long "--happy" --arguments "${@}")" || return 1
     echo "Title = ${title}"
     echo "Name = ${name}"
     echo "Gender = ${gender}"
@@ -60,7 +60,7 @@ function ez_test_core_function_2() {
     local arg_2 && arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" &&
     local arg_3 && arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" &&
     local arg_l && arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" &&
-    local dry_run && dry_run="$(ezb_arg_get --short '-d' --long "--dry-run" --arguments "${@}")" || return 1
+    local dry_run && dry_run="$(ezb_arg_get --short "-d" --long "--dry-run" --arguments "${@}")" || return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
