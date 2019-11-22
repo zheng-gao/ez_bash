@@ -412,6 +412,7 @@ function ezb_arg_get() {
                     [ "${count}" -eq 0 ] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done
+                # [To Do] Return list directly: ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${output}"
                 echo "${output}"; return
             fi
         done
@@ -421,6 +422,7 @@ function ezb_arg_get() {
             [[ -n "${long}" ]] && ezb_log_error "Argument \"${long}\" is required" && return 5
         fi
         # Not Found, Use Default
+        # [To Do] Return list directly: ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
         echo "${argument_default}"
     fi
 }
