@@ -58,7 +58,8 @@ $ foo --wrong-arg "First Arg"
 [2019-11-21 14:26:57][EZ-Bash][foo][ERROR] Run "foo --help" for more info
 ```
 ## Example 2
-The new helper support keywords "--default", "--required", "--choices", "--flag" and type "List"
+The new helper supports keywords "--default", "--required", "--choices", "--type", "--info"
+And the type of the argument could be "String", "List" and "Flag"
 ```bash
 function bar() {
     if ezb_function_unregistered; then
