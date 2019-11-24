@@ -8,9 +8,13 @@ git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```bash
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-### Import all the "ez_bash" libraries
+### To import all the "ez_bash" libraries
 ```bash
-source "${EZ_BASH_HOME}/ez_bash.sh"
+source "${EZ_BASH_HOME}/ez_bash.sh" --all
+```
+### To import one or more "ez_bash" libraries
+```bash
+source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 ```
 ## Example 1
 ```bash

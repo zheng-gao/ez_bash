@@ -25,18 +25,26 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     }
     # Source EZ-Bash Core, Command & Function
     source "${EZ_BASH_HOME}/ezb/ezb.sh"                                 || return 1
-    ezb_source_dir --path "${EZ_BASH_HOME}/ezb"                         || return 1
+    ezb_source_dir --path "${EZ_BASH_HOME}/ezb" --exclude "ezb.sh"      || return 1
     # Source Other Libs
-    if [[ -z "${1}" ]]; then
+    if [[ -z "${1}" ]] || [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_file"                || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_math"                || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_set"                 || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_ssh"                 || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_string"              || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_time"                || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_terminal"            || return 1
-        ezb_source_dir --path "${EZ_BASH_HOME}/ezb_git"                 || return 1
+        all_ezb_libraries=(
+            "ezb_cmd"
+            "ezb_file"
+            "ezb_math"
+            "ezb_set"
+            "ezb_ssh"
+            "ezb_string"
+            "ezb_time"
+            "ezb_terminal"
+            "ezb_git"
+        )
+        for ezb_library_name in "${all_ezb_libraries[@]}"; do
+            ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
+        done
+        unset all_ezb_libraries
+        unset ezb_library_name
         echo "[EZ-Bash][INFO] Complete loading EZ-Bash libraries!"
     else
         # Source the designated libraries
