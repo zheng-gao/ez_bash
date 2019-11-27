@@ -372,7 +372,7 @@ function ezb_arg_get() {
                     done
                     if [ -z "${choice_set[${value}]}" ]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ezb_log_error "Invalide value \"${value}\" for argument \"${name}\", please choose from [${choices_string}]"
+                        ezb_log_error "Invalid value \"${value}\" for argument \"${name}\", please choose from [${choices_string}]"
                         return 4
                     fi
                 fi

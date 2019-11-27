@@ -87,7 +87,7 @@ function ezb_test_string_arg_choices() {
 -i       --input  String  True        None       Cappuccino, Espresso, Latte  None
 
 > ezb_test_string_arg_choices -i "Americano"
-[2019-11-27 13:41:27][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalide value "Americano" for argument "-i", please choose from [Cappuccino, Espresso, Latte]
+[2019-11-27 13:41:27][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalid value "Americano" for argument "-i", please choose from [Cappuccino, Espresso, Latte]
 
 > ezb_test_string_arg_choices -i "Latte"
 input = "Latte"
