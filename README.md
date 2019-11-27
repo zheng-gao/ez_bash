@@ -28,7 +28,7 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | -r | --required | Flag | Mark the argument required |
 ## --required
 ```bash
-function ezb_test_required_string_arg() {
+function ezb_test_string_arg_required() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-i" --long "--input" --required || return 1
     fi
@@ -37,20 +37,20 @@ function ezb_test_required_string_arg() {
     echo "input = \"${input}\""
 }
 
-> ezb_test_required_string_arg --help
-[Function Name] "ezb_test_required_string_arg"
+> ezb_test_string_arg_required --help
+[Function Name] "ezb_test_string_arg_required"
 [Short]  [Long]   [Type]  [Required]  [Default]  [Choices]  [Description]
 -i       --input  String  True        None       None       None
 
-> ezb_test_required_string_arg
-[2019-11-27 13:31:08][EZ-Bash][ezb_test_required_string_arg][ezb_arg_get][ERROR] Argument "-i" is required
+> ezb_test_string_arg_required
+[2019-11-27 13:31:08][EZ-Bash][ezb_test_string_arg_required][ezb_arg_get][ERROR] Argument "-i" is required
 
-> ezb_test_required_string_arg -i "hello world"
+> ezb_test_string_arg_required -i "hello world"
 input = "hello world"
 ```
 ## --default
 ```bash
-function ezb_test_default_string_arg() {
+function ezb_test_string_arg_default() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-i" --long "--input" --default "A default string" || return 1
     fi
@@ -59,14 +59,14 @@ function ezb_test_default_string_arg() {
     echo "input = \"${input}\""
 }
 
-> ezb_test_default_string_arg --help
-[Function Name] "ezb_test_default_string_arg"
+> ezb_test_string_arg_default --help
+[Function Name] "ezb_test_string_arg_default"
 [Short]  [Long]   [Type]  [Required]  [Default]         [Choices]  [Description]
 -i       --input  String  False       A default string  None       None
 
-> ezb_test_default_string_arg
+> ezb_test_string_arg_default
 input = "A default string"
-> ezb_test_default_string_arg -i "hello world"
+> ezb_test_string_arg_default -i "hello world"
 input = "hello world"
 ```
 ## --choices
@@ -91,110 +91,104 @@ function ezb_test_string_arg_choices() {
 > ezb_test_string_arg_choices -i "Latte"
 input = "Latte"
 ```
-
-
-Run with --helper
-```
-$ foo --help
-
-[Function Name]   "foo"
-[Function Info]   This is a test function foo
--a1|--argument-1  The 1st argument
--a2|--argument-2  The 2nd argument
-
-```
-Give the correct arguments
-```
-$ foo -a1 "First Arg" --argument-2 "2nd Arg"
-Argument 1: First Arg
-Argument 2: 2nd Arg
-```
-Give the wrong argument
-```
-$ foo --wrong-arg "First Arg"
-[2019-11-21 14:26:57][EZ-Bash][foo][ERROR] Unknown argument identifier "--wrong-arg"
-[2019-11-21 14:26:57][EZ-Bash][foo][ERROR] Run "foo --help" for more info
-```
-## Example 2
-The new helper supports keywords "--default", "--required", "--choices", "--type", "--info"</br>
-And the type of the argument could be "String", "List", "Flag" or "Password" (prompt for password if not given and no default provided)
+## --type "Password"
 ```bash
-function bar() {
+function ezb_test_password_arg() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" &&
-        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" &&
-        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" &&
-        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" &&
+        ezb_arg_set --short "-p" --long "--password" --required --type "Password" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
+    echo "$(ezb_string_repeat --string "*" --count ${#password})"
+    echo "password = \"${password}\""
+}
+
+> ezb_test_password_arg --help
+[Function Name] "ezb_test_password_arg"
+[Short]  [Long]      [Type]    [Required]  [Default]  [Choices]  [Description]
+-p       --password  Password  True        None       None       None
+
+> ezb_test_password_arg
+Password for "-p": *********
+password = "my secret"
+```
+## --type "List"
+```bash
+function ezb_test_list_arg_default() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-l" --long "--list" --default "Def 1" "Def 2" "Def 3" --type "List" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local list && list="$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
+    ezb_function_get_list "${list}"
+}
+
+> ezb_test_list_arg_default --help
+[Function Name] "ezb_test_list_arg_default"
+[Short]  [Long]  [Type]  [Required]  [Default]            [Choices]  [Description]
+-l       --list  List    False       Def 1, Def 2, Def 3  None       None
+
+> ezb_test_list_arg_default
+Def 1
+Def 2
+Def 3
+
+> ezb_test_list_arg_default -l "Item 1" "Item 2" "Item 3"
+Item 1
+Item 2
+Item 3
+```
+## --type "Flag"
+```bash
+function ezb_test_flag_arg() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-f" --long "--flag" --type "Flag" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local flag && flag="$(ezb_arg_get --short "-f" --long "--flag" --arguments "${@}")" || return 1
+    echo "flag = ${flag}"
+}
+
+> ezb_test_flag_arg --help
+[Function Name] "ezb_test_flag_arg"
+[Short]  [Long]  [Type]  [Required]  [Default]  [Choices]  [Description]
+-f       --flag  Flag    False       None       None       None
+
+> ezb_test_flag_arg
+flag = False
+
+> ezb_test_flag_arg --flag
+flag = True
+```
+## Example
+```bash
+function example() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" || return 1
+        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" || return 1
+        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" || return 1
+        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" || return 1
         ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Boolean Flag" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local arg_1 && arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" &&
-    local arg_2 && arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" &&
-    local arg_3 && arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" &&
-    local arg_l && arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" &&
-    local dry_run && dry_run="$(ezb_arg_get -s "-d" -l "--dry-run" --arguments "${@}")" || return 1
+    local arg_1; arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" || return 1
+    local arg_2; arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" || return 1
+    local arg_3; arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" || return 1
+    local arg_l; arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" || return 1
+    local dry_run; dry_run="$(ezb_arg_get -s "-d" -l "--dry-run" --arguments "${@}")" || return 1
     echo "Argument 1: ${arg_1}"
     echo "Argument 2: ${arg_2}"
     echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${arg_l}"
+    echo "Argument List:"; ezb_function_get_list "${arg_l}"
     echo "Dry Run   : ${dry_run}"
 }
-```
-Run with --helper
-```
-$ bar --help
 
-[Function Name] "bar"
-
+> example --help
+[Function Name] "example"
 [Short]  [Long]        [Type]  [Required]  [Default]       [Choices]           [Description]
 -a1      --argument-1  String  True        None            None                1st argument
 -a2      --argument-2  String  False       2nd Arg Def     None                None
 -a3      --argument-3  String  False       None            3rd Arg, Third Arg  None
 -l       --arg-list    List    False       Item 1, Item 2  None                None
 -d       --dry-run     Flag    False       None            None                Boolean Flag
-
-```
-Give the correct arguments
-```
-$ bar -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"
-Argument 1: First Arg
-Argument 2: Second Arg
-Argument 3: Third Arg
-Argument List:
-data1
-data2
-data3
-Dry Run   : False
-```
-The first argument is required, if we ignore it
-```
-$ bar -a2 "Second Arg" -a3 "Third Arg"
-[2019-11-21 14:29:57][EZ-Bash][bar][ezb_arg_get][ERROR] Argument "-a1" is required
-```
-The second argument and the list argument have default, if we ignore it, will use the default. Flag argument by default use "False"
-```
-$ bar -a1 "First Arg" -a3 "Third Arg"
-Argument 1: First Arg
-Argument 2: 2nd Arg Def
-Argument 3: Third Arg
-Argument List:
-Item 1
-Item 2
-Dry Run   : False
-```
-The third argument has choices, we could not use other value
-```
-$ bar -a1 "First Arg" -a3 "Arg 3"
-[2019-11-21 13:50:42][EZ-Bash][bar][ezb_arg_get][ERROR] Invalide value "Arg 3" for argument "-a3", please choose from [3rd Arg, Third Arg]
-```
-If we give the dry run flag, it become "True"
-```
-$ bar -a1 "First Arg" --dry-run -a3 "3rd Arg"
-Argument 1: First Arg
-Argument 2: 2nd Arg Def
-Argument 3: 3rd Arg
-Argument List:
-Item 1
-Item 2
-Dry Run   : True
 ```
