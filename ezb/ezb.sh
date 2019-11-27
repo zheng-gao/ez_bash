@@ -158,8 +158,8 @@ function ezb_source_dir() {
     local path="."; local exclude=""
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-p" | "--path") shift; path=${1} && [ -n "${1}" ] && shift ;;
-            "-r" | "--exclude") shift; exclude=${1} && [ -n "${1}" ] && shift ;;
+            "-p" | "--path") shift; path=${1} && [[ -n "${1}" ]] && shift ;;
+            "-r" | "--exclude") shift; exclude=${1} && [[ -n "${1}" ]] && shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done

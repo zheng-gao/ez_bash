@@ -16,9 +16,19 @@ source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 ```
-## Example 1
+## Argument Artributes
+|Short Name|Long Name|Type|Description|
+|---|---|---|
+|-s|--short|String|Short argument identifier|
+|-l|--long|String|Long argument identifier|
+|-c|--choices|List|Argument value can only be one of the choices|
+|-d|--default|List|Default value for an argument|
+|-r|--required|Flag|Mark the argument required|
+|-i|--info|String|Argument description|
+|-t|--type|String|Argument type: String, List, Flag, Password|
+
 ```bash
-function foo() {
+function () {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
         usage+=$(ezb_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
@@ -27,9 +37,9 @@ function foo() {
     fi
     local arg_1; local arg_2
     while [[ -n "${1}" ]]; do
-        case "${1-}" in
-            "-a1" | "--argument-1") shift; arg_1="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
-            "-a2" | "--argument-2") shift; arg_2="${1-}"; if [[ ! -z "${1-}" ]]; then shift; fi ;;
+        case "${1}" in
+            "-a1" | "--argument-1") shift; arg_1="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-a2" | "--argument-2") shift; arg_2="${1}"; [[ -n "${1}" ]] && shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\""
                ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info" 
                return 1 ;;

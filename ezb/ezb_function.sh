@@ -53,26 +53,26 @@ function ezb_function_unregistered() {
 }
 
 function ezb_function_check_help_keyword() {
-    [ -z "${1}" ] && return 0 # Print help info if no argument given
+    [[ -z "${1}" ]] && return 0 # Print help info if no argument given
     ezb_excludes "${EZB_FUNC_HELP}" "${@}" && return 1 || return 0
 }
 
 function ezb_function_print_help() {
-    if [ "${1}" = "-h" -o "${1}" = "--help" ]; then
+    if [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Check if the function is registered")
         usage+=$(ezb_build_usage -o "add" -a "-f|--function" -d "Function Name")
         ezb_print_usage "${usage}" && return 0
     fi
     # Should only be called by another function
     local function="${FUNCNAME[1]}"
-    while [ -n "${1}" ]; do
+    while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-f" | "--function") shift; function=${1}; [ -n "${1}" ] && shift ;;
+            "-f" | "--function") shift; function=${1}; [[ -n "${1}" ]] && shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
-    [ -z "${function}" ] && function="${FUNCNAME[1]}"
-    [ -z "${EZB_FUNC_SET[${function}]}" ] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
+    [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
+    [[ -z "${EZB_FUNC_SET[${function}]}" ]] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     echo; echo "[Function Name] \"${function}\""; echo
     {
@@ -170,9 +170,13 @@ function ezb_arg_set() {
     else [ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
     fi
     local default_str=""; local i=0
-    for ((; i < ${#default[@]}; ++i)); do [ "${i}" -eq 0 ] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"; done
+    for ((; i < ${#default[@]}; ++i)); do
+        [[ "${i}" -eq 0 ]] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"
+    done
     local choices_str=""; local i=0
-    for ((; i < ${#choices[@]}; ++i)); do [ "${i}" -eq 0 ] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"; done
+    for ((; i < ${#choices[@]}; ++i)); do
+        [[ "${i}" -eq 0 ]] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"
+    done
     # Register Function
     EZB_FUNC_SET["${function}"]="${EZB_BOOL_TRUE}"
     local key=""
@@ -180,9 +184,7 @@ function ezb_arg_set() {
         key="${function}${delimiter}${short}"
         EZB_S_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [[ -z "${EZB_FUNC_TO_S_ARG_MAP[${function}]}" ]]; then EZB_FUNC_TO_S_ARG_MAP["${function}"]="${short}"
-        else
-            [[ -z "${EZB_S_ARG_TO_TYPE_MAP[${key}]}" ]] && EZB_FUNC_TO_S_ARG_MAP["${function}"]+="${delimiter}${short}"
-        fi
+        else [[ -z "${EZB_S_ARG_TO_TYPE_MAP[${key}]}" ]] && EZB_FUNC_TO_S_ARG_MAP["${function}"]+="${delimiter}${short}"; fi
         EZB_S_ARG_TO_L_ARG_MAP["${key}"]="${long}"
         EZB_S_ARG_TO_TYPE_MAP["${key}"]="${type}"
         EZB_S_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
@@ -219,9 +221,7 @@ function ezb_arg_set() {
         key="${function}${delimiter}${long}"
         EZB_L_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [[ -z "${EZB_FUNC_TO_L_ARG_MAP[${function}]}" ]]; then EZB_FUNC_TO_L_ARG_MAP["${function}"]="${long}"
-        else
-            [[ -z "${EZB_L_ARG_TO_TYPE_MAP[${key}]}" ]] && EZB_FUNC_TO_L_ARG_MAP["${function}"]+="${delimiter}${long}"
-        fi
+        else [[ -z "${EZB_L_ARG_TO_TYPE_MAP[${key}]}" ]] && EZB_FUNC_TO_L_ARG_MAP["${function}"]+="${delimiter}${long}"; fi
         EZB_L_ARG_TO_S_ARG_MAP["${key}"]="${short}"
         EZB_L_ARG_TO_TYPE_MAP["${key}"]="${type}"
         EZB_L_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
@@ -229,8 +229,7 @@ function ezb_arg_set() {
         EZB_L_ARG_TO_DEFAULT_MAP["${key}"]="${default_str[@]}"
         EZB_L_ARG_TO_CHOICES_MAP["${key}"]="${choices_str[@]}"
     else
-        key="${function}${delimiter}${short}"
-        local long_old="${EZB_S_ARG_TO_L_ARG_MAP[${key}]}"
+        key="${function}${delimiter}${short}"; local long_old="${EZB_S_ARG_TO_L_ARG_MAP[${key}]}"
         if [ -n "${long_old}" ]; then
             key="${function}${delimiter}${long_old}"
             # Delete long_old
@@ -244,11 +243,8 @@ function ezb_arg_set() {
             local new_long_list_string=""; local existing_long=""
             for existing_long in $(sed "s/${delimiter}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${function}]}"); do
                 if [[ "${long_old}" != "${existing_long}" ]]; then
-                    if [ -z "${new_short_list_string}" ]; then 
-                        new_long_list_string="${existing_long}"
-                    else
-                        new_long_list_string+="${delimiter}${existing_long}"
-                    fi
+                    if [[ -z "${new_short_list_string}" ]]; then new_long_list_string="${existing_long}"
+                    else new_long_list_string+="${delimiter}${existing_long}"; fi
                 fi
             done
             EZB_FUNC_TO_L_ARG_MAP["${function}"]="${new_long_list_string}"
