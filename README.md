@@ -17,15 +17,15 @@ source "${EZ_BASH_HOME}/ez_bash.sh" --all
 source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 ```
 ## Argument Artributes
-|Short Name|Long Name|Type|Description|
-|---|---|---|
-|-s|--short|String|Short argument identifier|
-|-l|--long|String|Long argument identifier|
-|-c|--choices|List|Argument value can only be one of the choices|
-|-d|--default|List|Default value for an argument|
-|-r|--required|Flag|Mark the argument required|
-|-i|--info|String|Argument description|
-|-t|--type|String|Argument type: String, List, Flag, Password|
+| Short Name | Long Name | Type | Description |
+| ---------- | --------- | ---- | ----------- |
+| -s | --short | String | Short argument identifier |
+| -l | --long | String | Long argument identifier |
+| -t | --type | String | Argument type: String, List, Flag, Password |
+| -i | --info | String | Argument description |
+| -c | --choices | List | Argument value can only be one of the choices |
+| -d | --default | List | Default value for an argument |
+| -r | --required | Flag | Mark the argument required |
 
 ```bash
 function () {
