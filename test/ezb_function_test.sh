@@ -8,7 +8,25 @@ source "${EZ_BASH_HOME}/ezb/ezb_function.sh" || exit 1
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
 ###################################################################################################
-function ez_test_core_function_1() {
+function ezb_test_password() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-p" --long "--password" --required --type "Password" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
+    echo "password = \"${password}\""
+}
+
+function ezb_test_list() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-l" --long "--list" --required --type "List" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local list && list="$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
+    ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${list}"
+}
+
+function ezb_test_core_function_1() {
     if ezb_function_unregistered; then
         ezb_arg_set -s "-t" --required -i "Your Title" &&
         ezb_arg_set --short "-n" --long "--name" --default "Tester" --info "Your Name" &&
@@ -31,23 +49,23 @@ function ez_test_core_function_1() {
 }
 
 echo "[Test 1]"
-ez_test_core_function_1 --help; echo
+ezb_test_core_function_1 --help; echo
 
 echo "[Test 2]"
-ez_test_core_function_1 --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird" -t "Dr."; echo
+ezb_test_core_function_1 --name "EZ-QA" -g "Female" --happy --pets "Guinea Pig" "Bird" -t "Dr."; echo
 
 echo "[Test 3]"
-ez_test_core_function_1 --happy -t "Mr."; echo
+ezb_test_core_function_1 --happy -t "Mr."; echo
 
 echo "[Test 4]"
-ez_test_core_function_1 --gender "Both Genders" --happy -t "Jr."; echo
+ezb_test_core_function_1 --gender "Both Genders" --happy -t "Jr."; echo
 
 echo "[Test 5]"
-ez_test_core_function_1 --happy; echo
+ezb_test_core_function_1 --happy; echo
 
 
 
-function ez_test_core_function_2() {
+function ezb_test_core_function_2() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-a1" --long "--argument-1" --required --info "The 1st argument" &&
         ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" --info "The 2nd argument" &&
@@ -69,21 +87,21 @@ function ez_test_core_function_2() {
 }
 
 echo "[Test 1]"
-ez_test_core_function_2 --help; echo
+ezb_test_core_function_2 --help; echo
 
 echo "[Test 2]"
-ez_test_core_function_2 -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"; echo
+ezb_test_core_function_2 -a1 "First Arg" -a2 "Second Arg" -a3 "Third Arg" -l "data1" "data2" "data3"; echo
 
 echo "[Test 3]"
-ez_test_core_function_2 -a2 "Second Arg" -a3 "Third Arg"; echo
+ezb_test_core_function_2 -a2 "Second Arg" -a3 "Third Arg"; echo
 
 echo "[Test 4]"
-ez_test_core_function_2 -a1 "First Arg" -a3 "Third Arg"; echo
+ezb_test_core_function_2 -a1 "First Arg" -a3 "Third Arg"; echo
 
 echo "[Test 5]"
-ez_test_core_function_2 -a1 "First Arg" -a3 "Arg 3"; echo
+ezb_test_core_function_2 -a1 "First Arg" -a3 "Arg 3"; echo
 
 echo "[Test 6]"
-ez_test_core_function_2 -a1 "First Arg" --dry-run -a3 "3rd Arg"; echo
+ezb_test_core_function_2 -a1 "First Arg" --dry-run -a3 "3rd Arg"; echo
 
 

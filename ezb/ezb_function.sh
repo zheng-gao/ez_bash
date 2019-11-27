@@ -12,6 +12,7 @@ declare -g -A EZB_ARG_TYPE_SET=(
     ["${EZB_ARG_TYPE_DEFAULT}"]="${EZB_BOOL_TRUE}"
     ["List"]="${EZB_BOOL_TRUE}"
     ["Flag"]="${EZB_BOOL_TRUE}"
+    ["Password"]="${EZB_BOOL_TRUE}"
 )
 
 function ezb_function_reset_accociative_arrays() {
@@ -354,7 +355,7 @@ function ezb_arg_get() {
             if [[ "${item}" = "${short}" ]] || [[ "${item}" = "${long}" ]]; then echo "${EZB_BOOL_TRUE}" && return; fi
         done
         echo "${EZB_BOOL_FALSE}"; return
-    elif [[ "${argument_type}" = "String" ]]; then
+    elif [[ "${argument_type}" = "String" ]] || [[ "${argument_type}" = "Password" ]]; then
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
             local name="${arguments[${i}]}"
             if [ "${arguments[${i}]}" = "${short}" -o "${arguments[${i}]}" = "${long}" ]; then
@@ -385,8 +386,17 @@ function ezb_arg_get() {
         done
         # Required but not found and no default
         if [[ -z "${argument_default}" ]] && [[ "${argument_required}" = "${EZB_BOOL_TRUE}" ]]; then
-            [[ -n "${short}" ]] && ezb_log_error "Argument \"${short}\" is required" && return 5
-            [[ -n "${long}" ]] && ezb_log_error "Argument \"${long}\" is required" && return 5
+            if [[ "${argument_type}" = "Password" ]]; then
+                local ask_for_password=""
+                if [[ -n "${short}" ]]; then
+                    read -s -p "Password for \"${short}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                else
+                    read -s -p "Password for \"${long}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                fi
+            else
+                [[ -n "${short}" ]] && ezb_log_error "Argument \"${short}\" is required" && return 5
+                [[ -n "${long}" ]] && ezb_log_error "Argument \"${long}\" is required" && return 5
+            fi
         fi
         # Not Found, Use Default, Only print the first item in the default list
         local default_value=""; local length="${#argument_default}"; local last_index=$((length - 1))
@@ -408,7 +418,7 @@ function ezb_arg_get() {
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument indentifier "-" or end of line
-                    [[ "${arguments[${index}]}" =~ "^-"[-,a-zA-Z].* ]] && break
+                    [[ "${arguments[${index}]:0:1}" = "-" ]] && break
                     [ "${count}" -eq 0 ] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done

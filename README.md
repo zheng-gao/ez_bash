@@ -63,7 +63,7 @@ $ foo --wrong-arg "First Arg"
 ```
 ## Example 2
 The new helper supports keywords "--default", "--required", "--choices", "--type", "--info"</br>
-And the type of the argument could be "String", "List" or "Flag"
+And the type of the argument could be "String", "List", "Flag" or "Password" (prompt for password if not given and no default provided)
 ```bash
 function bar() {
     if ezb_function_unregistered; then
