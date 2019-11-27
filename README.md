@@ -110,7 +110,7 @@ function ezb_test_password_arg() {
 -p       --password  Password  True        None       None       None
 
 > ezb_test_password_arg
-Password for "-p": *********
+Please input "--password": *********
 password = "my secret"
 ```
 ## --type "List"

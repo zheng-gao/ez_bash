@@ -384,10 +384,10 @@ function ezb_arg_get() {
         if [[ -z "${argument_default}" ]] && [[ "${argument_required}" = "${EZB_BOOL_TRUE}" ]]; then
             if [[ "${argument_type}" = "Password" ]]; then
                 local ask_for_password=""
-                if [[ -n "${short}" ]]; then
-                    read -s -p "Password for \"${short}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                if [[ -n "${long}" ]]; then
+                    read -s -p "Please input \"${long}\": " ask_for_password; echo "${ask_for_password}"; return 0
                 else
-                    read -s -p "Password for \"${long}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                    read -s -p "Please input \"${short}\": " ask_for_password; echo "${ask_for_password}"; return 0
                 fi
             else
                 [[ -n "${short}" ]] && ezb_log_error "Argument \"${short}\" is required" && return 5
