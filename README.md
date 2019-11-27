@@ -66,6 +66,7 @@ function ezb_test_string_arg_default() {
 
 > ezb_test_string_arg_default
 input = "A default string"
+
 > ezb_test_string_arg_default -i "hello world"
 input = "hello world"
 ```
@@ -184,7 +185,9 @@ function example() {
 }
 
 > example --help
+
 [Function Name] "example"
+
 [Short]  [Long]        [Type]  [Required]  [Default]       [Choices]           [Description]
 -a1      --argument-1  String  True        None            None                1st argument
 -a2      --argument-2  String  False       2nd Arg Def     None                None
