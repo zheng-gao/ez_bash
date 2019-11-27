@@ -433,3 +433,7 @@ function ezb_arg_get() {
     fi
 }
 
+function ezb_function_get_list() {
+    ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${@}"
+}
+

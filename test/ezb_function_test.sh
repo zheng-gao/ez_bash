@@ -8,22 +8,62 @@ source "${EZ_BASH_HOME}/ezb/ezb_function.sh" || exit 1
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
 ###################################################################################################
-function ezb_test_password() {
+function ezb_test_required_string_arg() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --required || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
+}
+
+ezb_test_required_string_arg
+ezb_test_required_string_arg -i "hello world"
+
+function ezb_test_default_string_arg() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --default "A default string" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
+}
+
+ezb_test_default_string_arg
+ezb_test_default_string_arg -i "hello world"
+
+function ezb_test_string_arg_choices() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --required --choices "Cappuccino" "Espresso" "Latte" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
+}
+ezb_test_string_arg_choices -i "Americano"
+ezb_test_string_arg_choices -i "Latte"
+
+
+
+
+function ezb_test_password_arg() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--password" --required --type "Password" || return 1
     fi
     ezb_function_usage "${@}" && return
     local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
-    echo "password = \"${password}\""
+    echo; echo "password = \"${password}\""
 }
 
-function ezb_test_list() {
+
+
+function ezb_test_list_arg() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--list" --required --type "List" || return 1
     fi
     ezb_function_usage "${@}" && return
     local list && list="$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
-    ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${list}"
+    ezb_function_get_list "${list}"
 }
 
 function ezb_test_core_function_1() {

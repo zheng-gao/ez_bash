@@ -1,18 +1,18 @@
-# ez_bash
-Bash Tools for Linux and MacOS
-### Clone this project
+# Bash Tools for Linux and MacOS
+## Setup ez_bash
+### 1. Clone this project
 ```bash
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-### Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
+### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
 ```bash
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-### To import all the "ez_bash" libraries
+### 3. To import all the "ez_bash" libraries
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```
-### To import one or more "ez_bash" libraries
+### 4. To import one or more "ez_bash" libraries
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 ```
@@ -26,29 +26,73 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | -c | --choices | List | Argument value can only be one of the choices |
 | -d | --default | List | Default value for an argument |
 | -r | --required | Flag | Mark the argument required |
-
+## --required
 ```bash
-function () {
-    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
-        local usage=$(ezb_build_usage -o "init" -d "This is a test function foo")
-        usage+=$(ezb_build_usage -o "add" -a "-a1|--argument-1" -d "The 1st argument")
-        usage+=$(ezb_build_usage -o "add" -a "-a2|--argument-2" -d "The 2nd argument")
-        ezb_print_usage "${usage}" && return 0
+function ezb_test_required_string_arg() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --required || return 1
     fi
-    local arg_1; local arg_2
-    while [[ -n "${1}" ]]; do
-        case "${1}" in
-            "-a1" | "--argument-1") shift; arg_1="${1}"; [[ -n "${1}" ]] && shift ;;
-            "-a2" | "--argument-2") shift; arg_2="${1}"; [[ -n "${1}" ]] && shift ;;
-            *) ezb_log_error "Unknown argument identifier \"${1}\""
-               ezb_log_error "Run \"${FUNCNAME[0]} --help\" for more info" 
-               return 1 ;;
-        esac
-    done
-    echo "Argument 1: ${arg_1}"
-    echo "Argument 2: ${arg_2}"
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
 }
+
+> ezb_test_required_string_arg --help
+[Function Name] "ezb_test_required_string_arg"
+[Short]  [Long]   [Type]  [Required]  [Default]  [Choices]  [Description]
+-i       --input  String  True        None       None       None
+
+> ezb_test_required_string_arg
+[2019-11-27 13:31:08][EZ-Bash][ezb_test_required_string_arg][ezb_arg_get][ERROR] Argument "-i" is required
+
+> ezb_test_required_string_arg -i "hello world"
+input = "hello world"
 ```
+## --default
+```bash
+function ezb_test_default_string_arg() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --default "A default string" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
+}
+
+> ezb_test_default_string_arg --help
+[Function Name] "ezb_test_default_string_arg"
+[Short]  [Long]   [Type]  [Required]  [Default]         [Choices]  [Description]
+-i       --input  String  False       A default string  None       None
+
+> ezb_test_default_string_arg
+input = "A default string"
+> ezb_test_default_string_arg -i "hello world"
+input = "hello world"
+```
+## --choices
+```bash
+function ezb_test_string_arg_choices() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-i" --long "--input" --required --choices "Cappuccino" "Espresso" "Latte" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local input && input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    echo "input = \"${input}\""
+}
+
+> ezb_test_string_arg_choices --help
+[Function Name] "ezb_test_string_arg_choices"
+[Short]  [Long]   [Type]  [Required]  [Default]  [Choices]                    [Description]
+-i       --input  String  True        None       Cappuccino, Espresso, Latte  None
+
+> ezb_test_string_arg_choices -i "Americano"
+[2019-11-27 13:41:27][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalide value "Americano" for argument "-i", please choose from [Cappuccino, Espresso, Latte]
+
+> ezb_test_string_arg_choices -i "Latte"
+input = "Latte"
+```
+
+
 Run with --helper
 ```
 $ foo --help
