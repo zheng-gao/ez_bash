@@ -23,6 +23,7 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | -l | --long | String | Long argument identifier |
 | -t | --type | String | Argument type: String, List, Flag, Password |
 | -i | --info | String | Argument description |
+| -e | --exclude | String | Mutually exclusive group ID |
 | -c | --choices | List | Argument value can only be one of the choices |
 | -d | --default | List | Default value for an argument |
 | -r | --required | Flag | Mark the argument required |
@@ -70,6 +71,44 @@ input = "A default string"
 > ezb_test_string_arg_default -i "hello world"
 input = "hello world"
 ```
+## --exclude
+```bash
+function ezb_test_string_arg_exclude() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-m" --long "--male" --exclude "1" || return 1
+        ezb_arg_set --short "-f" --long "--female" --exclude "1" || return 1
+        ezb_arg_set --short "-l" --long "--lock" --exclude "2" || return 1
+        ezb_arg_set --short "-u" --long "--unlock" --exclude "2" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local male && male="$(ezb_arg_get --short "-m" --long "--male" --arguments "${@}")" || return 1
+    local female && female="$(ezb_arg_get --short "-f" --long "--female" --arguments "${@}")" || return 1
+    local lock && lock="$(ezb_arg_get --short "-l" --long "--lock" --arguments "${@}")" || return 1
+    local unlock && unlock="$(ezb_arg_get --short "-u" --long "--unlock" --arguments "${@}")" || return 1
+    [[ -n "${male}" ]] && echo "male = \"${male}\""
+    [[ -n "${female}" ]] && echo "female = \"${female}\""
+    [[ -n "${lock}" ]] && echo "lock = \"${lock}\""
+    [[ -n "${unlock}" ]] && echo "unlock = \"${unlock}\""
+}
+
+> ezb_test_string_arg_exclude --help
+[Function Name] "ezb_test_string_arg_exclude"
+[Short]  [Long]    [Type]  [Required]  [Exclude]  [Default]  [Choices]  [Description]
+-m       --male    String  False       1          None       None       None
+-f       --female  String  False       1          None       None       None
+-l       --lock    String  False       2          None       None       None
+-u       --unlock  String  False       2          None       None       None
+
+> ezb_test_string_arg_exclude -m "Test" -l "Test"
+male = "Test"
+lock = "Test"
+
+> ezb_test_string_arg_exclude -m "Test" -f "Test"
+[2019-11-27 19:20:49][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ezb_function_exclude_check][ERROR] "-m" and "-f" are mutually exclusive
+
+> ezb_test_string_arg_exclude --lock "Test" --unlock "Test"
+[2019-11-27 19:21:19][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ezb_function_exclude_check][ERROR] "--lock" and "--unlock" are mutually exclusive
+```
 ## --choices
 ```bash
 function ezb_test_string_arg_choices() {
@@ -87,7 +126,8 @@ function ezb_test_string_arg_choices() {
 -i       --input  String  True        None       Cappuccino, Espresso, Latte  None
 
 > ezb_test_string_arg_choices -i "Americano"
-[2019-11-27 13:41:27][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalid value "Americano" for argument "-i", please choose from [Cappuccino, Espresso, Latte]
+[2019-11-27 16:32:07][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalid value "Americano" for argument "-i"
+[2019-11-27 16:32:07][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Please choose from [Cappuccino, Espresso, Latte] for argument "-i"
 
 > ezb_test_string_arg_choices -i "Latte"
 input = "Latte"
@@ -160,38 +200,4 @@ flag = False
 
 > ezb_test_flag_arg --flag
 flag = True
-```
-## Example
-```bash
-function example() {
-    if ezb_function_unregistered; then
-        ezb_arg_set --short "-a1" --long "--argument-1" --required --info "1st argument" || return 1
-        ezb_arg_set --short "-a2" --long "--argument-2" --default "2nd Arg Def" || return 1
-        ezb_arg_set --short "-a3" --long "--argument-3" --choices "3rd Arg" "Third Arg" || return 1
-        ezb_arg_set --short "-l" --long "--arg-list" --type "List" --default "Item 1" "Item 2" || return 1
-        ezb_arg_set --short "-d" --long "--dry-run" --type "Flag" --info "Boolean Flag" || return 1
-    fi
-    ezb_function_usage "${@}" && return
-    local arg_1; arg_1="$(ezb_arg_get --short "-a1" --long "--argument-1" --arguments "${@}")" || return 1
-    local arg_2; arg_2="$(ezb_arg_get --short "-a2" --long "--argument-2" --arguments "${@}")" || return 1
-    local arg_3; arg_3="$(ezb_arg_get --short "-a3" --long "--argument-3" --arguments "${@}")" || return 1
-    local arg_l; arg_l="$(ezb_arg_get --short "-l" --long "--arg-list" --arguments "${@}")" || return 1
-    local dry_run; dry_run="$(ezb_arg_get -s "-d" -l "--dry-run" --arguments "${@}")" || return 1
-    echo "Argument 1: ${arg_1}"
-    echo "Argument 2: ${arg_2}"
-    echo "Argument 3: ${arg_3}"
-    echo "Argument List:"; ezb_function_get_list "${arg_l}"
-    echo "Dry Run   : ${dry_run}"
-}
-
-> example --help
-
-[Function Name] "example"
-
-[Short]  [Long]        [Type]  [Required]  [Default]       [Choices]           [Description]
--a1      --argument-1  String  True        None            None                1st argument
--a2      --argument-2  String  False       2nd Arg Def     None                None
--a3      --argument-3  String  False       None            3rd Arg, Third Arg  None
--l       --arg-list    List    False       Item 1, Item 2  None                None
--d       --dry-run     Flag    False       None            None                Boolean Flag
 ```
