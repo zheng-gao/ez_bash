@@ -385,9 +385,13 @@ function ezb_arg_get() {
             if [[ "${argument_type}" = "Password" ]]; then
                 local ask_for_password=""
                 if [[ -n "${long}" ]]; then
-                    read -s -p "Please input \"${long}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                    long_key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${long}"
+                    read -s -p "${EZB_L_ARG_TO_INFO_MAP[${long_key}]} \"${long}\": " ask_for_password
+                    echo "${ask_for_password}"; return 0
                 else
-                    read -s -p "Please input \"${short}\": " ask_for_password; echo "${ask_for_password}"; return 0
+                    short_key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${short}"
+                    read -s -p "${EZB_S_ARG_TO_INFO_MAP[${short_key}]} \"${short}\": " ask_for_password
+                    echo "${ask_for_password}"; return 0
                 fi
             else
                 [[ -n "${short}" ]] && ezb_log_error "Argument \"${short}\" is required" && return 5

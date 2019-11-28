@@ -96,7 +96,7 @@ input = "Latte"
 ```bash
 function ezb_test_password_arg() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-p" --long "--password" --required --type "Password" || return 1
+        ezb_arg_set --short "-p" --long "--password" --required --type "Password" --info "Admin password" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
@@ -107,10 +107,10 @@ function ezb_test_password_arg() {
 > ezb_test_password_arg --help
 [Function Name] "ezb_test_password_arg"
 [Short]  [Long]      [Type]    [Required]  [Default]  [Choices]  [Description]
--p       --password  Password  True        None       None       None
+-p       --password  Password  True        None       None       Admin password
 
 > ezb_test_password_arg
-Please input "--password": *********
+Admin password "--password": *********
 password = "my secret"
 ```
 ## --type "List"
