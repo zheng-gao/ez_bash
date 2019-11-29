@@ -21,7 +21,7 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | ---------- | --------- | ---- | ----------- |
 | -s | --short | String | Short argument identifier |
 | -l | --long | String | Long argument identifier |
-| -t | --type | String | String by default, other types are List, Flag and Password |
+| -t | --type | String | "String" by default, other types are "List", "Flag" and "Password" |
 | -i | --info | String | Argument description |
 | -e | --exclude | String | Mutually exclusive group ID |
 | -c | --choices | List | Argument value can only be one of the choices |
