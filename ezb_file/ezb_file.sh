@@ -78,5 +78,5 @@ function ezb_backup() {
     [[ -e "${destination_path}" ]] && sleep 1 && destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
     cp -r "${source}" "${destination_path}"
     ls -lah "${backup}" | grep "${source_basename}"
-    ezb_log --simple --logger "Complete" --message  "Backup at ${destination_path}"; echo
+    ezb_log --logger "Complete" --message  "Backup at ${destination_path}"; echo
 }
