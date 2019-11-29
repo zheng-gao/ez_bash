@@ -21,7 +21,7 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | ---------- | --------- | ---- | ----------- |
 | -s | --short | String | Short argument identifier |
 | -l | --long | String | Long argument identifier |
-| -t | --type | String | Argument type: String, List, Flag, Password |
+| -t | --type | String | String by default, other types are List, Flag and Password |
 | -i | --info | String | Argument description |
 | -e | --exclude | String | Mutually exclusive group ID |
 | -c | --choices | List | Argument value can only be one of the choices |
@@ -113,10 +113,10 @@ lock = "Test"
 ```bash
 function ezb_test_string_arg_choices() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-i" --long "--input" --required --choices "Cappuccino" "Espresso" "Latte" || return 1
+        ezb_arg_set -s "-i" -l "--input" -r --choices "Cappuccino" "Espresso" "Latte" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local input; input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    local input; input="$(ezb_arg_get -s "-i" -l "--input" -a "${@}")" || return 1
     echo "input = \"${input}\""
 }
 
@@ -136,10 +136,10 @@ input = "Latte"
 ```bash
 function ezb_test_password_arg() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-p" --long "--password" --required --type "Password" --info "Admin password" || return 1
+        ezb_arg_set -s "-p" -l "--password" -r -t "Password" -i "Admin password" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local password; password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
+    local password; password="$(ezb_arg_get -s "-p" -l "--password" -a "${@}")" || return 1
     echo "$(ezb_string_repeat --string "*" --count ${#password})"
     echo "password = \"${password}\""
 }
@@ -157,10 +157,10 @@ password = "my secret"
 ```bash
 function ezb_test_list_arg_default() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-l" --long "--list" --default "Def 1" "Def 2" "Def 3" --type "List" || return 1
+        ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list; list="$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
+    local list; list="$(ezb_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
     ezb_function_get_list "${list}"
 }
 
