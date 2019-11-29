@@ -29,7 +29,7 @@ function ezb_set_operation() {
 function ezb_set_contains() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--large" --type "List" --info "Large Set: Item_l1 Item_l2 ..." &&
-        ezb_arg_set --short "-s" --long "--small" --type "List" --info "Small Set: Item_r1 Item_r2 ..." &&
+        ezb_arg_set --short "-s" --long "--small" --type "List" --info "Small Set: Item_s1 Item_s2 ..." &&
         ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
     fi
     ezb_function_usage "${@}" && return
