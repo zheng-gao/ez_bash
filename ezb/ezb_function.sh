@@ -77,7 +77,8 @@ function ezb_function_exclude_check() {
     for x_arg in "${arguments[@]}"; do
         if [[ "${x_arg}" != "${arg_name}" ]]; then
             if [[ -n "${exclude_set[${x_arg}]}" ]]; then
-                ezb_log_error "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive" && return 1
+                ezb_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive"
+                return 1
             fi
         fi
     done

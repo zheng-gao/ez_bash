@@ -186,22 +186,22 @@ function ezb_log() {
         usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type, default = \"INFO\"")
         usage+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path, default = \"${EZB_DEFAULT_LOG}\"")
         usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "The message to print")
-        usage+=$(ezb_build_usage -o "add" -a "-s|--simple" -d "Hide function stack")
+        usage+=$(ezb_build_usage -o "add" -a "-s|--stack" -d "Hide top x function from stack, default = 1")
         usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [$(ezb_join ', ' ${valid_output_to[@]})], default = \"Console\"")
         ezb_print_usage "${usage}" && return 0
     fi
     declare -A arg_set_of_ezb_log_to_file=(
         ["-l"]="1" ["--logger"]="1" ["-f"]="1" ["--file"]="1" ["-m"]="1" ["--message"]="1"
-        ["-s"]="1" ["--simple"]="1" ["-o"]="1" ["--output-to"]="1"
+        ["-s"]="1" ["--stack"]="1" ["-o"]="1" ["--output-to"]="1"
     )
     local logger="INFO"; local file=""; local message=()
-    local simple="${EZB_BOOL_FALSE}"; local output_to="Console"
+    local stack="1"; local output_to="Console"
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-l" | "--logger") shift; logger=${1}; [[ -n "${1}" ]] && shift ;;
-            "-f" | "--file") shift; file=${1}; [[ -n "${1}" ]] && shift ;;
-            "-o" | "--output-to") shift; output_to=${1}; [[ -n "${1}" ]] && shift ;;
-            "-s" | "--simple") shift; simple="${EZB_BOOL_TRUE}" ;;
+            "-l" | "--logger") shift; logger="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-f" | "--file") shift; file="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-o" | "--output-to") shift; output_to="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-s" | "--stack") shift; stack="${1}"; [[ -n "${1}" ]] && shift ;;
             "-m" | "--message") shift;
                 while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break; message+=("${1}"); shift; done ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
@@ -211,8 +211,7 @@ function ezb_log() {
         ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ezb_join ', ' ${valid_output_to[@]})]"
         return 2
     fi
-    local function_stack=""
-    [[ "${simple}" = "${EZB_BOOL_FALSE}" ]] && function_stack="$(ezb_log_stack 1)"
+    local function_stack="$(ezb_log_stack ${stack})"
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
         if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
             (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}")

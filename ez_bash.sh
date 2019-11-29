@@ -4,7 +4,7 @@
 # Setup Environment Variable "EZ_BASH_HOME"
 # > export EZ_BASH_HOME=".../ez_bash"
 # To import all ez_bash libraries 
-# > source "${EZ_BASH_HOME}/ez_bash.sh"
+# > source "${EZ_BASH_HOME}/ez_bash.sh" --all
 # To import some ez_bash libraries
 # > source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[ERROR] \"\${EZ_BASH_HOME}\" not set!" && return 1
@@ -12,7 +12,7 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZB_VERSION="0.1.2"
+EZB_VERSION="0.1.3"
 EZB_DEFAULT_BASH_VERSION="5"
 
 ###################################################################################################

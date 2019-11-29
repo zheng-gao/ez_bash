@@ -40,8 +40,8 @@ function ezb_test_string_arg_required() {
 
 > ezb_test_string_arg_required --help
 [Function Name] "ezb_test_string_arg_required"
-[Short]  [Long]   [Type]  [Required]  [Default]  [Choices]  [Description]
--i       --input  String  True        None       None       None
+[Short]  [Long]   [Type]  [Required]  [Exclude]  [Default]  [Choices]  [Description]
+-i       --input  String  True        None       None       None       None
 
 > ezb_test_string_arg_required
 [2019-11-27 13:31:08][EZ-Bash][ezb_test_string_arg_required][ezb_arg_get][ERROR] Argument "-i" is required
@@ -62,8 +62,8 @@ function ezb_test_string_arg_default() {
 
 > ezb_test_string_arg_default --help
 [Function Name] "ezb_test_string_arg_default"
-[Short]  [Long]   [Type]  [Required]  [Default]         [Choices]  [Description]
--i       --input  String  False       A default string  None       None
+[Short]  [Long]   [Type]  [Required]  [Exclude]  [Default]         [Choices]  [Description]
+-i       --input  String  False       None       A default string  None       None
 
 > ezb_test_string_arg_default
 input = "A default string"
@@ -104,10 +104,10 @@ male = "Test"
 lock = "Test"
 
 > ezb_test_string_arg_exclude -m "Test" -f "Test"
-[2019-11-27 19:20:49][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ezb_function_exclude_check][ERROR] "-m" and "-f" are mutually exclusive
+[2019-11-28 17:32:34][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ERROR] "-m" and "-f" are mutually exclusive
 
-> ezb_test_string_arg_exclude --lock "Test" --unlock "Test"
-[2019-11-27 19:21:19][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ezb_function_exclude_check][ERROR] "--lock" and "--unlock" are mutually exclusive
+> ezb_test_string_arg_exclude -l "Test" --unlock "Test"
+[2019-11-28 17:32:51][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ERROR] "-l" and "--unlock" are mutually exclusive
 ```
 ## --choices
 ```bash
@@ -122,8 +122,8 @@ function ezb_test_string_arg_choices() {
 
 > ezb_test_string_arg_choices --help
 [Function Name] "ezb_test_string_arg_choices"
-[Short]  [Long]   [Type]  [Required]  [Default]  [Choices]                    [Description]
--i       --input  String  True        None       Cappuccino, Espresso, Latte  None
+[Short]  [Long]   [Type]  [Required]  [Exclude]  [Default]  [Choices]                    [Description]
+-i       --input  String  True        None       None       Cappuccino, Espresso, Latte  None
 
 > ezb_test_string_arg_choices -i "Americano"
 [2019-11-27 16:32:07][EZ-Bash][ezb_test_string_arg_choices][ezb_arg_get][ERROR] Invalid value "Americano" for argument "-i"
@@ -146,8 +146,8 @@ function ezb_test_password_arg() {
 
 > ezb_test_password_arg --help
 [Function Name] "ezb_test_password_arg"
-[Short]  [Long]      [Type]    [Required]  [Default]  [Choices]  [Description]
--p       --password  Password  True        None       None       Admin password
+[Short]  [Long]      [Type]    [Required]  [Exclude]  [Default]  [Choices]  [Description]
+-p       --password  Password  True        None       None       None       Admin password
 
 > ezb_test_password_arg
 Admin password "--password": *********
@@ -166,8 +166,8 @@ function ezb_test_list_arg_default() {
 
 > ezb_test_list_arg_default --help
 [Function Name] "ezb_test_list_arg_default"
-[Short]  [Long]  [Type]  [Required]  [Default]            [Choices]  [Description]
--l       --list  List    False       Def 1, Def 2, Def 3  None       None
+[Short]  [Long]  [Type]  [Required]  [Exclude]  [Default]            [Choices]  [Description]
+-l       --list  List    False       None       Def 1, Def 2, Def 3  None       None
 
 > ezb_test_list_arg_default
 Def 1
@@ -192,8 +192,8 @@ function ezb_test_flag_arg() {
 
 > ezb_test_flag_arg --help
 [Function Name] "ezb_test_flag_arg"
-[Short]  [Long]  [Type]  [Required]  [Default]  [Choices]  [Description]
--f       --flag  Flag    False       None       None       None
+[Short]  [Long]  [Type]  [Required]  [Exclude]  [Default]  [Choices]  [Description]
+-f       --flag  Flag    False       None       None       None       None
 
 > ezb_test_flag_arg
 flag = False
