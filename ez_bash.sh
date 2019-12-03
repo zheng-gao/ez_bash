@@ -23,6 +23,7 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     bash --version | grep "version ${EZB_DEFAULT_BASH_VERSION}\." &> "/var/tmp/null" || {
         echo "[EZ-Bash][ERROR] \"Bash ${EZB_DEFAULT_BASH_VERSION}\" not found!"; return 1
     }
+    rm -f "/var/tmp/null"
     # Source EZ-Bash Core, Command & Function
     source "${EZ_BASH_HOME}/ezb/ezb.sh"                                 || return 1
     ezb_source_dir --path "${EZ_BASH_HOME}/ezb" --exclude "ezb.sh"      || return 1
