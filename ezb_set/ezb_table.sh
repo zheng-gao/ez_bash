@@ -9,9 +9,9 @@ ezb_dependency_check "cat" "sed" "column" "awk" "printf" "expr" || return 1
 function ezb_table_print() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
-        ezb_arg_set --short "-rd" --long "--row-delimiter" --default ";" --info "Row Delimiter, default \"\\n\" for --file" &&
-        ezb_arg_set --short "-d" --long "--data" --info "The input data if file is not provided" && 
-        ezb_arg_set --short "-f" --long "--file" --info "The input file path" || return 1
+        ezb_arg_set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&
+        ezb_arg_set --short "-d" --long "--data" --exclude "1" --info "The input data if file is not provided" && 
+        ezb_arg_set --short "-f" --long "--file" --exclude "1" --info "The input file path" || return 1
     fi
     ezb_function_usage "${@}" && return
     local col_delimiter && col_delimiter="$(ezb_arg_get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&
@@ -20,24 +20,23 @@ function ezb_table_print() {
     local data && data="$(ezb_arg_get --short "-d" --long "--data" --arguments "${@}")" || return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
-        [[ -n "${data}" ]] && ezb_log_error "Please use single source of truth --file or --data, do not provide both" && return 1
         [[ ! -f "${file}" ]] && ezb_log_error "File \"${file}\" not found" && return 1
         local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
         [[ -z "${file_content}" ]] && return 1
-        if [[ -n "${row_delimiter}" ]]; then
+        if [[ "${row_delimiter}" = "\n" ]]; then
             local line=""; for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
         else
-            number_of_rows=$(awk -F "${row_delimiter}" "{print NF}" <<< "${file_content}")
+            number_of_rows=$(ezb_count_items "${row_delimiter}" "${file_content}")
             IFS="${row_delimiter}" read -ra rows <<< "${file_content}"
         fi
     else
         [[ -z "${data}" ]] && return 1
         [[ -z "${row_delimiter}" ]] && row_delimiter=";"
-        number_of_rows=$(awk -F "${row_delimiter}" "{print NF}" <<< "${data}")
+        number_of_rows=$(ezb_count_items "${row_delimiter}" "${data}")
         IFS="${row_delimiter}" read -ra rows <<< "${data}"
     fi
     local row=0; for ((; row < "${number_of_rows}"; ++row)); do
-        local number_of_columns=$(awk -F "${col_delimiter}" "{print NF}" <<< "${rows[row]}")
+        local number_of_columns=$(ezb_count_items "${col_delimiter}" "${rows[row]}")
         # Add Line Delimiter
         if [[ "${row}" == "0" ]]; then table=$(printf "%s#+" $(ezb_string_repeat --string "#+" --count "${number_of_columns}")); fi
         # Add Header Or Body

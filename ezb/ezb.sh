@@ -71,21 +71,32 @@ function ezb_excludes() {
 }
 
 function ezb_join() {
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
     local delimiter="${1}"; local i=0; local out_put=""; local data=""
     for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
 }
 
 function ezb_split() {
-    local delimiter="${1}"; local string="${2}"
-    local d_length="${#delimiter}"; local s_length="${#string}"
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
     local item=""; local tmp=""; local k=0
     while [[ "${k}" -lt "${s_length}" ]]; do
         tmp="${string:k:${d_length}}"
-        if [[ "${tmp}" = "${delimiter}" ]]; then [[ -n "${item}" ]] && echo "${item}"; item=""; ((k += d_length))
+        if [[ "${tmp}" = "${delimiter}" ]]; then [[ -n "${item}" ]] && echo "${item}"; item=""; ((k+=d_length))
         else item+="${string:k:1}"; ((++k)); fi
         [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && echo "${item}"
     done
+}
+
+function ezb_count_items() {
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
+    local k=0; local count=0
+    while [[ "${k}" -lt "${s_length}" ]]; do
+        if [[ "${string:k:${d_length}}" = "${delimiter}" ]]; then ((++count)) && ((k += d_length)); else ((++k)); fi
+    done
+    [[ -n "${string}" ]] && echo "$((++count))" || echo "${count}"
 }
 
 function ezb_log_stack() {
