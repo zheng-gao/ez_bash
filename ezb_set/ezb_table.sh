@@ -1,7 +1,7 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ezb_dependency_check "cat" "sed" "column" "awk" "printf" "expr" || return 1
+ezb_dependency_check "cat" "sed" "column" "awk" "printf" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -36,17 +36,17 @@ function ezb_table_print() {
         IFS="${row_delimiter}" read -ra rows <<< "${data}"
     fi
     local row=0; for ((; row < "${number_of_rows}"; ++row)); do
-        local number_of_columns=$(ezb_count_items "${col_delimiter}" "${rows[row]}")
+        local number_of_columns=$(ezb_count_items "${col_delimiter}" "${rows[${row}]}")
         # Add Line Delimiter
-        if [[ "${row}" == "0" ]]; then table=$(printf "%s#+" $(ezb_string_repeat --string "#+" --count "${number_of_columns}")); fi
+        if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" $(ezb_string_repeat --string "#+" --count "${number_of_columns}")); fi
         # Add Header Or Body
         table="${table}\n"
         local column=1; for ((; column <= "${number_of_columns}"; ++column)); do
-            table="${table}$(printf "#| %s" $(awk -F "${col_delimiter}" "{print \$${column}}" <<< "${rows[row]}"))"
+            table="${table}$(printf "#| %s" $(awk -F "${col_delimiter}" "{print \$${column}}" <<< "${rows[${row}]}"))"
         done
         table="${table}#|\n"
         # Add Line Delimiter
-        if [[ "${row}" == "0" ]] || [[ $(expr "${row}" + 1) == "${number_of_rows}" ]]; then
+        if [[ "${row}" -eq 0 ]] || [[ "$((row+1))" -eq "${number_of_rows}" ]]; then
             table="${table}$(printf "%s#+" $(ezb_string_repeat --string "#+" --count "${number_of_columns}"))"
         fi
     done

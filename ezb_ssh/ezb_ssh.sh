@@ -6,6 +6,26 @@ ezb_dependency_check "ssh" "expect" "sed" "grep" "tail" "date" "cut" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_command_md5() {
+    local os=$(ezb_os_name)
+    if [[ "${os}" = "macos" ]]; then
+        if ! ezb_command_check "md5"; then ezb_log_error "Not found \"md5\", please run \"brew install md5\""
+        else echo "md5 -q"; fi
+    elif [[ "${os}" = "linux" ]]; then
+        if ! ezb_command_check "md5sum"; then ezb_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
+        else echo "md5sum"; fi
+    fi
+}
+
+function ezb_command_timeout() {
+    local os=$(ezb_os_name)
+    if [[ "${os}" = "macos" ]]; then
+        if ! ezb_command_check "gtimeout"; then ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
+        else echo "gtimeout"; fi
+    elif [[ "${os}" = "linux" ]]; then
+        echo "timeout" # Should be installed by default
+    fi
+}
 
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
@@ -89,7 +109,7 @@ function ezb_mssh_sudo_cmd() {
     local print_failure && print_failure="$(ezb_arg_get --short "-f" --long "--failure" --arguments "${@}")" &&
     local prompt && prompt="$(ezb_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
-    local cmd_md5=$(ezb_cmd_md5)
+    local cmd_md5=$(ezb_command_md5)
     declare -A results
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
@@ -154,7 +174,7 @@ function ezb_mssh_cmd() {
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
     local failure_count=0; results["Failure"]=""
-    local cmd_timeout=$(ezb_cmd_timeout); local cmd_md5=$(ezb_cmd_md5)
+    local cmd_timeout=$(ezb_command_timeout); local cmd_md5=$(ezb_command_md5)
     local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
     local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do

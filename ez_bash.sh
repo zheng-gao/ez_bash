@@ -31,7 +31,6 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
     if [[ -z "${1}" ]] || [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
         all_ezb_libraries=(
-            "ezb_cmd"
             "ezb_file"
             "ezb_math"
             "ezb_set"
