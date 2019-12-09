@@ -12,7 +12,7 @@ function ezb_time_now() {
 
 function ezb_time_clock() {
     ezb_time_now; sleep 1;
-    while true; do ez_clear -l 1; ezb_time_now; sleep 1; done
+    while true; do ezb_clear -l 1; ezb_time_now; sleep 1; done
 }
 
 function ezb_time_from_epoch_seconds() {

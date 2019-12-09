@@ -1,10 +1,247 @@
 ###################################################################################################
+# -------------------------------------- Global Variables --------------------------------------- #
+###################################################################################################
+EZB_LOGO="EZ-Bash"
+
+EZB_BOOL_TRUE="True"
+EZB_BOOL_FALSE="False"
+
+EZB_OPT_ALL="All"
+EZB_OPT_ANY="Any"
+EZB_OPT_NONE="None"
+
+EZB_CHAR_SHARP="EZB_SHARP"
+EZB_CHAR_SPACE="EZB_SPACE"
+EZB_CHAR_NON_SPACE_DELIMITER="#"
+
+EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
+EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
+EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
+
+EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
+
+unset EZB_DEPENDENCY_SET; declare -g -A EZB_DEPENDENCY_SET
+###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ezb_dependency_check "column" "sed" || return 1
+function ezb_command_check() {
+    which "${1}" &> "${EZB_DEFAULT_LOG}" && return 0 || return 1
+}
+
+function ezb_dependency_check() {
+    local cmd=""
+    for cmd in "${@}"; do
+        if [[ -z "${EZB_DEPENDENCY_SET[${cmd}]}" ]]; then
+            ezb_command_check "${cmd}" || { echo "[${EZB_LOGO}][ERROR] Command \"${cmd}\" not found"; return 1; }
+            EZB_DEPENDENCY_SET["${cmd}"]="${EZB_BOOL_TRUE}"
+        fi
+    done
+}
+
+# Check Dependencies
+ezb_dependency_check "date" "printf" "column" "find" "grep" "sed" || return 1
 
 ###################################################################################################
-# -------------------------------------- Global Variables --------------------------------------- #
+# ----------------------------------- EZ Bash Core Functions ------------------------------------ #
+###################################################################################################
+function ezb_os_name() {
+    local name="$(uname -s)"
+    if [[ "${name}" = "Darwin" ]]; then echo "macos" && return 0
+    elif [[ "${name}" = "Linux" ]]; then echo "linux" && return 0
+    else echo "unknown" && return 1
+    fi
+}
+
+function ezb_to_lower() {
+    tr "[:upper:]" "[:lower:]" <<< "${@}"
+}
+
+function ezb_to_upper() {
+    tr "[:lower:]" "[:upper:]" <<< "${@}"
+}
+
+function ezb_contains() {
+    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
+}
+
+function ezb_excludes() {
+    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
+}
+
+function ezb_join() {
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    local delimiter="${1}"; local i=0; local out_put=""; local data=""
+    for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
+    echo "${out_put}"
+}
+
+function ezb_split() {
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
+    local item=""; local tmp=""; local k=0
+    while [[ "${k}" -lt "${s_length}" ]]; do
+        tmp="${string:k:${d_length}}"
+        if [[ "${tmp}" = "${delimiter}" ]]; then [[ -n "${item}" ]] && echo "${item}"; item=""; ((k+=d_length))
+        else item+="${string:k:1}"; ((++k)); fi
+        [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && echo "${item}"
+    done
+}
+
+function ezb_count_items() {
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
+    local k=0; local count=0
+    while [[ "${k}" -lt "${s_length}" ]]; do
+        if [[ "${string:k:${d_length}}" = "${delimiter}" ]]; then ((++count)) && ((k += d_length)); else ((++k)); fi
+    done
+    [[ -n "${string}" ]] && echo "$((++count))" || echo "${count}"
+}
+
+function ezb_log_stack() {
+    local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
+    if [[ -n "${ignore_top_x}" ]]; then
+        for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done
+    else
+        # i > 0 to ignore self "ezb_log_stack"
+        for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
+    fi
+    echo "${stack}"
+}
+
+function ezb_log_error() {
+    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[ERROR] ${@}")
+}
+
+function ezb_log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
+}
+
+function ezb_log_warning() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[WARNING] ${@}"
+}
+
+function ezb_print_usage() {
+    # local tab_size=30
+    # tabs "${tab_size}" && (>&2 printf "${1}\n") && tabs
+    # column delimiter = "#"
+    echo; printf "${1}\n" | column -s "#" -t; echo
+}
+
+function ezb_build_usage() {
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        # column delimiter = "#"
+        local usage="[Function Name]#ezb_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
+        usage+="-o|--operation#Choose from: [\"add\", \"init\"]\n"
+        usage+="-a|--argument#Argument Name\n"
+        usage+="-d|--description#Argument Description\n"
+        ezb_print_usage "${usage}" && return 0
+    fi
+    local operation=""; local argument=""; local description="No Description"
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-o" | "--operation") shift; operation=${1} && [ -n "${1}" ] && shift ;;
+            "-a" | "--argument") shift; argument=${1} && [ -n "${1}" ] && shift ;;
+            "-d" | "--description") shift; description=${1} && [ -n "${1}" ] && shift ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        esac
+    done
+    # column delimiter = "#"
+    case "${operation}" in
+        "init")
+            [[ -z "${argument}" ]] && argument="${FUNCNAME[1]}"
+            echo "[Function Name]#\"${argument}\""
+            echo "[Function Info]#${description}\n" ;;
+        "add")
+            echo "${argument}#${description}\n" ;;
+        *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+    esac
+}
+
+function ezb_source_dir() {
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
+        usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
+        usage+=$(ezb_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
+        ezb_print_usage "${usage}" && return 0
+    fi
+    local path="."; local exclude=""
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-p" | "--path") shift; path=${1} && [[ -n "${1}" ]] && shift ;;
+            "-r" | "--exclude") shift; exclude=${1} && [[ -n "${1}" ]] && shift ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        esac
+    done
+    [[ -z "${path}" ]] && ezb_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
+    path="${path%/}" # Remove a trailing slash if there is one
+    [[ ! -d "${path}" ]] && ezb_log_error "\"${path}\" is not a directory" && return 2
+    [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
+    local sh_file=""
+    if [[ -z "${exclude}" ]]; then
+        for sh_file in $(find "${path}" -type f -name "*.sh"); do
+            if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
+        done
+    else
+        for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
+            if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
+        done
+    fi
+}
+
+function ezb_log() {
+    local valid_output_to=("Console" "File" "${EZB_OPT_ALL}")
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        local usage=$(ezb_build_usage -o "init" -d "Print log to file in \"EZ-BASH\" standard log format")
+        usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type, default = \"INFO\"")
+        usage+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path, default = \"${EZB_DEFAULT_LOG}\"")
+        usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "The message to print")
+        usage+=$(ezb_build_usage -o "add" -a "-s|--stack" -d "Hide top x function from stack, default = 1")
+        usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [$(ezb_join ', ' ${valid_output_to[@]})], default = \"Console\"")
+        ezb_print_usage "${usage}" && return 0
+    fi
+    declare -A arg_set_of_ezb_log_to_file=(
+        ["-l"]="1" ["--logger"]="1" ["-f"]="1" ["--file"]="1" ["-m"]="1" ["--message"]="1"
+        ["-s"]="1" ["--stack"]="1" ["-o"]="1" ["--output-to"]="1"
+    )
+    local logger="INFO"; local file=""; local message=()
+    local stack="1"; local output_to="Console"
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-l" | "--logger") shift; logger="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-f" | "--file") shift; file="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-o" | "--output-to") shift; output_to="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-s" | "--stack") shift; stack="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-m" | "--message") shift;
+                while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break; message+=("${1}"); shift; done ;;
+            *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
+        esac
+    done
+    if ezb_excludes "${output_to}" "${valid_output_to[@]}"; then
+        ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ezb_join ', ' ${valid_output_to[@]})]"
+        return 2
+    fi
+    local function_stack="$(ezb_log_stack ${stack})"
+    if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
+        if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
+            (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}")
+        else
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}"
+        fi
+    fi
+    if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
+        [[ -z "${file}" ]] && file="${EZB_DEFAULT_LOG}"
+        # Make sure the log_file exists and you have the write permission
+        [[ ! -e "${file}" ]] && touch "${file}"
+        [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
+        [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}" >> "${file}"
+    fi
+}
+
+###################################################################################################
+# ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
 ###################################################################################################
 EZB_FUNC_HELP="--help"
 EZB_ARG_TYPE_DEFAULT="String"
@@ -44,9 +281,6 @@ function ezb_function_reset_accociative_arrays() {
 # Do not source this file more than once
 ezb_function_reset_accociative_arrays
 
-###################################################################################################
-# -------------------------------------- EZ Bash Functions -------------------------------------- #
-###################################################################################################
 function ezb_function_get_short_arguments() {
     sed "s/${EZB_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${1}]}"
 }
@@ -502,7 +736,4 @@ function ezb_arg_get() {
         echo "${argument_default}"
     fi
 }
-
-
-
 

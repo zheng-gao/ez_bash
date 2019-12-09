@@ -3,7 +3,6 @@
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
 source "${EZ_BASH_HOME}/ezb/ezb.sh" || exit 1
-source "${EZ_BASH_HOME}/ezb/ezb_function.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
@@ -45,12 +44,11 @@ ezb_test_string_arg_choices -i "Latte"
 
 function ezb_test_password_arg() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-p" --long "--password" --required --type "Password" || return 1
+        ezb_arg_set --short "-p" --long "--password" --required --type "Password" --info "Test password"|| return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local password && password="$(ezb_arg_get --short "-p" --long "--password" --arguments "${@}")" || return 1
-    echo "$(ezb_string_repeat --string "*" --count ${#password})"
-    echo "password = \"${password}\""
+    echo; echo "password = \"${password}\""
 }
 ezb_test_password_arg
 

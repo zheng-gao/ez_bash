@@ -24,9 +24,8 @@ if [[ "${0}" = "-bash" ]] || [[ "${0}" = "-sh" ]]; then
         echo "[EZ-Bash][ERROR] \"Bash ${EZB_DEFAULT_BASH_VERSION}\" not found!"; return 1
     }
     rm -f "/var/tmp/null"
-    # Source EZ-Bash Core, Command & Function
-    source "${EZ_BASH_HOME}/ezb/ezb.sh"                                 || return 1
-    ezb_source_dir --path "${EZ_BASH_HOME}/ezb" --exclude "ezb.sh"      || return 1
+    # Source EZ-Bash Core
+    source "${EZ_BASH_HOME}/ezb_core/ezb_core.sh" || return 1
     # Source Other Libs
     if [[ -z "${1}" ]] || [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
