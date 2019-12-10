@@ -18,8 +18,8 @@ function ezb_git_commit_stats() {
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
-    git -C "${repo_path}" config diff.renameLimit 999999
-    git -C "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
+    git --git-dir "${repo_path}" config diff.renameLimit 999999
+    git --git-dir "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
 }
 
 
@@ -34,11 +34,11 @@ function ezb_git_file_stats() {
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
-         git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
+         git --git-dir "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
         local log_file="${EZB_DIR_LOGS}/${FUNCNAME[0]}.log"
-        git -C "${repo_path}" rev-list --objects --all \
-        | git -C "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+        git --git-dir "${repo_path}" rev-list --objects --all \
+        | git --git-dir "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
         | sed -n 's/^blob //p' \
         | sort --numeric-sort --key=2 \
         | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest > "${log_file}"
@@ -46,7 +46,7 @@ function ezb_git_file_stats() {
             cat "${log_file}"
         elif [[ "${operation}" = "ExcludeHeadFiles" ]]; then
             declare -A file_hashes_in_head
-            local line=""; for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
+            local line=""; for line in $(git --git-dir "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
                 file_hashes_in_head["${line}"]="true"
             done
             while read -r line; do
