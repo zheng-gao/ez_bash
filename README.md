@@ -34,7 +34,7 @@ function ezb_test_string_arg_required() {
         ezb_arg_set --short "-i" --long "--input" --required || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local input; input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    local input; input=$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}") || return 1
     echo "input = \"${input}\""
 }
 
@@ -56,7 +56,7 @@ function ezb_test_string_arg_default() {
         ezb_arg_set --short "-i" --long "--input" --default "A default string" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local input; input="$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}")" || return 1
+    local input; input=$(ezb_arg_get --short "-i" --long "--input" --arguments "${@}") || return 1
     echo "input = \"${input}\""
 }
 
@@ -81,10 +81,10 @@ function ezb_test_string_arg_exclude() {
         ezb_arg_set --short "-u" --long "--unlock" --exclude "2" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local male; male="$(ezb_arg_get --short "-m" --long "--male" --arguments "${@}")" || return 1
-    local female; female="$(ezb_arg_get --short "-f" --long "--female" --arguments "${@}")" || return 1
-    local lock; lock="$(ezb_arg_get --short "-l" --long "--lock" --arguments "${@}")" || return 1
-    local unlock; unlock="$(ezb_arg_get --short "-u" --long "--unlock" --arguments "${@}")" || return 1
+    local male; male=$(ezb_arg_get --short "-m" --long "--male" --arguments "${@}") || return 1
+    local female; female=$(ezb_arg_get --short "-f" --long "--female" --arguments "${@}") || return 1
+    local lock; lock=$(ezb_arg_get --short "-l" --long "--lock" --arguments "${@}") || return 1
+    local unlock; unlock=$(ezb_arg_get --short "-u" --long "--unlock" --arguments "${@}") || return 1
     [[ -n "${male}" ]] && echo "male = \"${male}\""
     [[ -n "${female}" ]] && echo "female = \"${female}\""
     [[ -n "${lock}" ]] && echo "lock = \"${lock}\""
@@ -116,7 +116,7 @@ function ezb_test_string_arg_choices() {
         ezb_arg_set -s "-i" -l "--input" -r --choices "Cappuccino" "Espresso" "Latte" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local input; input="$(ezb_arg_get -s "-i" -l "--input" -a "${@}")" || return 1
+    local input; input=$(ezb_arg_get -s "-i" -l "--input" -a "${@}") || return 1
     echo "input = \"${input}\""
 }
 
@@ -139,7 +139,7 @@ function ezb_test_password_arg() {
         ezb_arg_set -s "-p" -l "--password" -r -t "Password" -i "Admin password" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local password; password="$(ezb_arg_get -s "-p" -l "--password" -a "${@}")" || return 1
+    local password; password=$(ezb_arg_get -s "-p" -l "--password" -a "${@}") || return 1
     echo "$(ezb_string_repeat --string "*" --count ${#password})"
     echo "password = \"${password}\""
 }
@@ -160,7 +160,7 @@ function ezb_test_list_arg_default() {
         ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list; list="$(ezb_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
+    local list; list=$(ezb_arg_get -s "-l" -l "--list" -a "${@}") || return 1
     ezb_function_get_list "${list}"
 }
 
@@ -186,7 +186,7 @@ function ezb_test_flag_arg() {
         ezb_arg_set --short "-f" --long "--flag" --type "Flag" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local flag; flag="$(ezb_arg_get --short "-f" --long "--flag" --arguments "${@}")" || return 1
+    local flag; flag=$(ezb_arg_get --short "-f" --long "--flag" --arguments "${@}") || return 1
     echo "flag = ${flag}"
 }
 
