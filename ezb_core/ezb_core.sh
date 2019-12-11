@@ -293,32 +293,6 @@ function ezb_function_get_list() {
     ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${@}"
 }
 
-function ezb_function_exclude_check() {
-    local function="${1}"; local arg_name="${2}"; local exclude="${3}"; local arguments=("${@:4}")
-    declare -A exclude_set; local key=""; local x_arg=""
-    for x_arg in $(ezb_function_get_short_arguments "${function}"); do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZB_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZB_BOOL_TRUE}"
-        fi
-    done
-    for x_arg in $(ezb_function_get_long_arguments "${function}"); do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZB_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZB_BOOL_TRUE}"
-        fi
-    done
-    for x_arg in "${arguments[@]}"; do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            if [[ -n "${exclude_set[${x_arg}]}" ]]; then
-                ezb_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive"
-                return 1
-            fi
-        fi
-    done
-    return 0
-}
-
 function ezb_function_unregistered() {
     # Should only be called by another function. If not, give the function name in 1st argument
     if [[ -z "${1}" ]]; then [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 0
@@ -537,6 +511,32 @@ function ezb_arg_set() {
     fi
 }
 
+function ezb_arg_exclude_check() {
+    local function="${1}"; local arg_name="${2}"; local exclude="${3}"; local arguments=("${@:4}")
+    declare -A exclude_set; local key=""; local x_arg=""
+    for x_arg in $(ezb_function_get_short_arguments "${function}"); do
+        if [[ "${x_arg}" != "${arg_name}" ]]; then
+            key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${x_arg}"
+            [[ "${EZB_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZB_BOOL_TRUE}"
+        fi
+    done
+    for x_arg in $(ezb_function_get_long_arguments "${function}"); do
+        if [[ "${x_arg}" != "${arg_name}" ]]; then
+            key="${function}${EZB_CHAR_NON_SPACE_DELIMITER}${x_arg}"
+            [[ "${EZB_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZB_BOOL_TRUE}"
+        fi
+    done
+    for x_arg in "${arguments[@]}"; do
+        if [[ "${x_arg}" != "${arg_name}" ]]; then
+            if [[ -n "${exclude_set[${x_arg}]}" ]]; then
+                ezb_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive"
+                return 1
+            fi
+        fi
+    done
+    return 0
+}
+
 function ezb_arg_get() {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Get argument value from argument list")
@@ -638,7 +638,7 @@ function ezb_arg_get() {
         for item in "${arguments[@]}"; do
             if [[ "${item}" = "${short}" ]] || [[ "${item}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ezb_function_exclude_check "${function}" "${item}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ezb_arg_exclude_check "${function}" "${item}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 echo "${EZB_BOOL_TRUE}"; return 0
             fi
@@ -649,7 +649,7 @@ function ezb_arg_get() {
             local name="${arguments[${i}]}"
             if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ezb_function_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ezb_arg_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 ((i++))
                 local value="${arguments[${i}]}"
@@ -712,7 +712,7 @@ function ezb_arg_get() {
             local name="${arguments[${i}]}"
             if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ezb_function_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ezb_arg_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 local output=""; local count=0
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
