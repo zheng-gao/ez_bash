@@ -39,7 +39,7 @@ function ezb_dependency_check() {
 }
 
 # Check Dependencies
-ezb_dependency_check "date" "printf" "column" "find" "grep" "sed" || return 1
+ezb_dependency_check "uname" "date" "printf" "column" "find" "grep" "sed" || return 1
 
 ###################################################################################################
 # ----------------------------------- EZ Bash Core Functions ------------------------------------ #

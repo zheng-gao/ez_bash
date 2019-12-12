@@ -31,6 +31,29 @@ function ezb_test_string_arg_default() {
 ezb_test_string_arg_default
 ezb_test_string_arg_default -i "hello world"
 
+function ezb_test_string_arg_exclude() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-m" --long "--male" --exclude "1" || return 1
+        ezb_arg_set --short "-f" --long "--female" --exclude "1" || return 1
+        ezb_arg_set --short "-l" --long "--lock" --exclude "2" || return 1
+        ezb_arg_set --short "-u" --long "--unlock" --exclude "2" || return 1
+    fi
+    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
+    local male; male=$(ezb_arg_get --short "-m" --long "--male" --arguments "${@}") || return 1
+    local female; female=$(ezb_arg_get --short "-f" --long "--female" --arguments "${@}") || return 1
+    local lock; lock=$(ezb_arg_get --short "-l" --long "--lock" --arguments "${@}") || return 1
+    local unlock; unlock=$(ezb_arg_get --short "-u" --long "--unlock" --arguments "${@}") || return 1
+    [[ -n "${male}" ]] && echo "male = \"${male}\""
+    [[ -n "${female}" ]] && echo "female = \"${female}\""
+    [[ -n "${lock}" ]] && echo "lock = \"${lock}\""
+    [[ -n "${unlock}" ]] && echo "unlock = \"${unlock}\""
+}
+
+ezb_test_string_arg_exclude --help
+ezb_test_string_arg_exclude -m "Test" -l "Test"
+ezb_test_string_arg_exclude -m "Test" -f "Test"
+ezb_test_string_arg_exclude -l "Test" --unlock "Test"
+
 function ezb_test_string_arg_choices() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-i" --long "--input" --required --choices "Cappuccino" "Espresso" "Latte" || return 1
