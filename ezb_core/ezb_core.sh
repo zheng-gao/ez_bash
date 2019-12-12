@@ -38,6 +38,10 @@ function ezb_dependency_check() {
     done
 }
 
+function ezb_dependency_list_checked() {
+    local dependency; for dependency in "${!EZB_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
+}
+
 # Check Dependencies
 ezb_dependency_check "uname" "date" "printf" "column" "find" "grep" "sed" || return 1
 
@@ -280,6 +284,10 @@ function ezb_function_reset_accociative_arrays() {
 # Source this file should clean all these accociative arrays
 # Do not source this file more than once
 ezb_function_reset_accociative_arrays
+
+function ezb_function_list_registered() {
+    local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
+}
 
 function ezb_function_get_short_arguments() {
     sed "s/${EZB_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${1}]}"
