@@ -67,6 +67,7 @@ function ezb_show_checked_dependencies() {
 function ezb_show_registered_functions() {
     local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
 }
+
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
@@ -239,12 +240,13 @@ function ezb_source_dir() {
 function ezb_log() {
     local valid_output_to=("Console" "File" "${EZB_OPT_ALL}")
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        local valid_output_to_str="$(ezb_join ', ' ${valid_output_to[@]})"
         local usage=$(ezb_build_usage -o "init" -d "Print log to file in \"EZ-BASH\" standard log format")
         usage+=$(ezb_build_usage -o "add" -a "-l|--logger" -d "Logger type, default = \"INFO\"")
         usage+=$(ezb_build_usage -o "add" -a "-f|--file" -d "Log file path, default = \"${EZB_DEFAULT_LOG}\"")
         usage+=$(ezb_build_usage -o "add" -a "-m|--message" -d "The message to print")
         usage+=$(ezb_build_usage -o "add" -a "-s|--stack" -d "Hide top x function from stack, default = 1")
-        usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [$(ezb_join ', ' ${valid_output_to[@]})], default = \"Console\"")
+        usage+=$(ezb_build_usage -o "add" -a "-o|--output-to" -d "Choose from: [${valid_output_to_str}], default = \"Console\"")
         ezb_print_usage "${usage}" && return 0
     fi
     declare -A arg_set_of_ezb_log_to_file=(
@@ -260,12 +262,16 @@ function ezb_log() {
             "-o" | "--output-to") shift; output_to="${1}"; [[ -n "${1}" ]] && shift ;;
             "-s" | "--stack") shift; stack="${1}"; [[ -n "${1}" ]] && shift ;;
             "-m" | "--message") shift;
-                while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break; message+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do
+                    [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break
+                    message+=("${1}"); shift
+                done ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
     if ezb_excludes "${output_to}" "${valid_output_to[@]}"; then
-        ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ezb_join ', ' ${valid_output_to[@]})]"
+        local valid_output_to_str="$(ezb_join ', ' ${valid_output_to[@]})"
+        ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [${valid_output_to_str}]"
         return 2
     fi
     local function_stack="$(ezb_log_stack ${stack})"
@@ -409,9 +415,15 @@ function ezb_arg_set() {
             "-i" | "--info") shift; info=${1}; [[ -n "${1}" ]] && shift ;;
             "-r" | "--required") shift; required="${EZB_BOOL_TRUE}" ;;
             "-d" | "--default") shift
-                while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_arg_set["${1}"]}" ]] && break; default+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do
+                    [[ -n "${arg_set_of_ezb_arg_set["${1}"]}" ]] && break
+                    default+=("${1}"); shift
+                done ;;
             "-c" | "--choices") shift
-                while [[ -n "${1}" ]]; do [[ -n "${arg_set_of_ezb_arg_set["${1}"]}" ]] && break; choices+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do
+                    [[ -n "${arg_set_of_ezb_arg_set["${1}"]}" ]] && break
+                    choices+=("${1}"); shift
+                done ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -423,15 +435,17 @@ function ezb_arg_set() {
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
-    [[ "${short}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
-    [[ "${long}" = "${EZB_FUNC_HELP}" ]] && ezb_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
+    [[ "${short}" = "${EZB_FUNC_HELP}" ]] &&
+        ezb_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
+    [[ "${long}" = "${EZB_FUNC_HELP}" ]] &&
+        ezb_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
     local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     # If the key has already been registered, then skip
-    if [ -n "${short}" ] && [ -n "${long}" ]; then
-        [ -n "${EZB_S_ARG_SET[${function}${delimiter}${short}]}" ] && [ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
-    elif [ -n "${short}" ]; then [ -n "${EZB_S_ARG_SET[${function}${delimiter}${short}]}" ] && return
-    else [ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ] && return
-    fi
+    if [[ -n "${short}" ]] && [[ -n "${long}" ]]; then
+        [[ -n "${EZB_S_ARG_SET[${function}${delimiter}${short}]}" ]] &&
+        [[ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ]] && return
+    elif [[ -n "${short}" ]]; then [[ -n "${EZB_S_ARG_SET[${function}${delimiter}${short}]}" ]] && return
+    else [[ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ]] && return; fi
     local default_str=""; local i=0
     for ((; i < ${#default[@]}; ++i)); do
         [[ "${i}" -eq 0 ]] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"
@@ -444,8 +458,7 @@ function ezb_arg_set() {
     EZB_FUNC_SET["${function}"]="${EZB_BOOL_TRUE}"
     local key=""
     if [ -n "${short}" ]; then
-        key="${function}${delimiter}${short}"
-        EZB_S_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
+        key="${function}${delimiter}${short}"; EZB_S_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [[ -z "${EZB_FUNC_TO_S_ARG_MAP[${function}]}" ]]; then EZB_FUNC_TO_S_ARG_MAP["${function}"]="${short}"
         else [[ -z "${EZB_S_ARG_TO_TYPE_MAP[${key}]}" ]] && EZB_FUNC_TO_S_ARG_MAP["${function}"]+="${delimiter}${short}"; fi
         EZB_S_ARG_TO_L_ARG_MAP["${key}"]="${long}"
@@ -456,8 +469,7 @@ function ezb_arg_set() {
         EZB_S_ARG_TO_DEFAULT_MAP["${key}"]="${default_str[@]}"
         EZB_S_ARG_TO_CHOICES_MAP["${key}"]="${choices_str[@]}"
     else
-        key="${function}${delimiter}${long}"
-        local short_old="${EZB_L_ARG_TO_S_ARG_MAP[${key}]}"
+        key="${function}${delimiter}${long}"; local short_old="${EZB_L_ARG_TO_S_ARG_MAP[${key}]}"
         if [ -n "${short_old}" ]; then
             key="${function}${delimiter}${short_old}"
             # Delete short_old
@@ -472,17 +484,14 @@ function ezb_arg_set() {
             local new_short_list_string=""; local existing_short=""
             for existing_short in $(ezb_function_get_short_arguments "${function}"); do
                 if [[ "${short_old}" != "${existing_short}" ]]; then
-                    if [ -z "${new_short_list_string}" ]; then 
-                        new_short_list_string="${existing_short}"
-                    else
-                        new_short_list_string+="${delimiter}${existing_short}"
-                    fi
+                    if [[ -z "${new_short_list_string}" ]]; then new_short_list_string="${existing_short}"
+                    else new_short_list_string+="${delimiter}${existing_short}"; fi
                 fi
             done
             EZB_FUNC_TO_S_ARG_MAP["${function}"]="${new_short_list_string}"
         fi
     fi
-    if [ -n "${long}" ]; then
+    if [[ -n "${long}" ]]; then
         key="${function}${delimiter}${long}"
         EZB_L_ARG_SET["${key}"]="${EZB_BOOL_TRUE}"
         if [[ -z "${EZB_FUNC_TO_L_ARG_MAP[${function}]}" ]]; then EZB_FUNC_TO_L_ARG_MAP["${function}"]="${long}"
@@ -496,7 +505,7 @@ function ezb_arg_set() {
         EZB_L_ARG_TO_CHOICES_MAP["${key}"]="${choices_str[@]}"
     else
         key="${function}${delimiter}${short}"; local long_old="${EZB_S_ARG_TO_L_ARG_MAP[${key}]}"
-        if [ -n "${long_old}" ]; then
+        if [[ -n "${long_old}" ]]; then
             key="${function}${delimiter}${long_old}"
             # Delete long_old
             unset EZB_L_ARG_TO_S_ARG_MAP["${key}"]
@@ -638,8 +647,10 @@ function ezb_arg_get() {
     fi
     local delimiter="${EZB_CHAR_NON_SPACE_DELIMITER}"
     if [[ -z "${argument_type}" ]]; then
-        [[ -n "${short}" ]] && ezb_log_error "Arg-Type for argument \"${short}\" of function \"${function}\" Not Found" && return 3
-        [[ -n "${long}" ]] && ezb_log_error "Arg-Type for argument \"${long}\" of function \"${function}\" Not Found" && return 3
+        [[ -n "${short}" ]] &&
+            ezb_log_error "Arg-Type for argument \"${short}\" of function \"${function}\" Not Found" && return 3
+        [[ -n "${long}" ]] &&
+            ezb_log_error "Arg-Type for argument \"${long}\" of function \"${function}\" Not Found" && return 3
     fi
     if [[ "${argument_type}" = "Flag" ]]; then
         local item=""
@@ -707,7 +718,7 @@ function ezb_arg_get() {
         local default_value=""; local length="${#argument_default}"; local last_index=$((length - 1))
         local k=0; for ((; k < "${length}"; ++k)); do
             local char="${argument_default:k:1}"
-            if [ "${char}" = "${delimiter}" ]; then
+            if [[ "${char}" = "${delimiter}" ]]; then
                 [[ -n "${default_value}" ]] && echo "${default_value}"
                 return
             else
@@ -727,7 +738,7 @@ function ezb_arg_get() {
                     local index=$((i + j))
                     # List ends with another argument indentifier "-" or end of line
                     [[ "${arguments[${index}]:0:1}" = "-" ]] && break
-                    [ "${count}" -eq 0 ] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
+                    [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done
                 # [To Do] Return list directly: ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${output}"
