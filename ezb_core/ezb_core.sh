@@ -58,6 +58,16 @@ unset EZB_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_S_ARG_TO_CHOI
 unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCLUDE_MAP
 
 ###################################################################################################
+# ------------------------------------- EZ-Bash Debug Tools ------------------------------------- #
+###################################################################################################
+function ezb_show_checked_dependencies() {
+    local dependency; for dependency in "${!EZB_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
+}
+
+function ezb_show_registered_functions() {
+    local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
+}
+###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
 function ezb_command_check() {
@@ -72,10 +82,6 @@ function ezb_dependency_check() {
             EZB_DEPENDENCY_SET["${cmd}"]="${EZB_BOOL_TRUE}"
         fi
     done
-}
-
-function ezb_dependency_show_checked() {
-    local dependency; for dependency in "${!EZB_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
 }
 
 # Check Dependencies
@@ -283,10 +289,6 @@ function ezb_log() {
 ###################################################################################################
 # ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
 ###################################################################################################
-function ezb_function_show_registered() {
-    local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
-}
-
 function ezb_function_get_short_arguments() {
     sed "s/${EZB_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${1}]}"
 }
