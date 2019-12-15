@@ -20,7 +20,43 @@ EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
 
 EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
 
-unset EZB_DEPENDENCY_SET; declare -g -A EZB_DEPENDENCY_SET
+EZB_FUNC_HELP="--help"
+EZB_ARG_TYPE_DEFAULT="String"
+
+# Source this file should clean all these global accociative arrays
+unset EZB_DEPENDENCY_SET;                        declare -g -A EZB_DEPENDENCY_SET
+
+# EZ-Bash Function Maps
+unset EZB_ARG_TYPE_SET
+declare -g -A EZB_ARG_TYPE_SET=(
+    ["${EZB_ARG_TYPE_DEFAULT}"]="${EZB_BOOL_TRUE}"
+    ["List"]="${EZB_BOOL_TRUE}"
+    ["Flag"]="${EZB_BOOL_TRUE}"
+    ["Password"]="${EZB_BOOL_TRUE}"
+)
+unset EZB_FUNC_SET;                              declare -g -A EZB_FUNC_SET
+# Key Format: function
+unset EZB_FUNC_TO_S_ARG_MAP;                     declare -g -A EZB_FUNC_TO_S_ARG_MAP
+unset EZB_FUNC_TO_L_ARG_MAP;                     declare -g -A EZB_FUNC_TO_L_ARG_MAP
+# Key Format: function + "::" + long name
+unset EZB_L_ARG_SET;                             declare -g -A EZB_L_ARG_SET
+unset EZB_L_ARG_TO_S_ARG_MAP;                    declare -g -A EZB_L_ARG_TO_S_ARG_MAP
+unset EZB_L_ARG_TO_TYPE_MAP;                     declare -g -A EZB_L_ARG_TO_TYPE_MAP
+unset EZB_L_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_L_ARG_TO_REQUIRED_MAP
+unset EZB_L_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_L_ARG_TO_DEFAULT_MAP
+unset EZB_L_ARG_TO_INFO_MAP;                     declare -g -A EZB_L_ARG_TO_INFO_MAP
+unset EZB_L_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_L_ARG_TO_CHOICES_MAP
+unset EZB_L_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_L_ARG_TO_EXCLUDE_MAP
+# Key Format: function + "::" + short name
+unset EZB_S_ARG_SET;                             declare -g -A EZB_S_ARG_SET
+unset EZB_S_ARG_TO_L_ARG_MAP;                    declare -g -A EZB_S_ARG_TO_L_ARG_MAP
+unset EZB_S_ARG_TO_TYPE_MAP;                     declare -g -A EZB_S_ARG_TO_TYPE_MAP
+unset EZB_S_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_S_ARG_TO_REQUIRED_MAP
+unset EZB_S_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_S_ARG_TO_DEFAULT_MAP
+unset EZB_S_ARG_TO_INFO_MAP;                     declare -g -A EZB_S_ARG_TO_INFO_MAP
+unset EZB_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_S_ARG_TO_CHOICES_MAP
+unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCLUDE_MAP
+
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
@@ -38,7 +74,7 @@ function ezb_dependency_check() {
     done
 }
 
-function ezb_dependency_list_checked() {
+function ezb_dependency_show_checked() {
     local dependency; for dependency in "${!EZB_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
 }
 
@@ -247,45 +283,7 @@ function ezb_log() {
 ###################################################################################################
 # ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
 ###################################################################################################
-EZB_FUNC_HELP="--help"
-EZB_ARG_TYPE_DEFAULT="String"
-declare -g -A EZB_ARG_TYPE_SET=(
-    ["${EZB_ARG_TYPE_DEFAULT}"]="${EZB_BOOL_TRUE}"
-    ["List"]="${EZB_BOOL_TRUE}"
-    ["Flag"]="${EZB_BOOL_TRUE}"
-    ["Password"]="${EZB_BOOL_TRUE}"
-)
-
-function ezb_function_reset_accociative_arrays() {
-    unset EZB_FUNC_SET;                              declare -g -A EZB_FUNC_SET
-    # Key Format: function
-    unset EZB_FUNC_TO_S_ARG_MAP;                     declare -g -A EZB_FUNC_TO_S_ARG_MAP
-    unset EZB_FUNC_TO_L_ARG_MAP;                     declare -g -A EZB_FUNC_TO_L_ARG_MAP
-    # Key Format: function + "::" + long name
-    unset EZB_L_ARG_SET;                             declare -g -A EZB_L_ARG_SET
-    unset EZB_L_ARG_TO_S_ARG_MAP;                    declare -g -A EZB_L_ARG_TO_S_ARG_MAP
-    unset EZB_L_ARG_TO_TYPE_MAP;                     declare -g -A EZB_L_ARG_TO_TYPE_MAP
-    unset EZB_L_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_L_ARG_TO_REQUIRED_MAP
-    unset EZB_L_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_L_ARG_TO_DEFAULT_MAP
-    unset EZB_L_ARG_TO_INFO_MAP;                     declare -g -A EZB_L_ARG_TO_INFO_MAP
-    unset EZB_L_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_L_ARG_TO_CHOICES_MAP
-    unset EZB_L_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_L_ARG_TO_EXCLUDE_MAP
-    # Key Format: function + "::" + short name
-    unset EZB_S_ARG_SET;                             declare -g -A EZB_S_ARG_SET
-    unset EZB_S_ARG_TO_L_ARG_MAP;                    declare -g -A EZB_S_ARG_TO_L_ARG_MAP
-    unset EZB_S_ARG_TO_TYPE_MAP;                     declare -g -A EZB_S_ARG_TO_TYPE_MAP
-    unset EZB_S_ARG_TO_REQUIRED_MAP;                 declare -g -A EZB_S_ARG_TO_REQUIRED_MAP
-    unset EZB_S_ARG_TO_DEFAULT_MAP;                  declare -g -A EZB_S_ARG_TO_DEFAULT_MAP
-    unset EZB_S_ARG_TO_INFO_MAP;                     declare -g -A EZB_S_ARG_TO_INFO_MAP
-    unset EZB_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_S_ARG_TO_CHOICES_MAP
-    unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCLUDE_MAP
-}
-
-# Source this file should clean all these accociative arrays
-# Do not source this file more than once
-ezb_function_reset_accociative_arrays
-
-function ezb_function_list_registered() {
+function ezb_function_show_registered() {
     local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
 }
 
