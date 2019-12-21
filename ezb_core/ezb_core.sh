@@ -149,7 +149,7 @@ function ezb_count_items() {
 function ezb_log_stack() {
     local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
     if [[ -n "${ignore_top_x}" ]]; then
-        for ((; i > "${ignore_top_x}"; i--)); do stack+="[${FUNCNAME[$i]}]"; done
+        for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
     else
         # i > 0 to ignore self "ezb_log_stack"
         for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
