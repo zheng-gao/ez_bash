@@ -158,15 +158,18 @@ function ezb_log_stack() {
 }
 
 function ezb_log_error() {
-    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[ERROR] ${@}")
+    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
+    (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[ERROR] ${@}")
 }
 
 function ezb_log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
+    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[INFO] ${@}"
 }
 
 function ezb_log_warning() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]$(ezb_log_stack 1)[WARNING] ${@}"
+    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[WARNING] ${@}"
 }
 
 function ezb_print_usage() {
