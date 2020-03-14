@@ -124,7 +124,7 @@ function ezb_excludes() {
 }
 
 function ezb_join() {
-    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
+    # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
     local delimiter="${1}"; local i=0; local out_put=""; local data=""
     for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
