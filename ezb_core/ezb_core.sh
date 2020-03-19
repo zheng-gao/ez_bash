@@ -10,12 +10,6 @@ EZB_OPT_ALL="All"
 EZB_OPT_ANY="Any"
 EZB_OPT_NONE="None"
 
-EZB_COLOR_RED="\e[0;31m"
-EZB_COLOR_YELLOW="\e[0;33m"
-EZB_COLOR_BLUE="\e[1;34m"
-EZB_COLOR_PINK="\e[1;35m"
-EZB_COLOR_NONE="\e[0m"
-
 EZB_CHAR_SHARP="EZB_SHARP"
 EZB_CHAR_SPACE="EZB_SPACE"
 EZB_CHAR_NON_SPACE_DELIMITER="#"
@@ -163,9 +157,21 @@ function ezb_log_stack() {
     echo "${stack}"
 }
 
+function ezb_color_string() {
+    # ${1} = Color, ${2} ~ ${n} = ${input_string[@]}
+    local Red="\e[0;31m" Yellow="\e[0;33m" Blue="\e[1;34m" Pink="\e[1;35m" None="\e[0m"
+    case "${1}" in
+        "Red") echo "${Red}${@:2}${None}" ;;
+        "Yellow") echo "${Yellow}${@:2}${None}" ;;
+        "Blue") echo "${Blue}${@:2}${None}" ;;
+        "Pink") echo "${Pink}${@:2}${None}" ;;
+        *) echo "${@:2}"
+    esac
+}
+
 function ezb_log_error() {
     local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
-    (>&2 echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${EZB_COLOR_RED}ERROR${EZB_COLOR_NONE}] ${@}")
+    (>&2 echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[$(ezb_color_string 'Red' 'ERROR')] ${@}")
 }
 
 function ezb_log_info() {
@@ -175,7 +181,7 @@ function ezb_log_info() {
 
 function ezb_log_warning() {
     local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
-    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${EZB_COLOR_YELLOW}WARNING${EZB_COLOR_NONE}] ${@}"
+    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[$(ezb_color_string 'Yellow' 'WARNING')] ${@}"
 }
 
 function ezb_print_usage() {
