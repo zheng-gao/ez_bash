@@ -154,7 +154,7 @@ function ezb_log_stack() {
         # i > 0 to ignore self "ezb_log_stack"
         for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     fi
-    echo "${stack}"
+    [[ "${stack}" != "[]" ]] && echo "${stack}"
 }
 
 function ezb_color_string() {
@@ -169,19 +169,20 @@ function ezb_color_string() {
     esac
 }
 
+function ezb_now() {
+    [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
+}
+
 function ezb_log_error() {
-    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
-    (>&2 echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[$(ezb_color_string 'Red' 'ERROR')] ${@}")
+    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_color_string Red ERROR)] ${@}")
 }
 
 function ezb_log_info() {
-    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[INFO] ${@}"
+    echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
 }
 
 function ezb_log_warning() {
-    local function_stack="$(ezb_log_stack 1)"; if [[ "${function_stack}" = "[]" ]]; then function_stack=""; fi
-    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[$(ezb_color_string 'Yellow' 'WARNING')] ${@}"
+    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_color_string Yellow WARNING)] ${@}"
 }
 
 function ezb_print_usage() {
@@ -289,12 +290,11 @@ function ezb_log() {
         ezb_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [${valid_output_to_str}]"
         return 2
     fi
-    local function_stack="$(ezb_log_stack ${stack})"
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
         if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
-            (>&2 echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}")
+            (>&2 echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}")
         else
-            echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}"
+            echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
@@ -303,7 +303,7 @@ function ezb_log() {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')][${EZB_LOGO}]${function_stack}[${logger}] ${message[@]}" >> "${file}"
+        echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
     fi
 }
 

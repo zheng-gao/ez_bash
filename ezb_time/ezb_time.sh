@@ -6,13 +6,9 @@ ezb_dependency_check "date" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_time_now() {
-    [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
-}
-
-function ezb_time_clock() {
+function ezb_clock() {
     ezb_time_now; sleep 1;
-    while true; do ezb_clear -l 1; ezb_time_now; sleep 1; done
+    while true; do ezb_clear -l 1; ezb_now; sleep 1; done
 }
 
 function ezb_time_from_epoch_seconds() {
