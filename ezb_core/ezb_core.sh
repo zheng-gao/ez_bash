@@ -57,6 +57,68 @@ unset EZB_S_ARG_TO_INFO_MAP;                     declare -g -A EZB_S_ARG_TO_INFO
 unset EZB_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_S_ARG_TO_CHOICES_MAP
 unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCLUDE_MAP
 
+# https://misc.flogisoft.com/bash/tip_colors_and_formatting
+unset EZB_FORMAT_SET
+declare -g -A EZB_FORMAT_SET=(
+# Formatting
+    # Set
+    ["Bold"]="\e[1m"
+    ["Dim"]="\e[2m"
+    ["Italic"]="\e[3m"
+    ["Underlined"]="\e[4m"
+    ["Blink"]="\e[5m"
+    ["Reverse"]="\e[7m" # invert the foreground and background colors
+    ["Hidden"]="\e[8m" # useful for passwords
+    # ["StrikeThrough"]="\e[9m"
+    # Reset
+    ["ResetAll"]="\e[0m"
+    ["ResetBold"]="\e[21m"
+    ["ResetDim"]="\e[22m"
+    ["ResetItalic"]="\e[23m"
+    ["ResetUnderlined"]="\e[24m"
+    ["ResetBlink"]="\e[25m"
+    ["ResetReverse"]="\e[27m"
+    ["ResetHidden"]="\e[28m"
+    # ["ResetStrikeThrough"]="\e[29m"
+# Colors
+    # Foreground
+    ["ForegroundDefault"]="\e[39m"
+    ["ForegroundBlack"]="\e[30m"
+    ["ForegroundRed"]="\e[31m"
+    ["ForegroundGreen"]="\e[32m"
+    ["ForegroundYellow"]="\e[33m"
+    ["ForegroundBlue"]="\e[34m"
+    ["ForegroundMagenta"]="\e[35m"
+    ["ForegroundCyan"]="\e[36m"
+    ["ForegroundLightGray"]="\e[37m"
+    ["ForegroundDarkGray"]="\e[90m"
+    ["ForegroundLightRed"]="\e[91m"
+    ["ForegroundLightGreen"]="\e[92m"
+    ["ForegroundLightYellow"]="\e[93m"
+    ["ForegroundLightBlue"]="\e[94m"
+    ["ForegroundLightMagenta"]="\e[95m"
+    ["ForegroundLightCyan"]="\e[96m"
+    ["ForegroundWhite"]="\e[97m"
+    # Background
+    ["BackgroundDefault"]="\e[49m"
+    ["BackgroundBlack"]="\e[40m"
+    ["BackgroundRed"]="\e[41m"
+    ["BackgroundGreen"]="\e[42m"
+    ["BackgroundYellow"]="\e[43m"
+    ["BackgroundBlue"]="\e[44m"
+    ["BackgroundMagenta"]="\e[45m"
+    ["BackgroundCyan"]="\e[46m"
+    ["BackgroundLightGray"]="\e[47m"
+    ["BackgroundDarkGray"]="\e[100m"
+    ["BackgroundLightRed"]="\e[101m"
+    ["BackgroundLightGreen"]="\e[102m"
+    ["BackgroundLightYellow"]="\e[103m"
+    ["BackgroundLightBlue"]="\e[104m"
+    ["BackgroundLightMagenta"]="\e[105m"
+    ["BackgroundLightCyan"]="\e[106m"
+    ["BackgroundWhite"]="\e[107m"
+)
+
 ###################################################################################################
 # ------------------------------------- EZ-Bash Debug Tools ------------------------------------- #
 ###################################################################################################
@@ -157,16 +219,51 @@ function ezb_log_stack() {
     [[ "${stack}" != "[]" ]] && echo "${stack}"
 }
 
-function ezb_color_string() {
-    # ${1} = Color, ${2} ~ ${n} = ${input_string[@]}
-    local Red="\e[0;31m" Yellow="\e[0;33m" Blue="\e[1;34m" Pink="\e[1;35m" None="\e[0m"
-    case "${1}" in
-        "Red") echo "${Red}${@:2}${None}" ;;
-        "Yellow") echo "${Yellow}${@:2}${None}" ;;
-        "Blue") echo "${Blue}${@:2}${None}" ;;
-        "Pink") echo "${Pink}${@:2}${None}" ;;
-        *) echo "${@:2}"
-    esac
+function ezb_256_color_format() {
+    local foreground=38 background=48 color
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        echo; echo "[Usage]"
+        echo "${FUNCNAME[0]} [-f|--foreground or -b|--background] [0~255]"
+        echo; echo "[Foreground]"
+        for color in {0..255} ; do
+            printf "\e[${foreground};5;%sm  %3s  ${EZB_FORMAT_SET[ResetAll]}" "${color}" "${color}"
+            # Print 6 colors per line
+            [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
+        done
+        echo; echo "[Background]"
+        for color in {0..255} ; do
+            printf "\e[${background};5;%sm  %3s  ${EZB_FORMAT_SET[ResetAll]}" "${color}" "${color}"
+            # Print 6 colors per line
+            [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
+        done
+        echo
+        return 0
+    fi
+    if [[ -n "${2}" ]] && [[ "${2}" -ge 0 ]] && [[ "${2}" -lt 255 ]]; then
+        if [[ "${1}" = "-f" ]] || [[ "${1}" = "--foreground" ]]; then
+            echo "\e[${foreground};5;${2}m"; return 0
+        elif [[ "${1}" = "-b" ]] || [[ "${1}" = "--background" ]]; then
+            echo "\e[${background};5;${2}m"; return 0
+        else
+            return 1
+        fi
+    else
+        return 2
+    fi
+}
+
+function ezb_format_string() {
+    # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
+    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
+        echo; echo "[Usage]"; echo "${FUNCNAME[0]} [Format] [String]"; echo
+        local format; echo "[Available Format]"
+        for format in "${!EZB_FORMAT_SET[@]}"; do
+            echo -e "    ${EZB_FORMAT_SET[${format}]}demo${EZB_FORMAT_SET[ResetAll]}    ${format}"
+        done
+        echo
+    else
+        echo "${EZB_FORMAT_SET[${1}]}${@:2}${EZB_FORMAT_SET[ResetAll]}"
+    fi
 }
 
 function ezb_now() {
@@ -174,7 +271,7 @@ function ezb_now() {
 }
 
 function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_color_string Red ERROR)] ${@}")
+    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
 }
 
 function ezb_log_info() {
@@ -182,7 +279,7 @@ function ezb_log_info() {
 }
 
 function ezb_log_warning() {
-    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_color_string Yellow WARNING)] ${@}"
+    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundYellow WARNING)] ${@}"
 }
 
 function ezb_print_usage() {
