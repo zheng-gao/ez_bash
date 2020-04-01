@@ -9,13 +9,13 @@ ezb_dependency_check "wc" "cat" "bc"  "sed" "lsof" "grep" || return 1
 function ezb_file_delete_lines() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
-        ezb_arg_set --short "-e" --long "--exclude" --type "List" --info "List of keywords to be deleted" || return 1
+        ezb_arg_set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
     fi
     ezb_function_usage "${@}" && return
     local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
-    local exclude && exclude="$(ezb_arg_get --short "-e" --long "--exclude" --arguments "${@}")" || return 1
+    local keywords && keywords="$(ezb_arg_get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_list=($(ezb_function_get_list "${exclude}"))
+        local exclude_list=($(ezb_function_get_list "${keywords}"))
         local exclude_string=$(ezb_join "\|" "${exclude_list[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
