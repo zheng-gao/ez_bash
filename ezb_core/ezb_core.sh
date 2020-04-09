@@ -235,7 +235,7 @@ function ezb_256_color_format() {
             printf "\e[${background};5;%sm${EZB_FORMAT_SET[ForegroundBlack]}  %3s  ${EZB_FORMAT_SET[ResetAll]}" \
                    "${color}" "${color}"
             # Print 6 colors per line
-            [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
+            [[ $(((${color} + 1) % 6)) -eq 4 ]] && echo
         done
         echo
         return 0
