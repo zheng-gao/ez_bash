@@ -156,4 +156,12 @@ function ezb_print_list_with_progress_bar() {
     done
 }
 
+function ezb_watch() {
+    local sleep_seconds="${1}" function_name="${2}"
+    while true; do
+        clear
+        ${function_name} ${@:3}
+        sleep "${sleep_seconds}"
+    done
+}
 
