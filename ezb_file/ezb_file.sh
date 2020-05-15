@@ -6,6 +6,25 @@ ezb_dependency_check "wc" "cat" "bc"  "sed" "lsof" "grep" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_file_string_replace() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
+        ezb_arg_set --short "-s" --long "--search" --required --info "String to be replaced" &&
+        ezb_arg_set --short "-r" --long "--replacement" --required --info "Replacement String" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local search && search="$(ezb_arg_get --short "-s" --long "--search" --arguments "${@}")" &&
+    local replacement && replacement="$(ezb_arg_get --short "-r" --long "--replacement" --arguments "${@}")" || return 1
+    if [[ -f "${path}" ]]; then
+        cp "${path}" "${path}.bak"
+        sed "s/${search}/${replacement}/g" "${path}.bak" > "${path}" 
+        rm "${path}.bak"
+    else
+        ezb_log_error "File \"${path}\" not exist"
+    fi
+}
+
 function ezb_file_delete_lines() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
