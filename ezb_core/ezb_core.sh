@@ -171,12 +171,16 @@ function ezb_to_upper() {
 
 function ezb_contains() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
+    local data; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
 }
 
 function ezb_excludes() {
     # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    local data=""; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
+    local data; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
+}
+
+function ezb_sort() {
+    local data; { for data in "${@}"; do echo "${data}"; done; } | sort
 }
 
 function ezb_join() {
