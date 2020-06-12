@@ -1,22 +1,23 @@
 # Bash Tools for Linux and MacOS
 ## Steps for installing ez_bash
-### 1. Clone this project
+#### 1. Clone this project
 ```bash
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```
-### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
+#### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
 ```bash
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-### 3. To import all the "ez_bash" libraries
+#### 3. To import all the "ez_bash" libraries
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```
-### 4. To import one or more "ez_bash" libraries
+#### 4. To import one or more "ez_bash" libraries
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 ```
-## Argument Artributes
+## Examples
+### Argument Artributes
 | Short Name | Long Name | Type | Description |
 | ---------- | --------- | ---- | ----------- |
 | -s | --short | String | Short argument identifier |
@@ -27,7 +28,7 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 | -c | --choices | List | Argument value can only be one of the choices |
 | -d | --default | List | Default value for an argument |
 | -r | --required | Flag | Mark the argument required |
-## --required
+### --required
 ```bash
 function ezb_test_string_arg_required() {
     if ezb_function_unregistered; then
@@ -49,7 +50,7 @@ function ezb_test_string_arg_required() {
 > ezb_test_string_arg_required -i "hello world"
 input = "hello world"
 ```
-## --default
+### --default
 ```bash
 function ezb_test_string_arg_default() {
     if ezb_function_unregistered; then
@@ -71,7 +72,7 @@ input = "A default string"
 > ezb_test_string_arg_default -i "hello world"
 input = "hello world"
 ```
-## --exclude
+### --exclude
 ```bash
 function ezb_test_string_arg_exclude() {
     if ezb_function_unregistered; then
@@ -109,7 +110,7 @@ lock = "Test"
 > ezb_test_string_arg_exclude -l "Test" --unlock "Test"
 [2019-11-28 17:32:51][EZ-Bash][ezb_test_string_arg_exclude][ezb_arg_get][ERROR] "-l" and "--unlock" are mutually exclusive
 ```
-## --choices
+### --choices
 ```bash
 function ezb_test_string_arg_choices() {
     if ezb_function_unregistered; then
@@ -132,7 +133,7 @@ function ezb_test_string_arg_choices() {
 > ezb_test_string_arg_choices -i "Latte"
 input = "Latte"
 ```
-## --type "Password"
+### --type "Password"
 ```bash
 function ezb_test_password_arg() {
     if ezb_function_unregistered; then
@@ -153,7 +154,7 @@ function ezb_test_password_arg() {
 Admin password "--password": *********
 password = "my secret"
 ```
-## --type "List"
+### --type "List"
 ```bash
 function ezb_test_list_arg_default() {
     if ezb_function_unregistered; then
@@ -179,7 +180,7 @@ Item 1
 Item 2
 Item 3
 ```
-## --type "Flag"
+### --type "Flag"
 ```bash
 function ezb_test_flag_arg() {
     if ezb_function_unregistered; then
