@@ -64,7 +64,7 @@ else
         done
         unset all_ezb_libraries
         unset ezb_library_name
-        echo "[EZ-Bash][INFO] Complete loading 'ALL' EZ-Bash libraries!"
+        echo -e "[EZ-Bash][INFO] Complete loading $(ezb_format_string ForegroundYellow ALL) EZ-Bash libraries!"
     else
         # Source the designated libraries
         for ezb_library_name in "${@}"; do
