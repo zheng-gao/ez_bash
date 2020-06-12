@@ -8,13 +8,18 @@ git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
 ```bash
 export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
 ```
-#### 3. To import all the "ez_bash" libraries
+#### 3. Import "ezb" libraries
+##### a. Import ezb_core only
 ```bash
-source "${EZ_BASH_HOME}/ez_bash.sh" --all
+source "${EZ_BASH_HOME}/ez_bash.sh"
 ```
-#### 4. To import one or more "ez_bash" libraries
+##### b. Import other "ezb" libraries (include ezb_core)
 ```bash
 source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
+```
+##### c. Import ALL "ezb" libraries (include ezb_core)
+```bash
+source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```
 ## Examples
 ### Argument Artributes

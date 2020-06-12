@@ -45,7 +45,9 @@ else
     # Source EZ-Bash Core
     source "${EZ_BASH_HOME}/ezb_core/ezb_core.sh" || return 1
     # Source Other Libs
-    if [[ -z "${1}" ]] || [[ "${1}" = "--all" ]]; then
+    if [[ -z "${1}" ]]; then
+        echo "[EZ-Bash][INFO] Complete loading EZ-Bash library: ezb_core"
+    elif [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
         all_ezb_libraries=(
             "ezb_file"
@@ -62,12 +64,13 @@ else
         done
         unset all_ezb_libraries
         unset ezb_library_name
-        echo "[EZ-Bash][INFO] Complete loading EZ-Bash libraries!"
+        echo "[EZ-Bash][INFO] Complete loading 'ALL' EZ-Bash libraries!"
     else
         # Source the designated libraries
         for ezb_library_name in "${@}"; do
             ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
         done
         unset ezb_library_name
+        echo "[EZ-Bash][INFO] Complete loading EZ-Bash libraries: ${@}"
     fi
 fi
