@@ -42,6 +42,23 @@ function ezb_string_trim() {
     fi
 }
 
+function ezb_string_cut() {
+    if ezb_function_unregistered; then
+        local valid_keys=("Left" "Right" "Both")
+        ezb_arg_set --short "-s" --long "--string" --required --info "The string to be cut" &&
+        ezb_arg_set --short "-l" --long "--length" --info "Length to be cut" &&
+        ezb_arg_set --short "-k" --long "--key" --required --default "Left" --choices "${valid_keys[@]}" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
+    local length && length="$(ezb_arg_get --short "-l" --long "--length" --arguments "${@}")" &&
+    local key && key="$(ezb_arg_get --short "-k" --long "--key" --arguments "${@}")" || return 1
+    if [[ "${key}" = "Left" ]]; then echo "${string:${length}}"
+    elif [[ "${key}" = "Right" ]]; then echo "${string::-${length}}"
+    else echo "${string:${length}:-${length}}"
+    fi
+}
+
 function ezb_string_check() {
     if ezb_function_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
