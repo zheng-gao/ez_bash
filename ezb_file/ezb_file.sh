@@ -99,6 +99,23 @@ function ezb_file_descriptor_count() {
     echo "${fd_count}"
 }
 
+function ezb_file_parse_value() {
+    #  File Content:
+    #  ...key="value"...
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
+        ezb_arg_set --short "-k" --long "--key" --required --info "The name of the key" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local key && key="$(ezb_arg_get --short "-k" --long "--key" --arguments "${@}")" || return 1
+    if [[ -f "${path}" ]]; then
+        grep -oE "${key}=\"(\S+)\"" "${path}" | cut -d "\"" -f 2
+    else
+        ezb_log_error "File \"${path}\" not exist"
+    fi
+}
+
 function ezb_backup() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
