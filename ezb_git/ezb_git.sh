@@ -6,6 +6,50 @@ ezb_dependency_check "git" "sort" "awk" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_git_push_in_batches() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
+        ezb_arg_set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local batch_size && batch_size="$(ezb_arg_get --short "-b" --long "--batch-size" --arguments "${@}")" &&
+    local remote && remote="$(ezb_arg_get --short "-r" --long "--remote" --arguments "${@}")" || return 1
+    local branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
+    local number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
+    local git_command=""; local git_tag=""
+
+    # git for-each-ref --format='delete %(refname)' refs/pull | git update-ref --stdin
+
+    # Turn Off Mirror
+    git_command="git config --replace-all remote.origin.mirror false"
+    echo "[Turn Off Mirror] ${git_command}" && ${git_command}
+    
+    # Push Each Tag
+    for git_tag in $(git "tag" -l); do
+        git_command="git push ${remote} refs/tags/${git_tag}"
+        echo "[Push Tag] ${git_command}" && ${git_command}
+    done
+
+    # local x_th_commit_before_head=0
+    # for x_th_commit_before_head in $(seq "${number_of_commits}" "-${batch_size}" "1"); do
+    #     # Get the hash of the commit to push
+    #     # local commit_hash=$(git log --first-parent --reverse --format=format:%H --skip "${x_th_commit_before_head}" -n1)
+    #     # echo "[Pushing] git push ${remote} ${commit_hash}:refs/heads/${branch}"
+    #     # git "push" "${remote}" "${commit_hash}:refs/heads/${branch}"
+    #
+    #     # echo "Pushing commits till $((number_of_commits - x_th_commit_before_head))-th"
+    #     # git "push" "${remote}" "${branch}~${x_th_commit_before_head}:refs/heads/${branch}"
+    # done
+
+    # Turn On Mirror
+    git_command="git config --replace-all remote.origin.mirror true"
+    echo "[Turn On Mirror] ${git_command}" && ${git_command}
+
+    # Final Push
+    git_command="git push --mirror ${remote}"
+    echo "[Final Push] ${git_command}" && ${git_command}
+}
+
 function ezb_git_commit_stats() {
     if ezb_function_unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
