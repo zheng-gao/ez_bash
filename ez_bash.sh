@@ -58,6 +58,7 @@ else
             "ezb_time"
             "ezb_terminal"
             "ezb_git"
+            "ezb_docker"
         )
         for ezb_library_name in "${all_ezb_libraries[@]}"; do
             ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
