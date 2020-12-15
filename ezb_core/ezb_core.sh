@@ -853,7 +853,7 @@ function ezb_arg_get() {
                 local output=""; local count=0
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
-                    # List ends with another argument indentifier "-" or end of line
+                    # List ends with another argument identifier "-" or end of line
                     [[ "${arguments[${index}]:0:1}" = "-" ]] && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
