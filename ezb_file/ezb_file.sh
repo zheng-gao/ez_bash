@@ -6,6 +6,24 @@ ezb_dependency_check "wc" "cat" "bc"  "sed" "lsof" "grep" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_create_dummy_file() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
+        ezb_arg_set --short "-s" --long "--size" --required --info "Size in MB" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local size && size="$(ezb_arg_get --short "-s" --long "--size" --arguments "${@}")" || return 1
+    local os=$(ezb_os_name)
+    if [[ "${os}" = "linux" ]]; then
+        dd "if=/dev/random" "of=${path}" "bs=4k" "iflag=fullblock,count_bytes" "count=${size}M"
+    elif [[ "${os}" = "macos" ]]; then
+        mkfile "${size}m" "${path}"
+    else
+        ezb_log_error "The OS \"${os}\" is not supported"
+    fi
+}
+
 function ezb_file_string_replace() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
