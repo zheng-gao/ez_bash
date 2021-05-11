@@ -6,7 +6,7 @@ ezb_dependency_check "wc" "cat" "bc"  "sed" "lsof" "grep" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_create_dummy_file() {
+function ezb_file_create_dummy() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
         ezb_arg_set --short "-s" --long "--size" --required --info "Size in MB" || return 1
