@@ -15,3 +15,19 @@ function ezb_math() {
 	# bc scale does not work for mode %
     bc <<< "scale=${EZB_MATH_SCALE}; ${@}"
 }
+
+function ezb_floor() {
+    cut -d "." -f "1" <<< "${1}"
+}
+
+function ezb_ceiling() {
+	# 1.00 -> 1
+	# 1.01 -> 2
+	local integer_part=$(cut -d "." -f "1" <<< "${1}")
+	local decimal_part=$(cut -d "." -f "2" <<< "${1}")
+    if [[ "${decimal_part}" -gt 0 ]]; then
+    	echo "$(( integer_part + 1 ))"
+    else
+    	echo "${integer_part}"
+    fi
+}
