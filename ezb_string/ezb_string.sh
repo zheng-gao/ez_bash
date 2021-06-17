@@ -3,6 +3,11 @@ function ezb_string_length() {
     echo "${#input_string}"
 }
 
+function ezb_string_count_substring() {
+    local input_string="${1}" substring="${2}"
+    echo "${input_string}" | grep -o "${substring}" | wc -l | bc
+}
+
 function ezb_string_repeat() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
