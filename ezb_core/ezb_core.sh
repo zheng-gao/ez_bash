@@ -491,7 +491,9 @@ function ezb_function_print_help() {
 }
 
 function ezb_function_usage() {
-    ezb_function_check_help_keyword "${@}" && ezb_function_print_help -f "${FUNCNAME[1]}" && return || return 1
+    # By default it will print the "help" when no argument is given
+    [[ "${1}" = "--run-with-no-argument" ]] && [[ -z "${2}" ]] && return 1
+    ezb_function_check_help_keyword "${@}" && ezb_function_print_help -f "${FUNCNAME[1]}" && return 0 || return 1
 }
 
 function ezb_arg_set() {

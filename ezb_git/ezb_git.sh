@@ -117,14 +117,13 @@ function ezb_git_commit_stats() {
 function ezb_git_file_stats() {
     if ezb_function_unregistered; then
         local valid_operations=("${EZB_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
-        ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-o" --long "--operation" --required --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
+        ezb_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
+        ezb_arg_set --short "-o" --long "--operation" --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
-    ezb_function_usage "${@}" && return
+    ezb_function_usage --run-with-no-argument "${@}" && return
     local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
-    [[ -z "${repo_path}" ]] && repo_path="."
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
@@ -148,3 +147,20 @@ function ezb_git_file_stats() {
         fi
     fi
 }
+
+function ezb_git_remove_file_from_history() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ezb_arg_set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local file_path && file_path="$(ezb_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ -z "${repo_path}" ]] && repo_path="."
+    git -C "${repo_path}" "filter-branch" -f --prune-empty --index-filter "git -C ${repo_path} rm -r --cached --ignore-unmatch ${file_path}" "HEAD"
+}
+
+
+
+
