@@ -158,6 +158,7 @@ function ezb_git_remove_file_from_history() {
     local file_path && file_path="$(ezb_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
+    ezb_log_info "Removing ${file_path}"
     git -C "${repo_path}" "filter-branch" -f --prune-empty --index-filter "git -C ${repo_path} rm -r --cached --ignore-unmatch ${file_path}" "HEAD"
 }
 
