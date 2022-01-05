@@ -1,5 +1,5 @@
 # Bash Tools for Linux and MacOS
-## Steps for installing ez_bash
+## Installation Steps
 #### 1. Clone this project
 ```bash
 git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
