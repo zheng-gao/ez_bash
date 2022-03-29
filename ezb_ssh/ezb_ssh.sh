@@ -6,6 +6,11 @@ ezb_dependency_check "ssh" "expect" "sed" "grep" "tail" "date" "cut" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_remote_host_run_local_script() {
+    local remote_host="${1}" local_script_path="${2}"
+    ssh -q "${USER}@${remote_host}" "bash -s" < "${local_script_path}"
+}
+
 function ezb_command_md5() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
