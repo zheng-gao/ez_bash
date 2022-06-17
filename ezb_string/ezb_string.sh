@@ -1,8 +1,3 @@
-function ezb_string_length() {
-    local input_string="${1}"
-    echo "${#input_string}"
-}
-
 function ezb_string_count_substring() {
     local input_string="${1}" substring="${2}"
     echo "${input_string}" | grep -o "${substring}" | wc -l | bc

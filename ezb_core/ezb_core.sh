@@ -161,6 +161,14 @@ function ezb_os_name() {
     fi
 }
 
+function ezb_list_size() {
+    echo "${#@}"
+}
+
+function ezb_string_size() {
+    echo "${#1}"
+}
+
 function ezb_to_lower() {
     tr "[:upper:]" "[:lower:]" <<< "${@}"
 }
