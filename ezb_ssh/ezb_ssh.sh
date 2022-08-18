@@ -12,11 +12,11 @@ function ezb_remote_host_run_local_script() {
 
 function ezb_remote_host_run_local_function() {
     local host="${1}" func="${2}" args=("${@:3}")
-    local script="/var/tmp/${func}.sh"
+    local script="${EZB_DIR_SCRIPTS}/${func}.sh"
     local args_str="$(ezb_double_quote "${args[@]}")"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ezb_remote_host_run_local_script "${host}" "${script}"
+    ssh -q "${USER}@${host}" "bash -s" < "${script}"
 }
 
 function ezb_command_md5() {
