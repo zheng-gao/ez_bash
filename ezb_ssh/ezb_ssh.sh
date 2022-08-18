@@ -16,7 +16,7 @@ function ezb_remote_host_run_local_function() {
     local args_str="$(ezb_double_quote "${args[@]}")"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ssh -q "${USER}@${host}" "bash -s" < "${script}"
+    ezb_remote_host_run_local_script "${host}" "${script}"
 }
 
 function ezb_command_md5() {
