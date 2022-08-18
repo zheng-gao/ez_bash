@@ -161,6 +161,14 @@ function ezb_os_name() {
     fi
 }
 
+function ezb_quote() {
+    local output=""; for item in "${@}"; do output="${output} '${item}'"; done; echo "${output}"
+}
+
+function ezb_double_quote() {
+    local output=""; for item in "${@}"; do output="${output} \"${item}\""; done; echo "${output}"
+}
+
 function ezb_list_size() {
     echo "${#@}"
 }

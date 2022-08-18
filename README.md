@@ -122,7 +122,7 @@ function ezb_test_string_arg_choices() {
         ezb_arg_set -s "-i" -l "--input" -r --choices "Cappuccino" "Espresso" "Latte" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local input; input=$(ezb_arg_get -s "-i" -l "--input" -a "${@}") || return 1
+    local input && input=$(ezb_arg_get -s "-i" -l "--input" -a "${@}") || return 1
     echo "input = \"${input}\""
 }
 
@@ -145,7 +145,7 @@ function ezb_test_password_arg() {
         ezb_arg_set -s "-p" -l "--password" -r -t "Password" -i "Admin password" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local password; password=$(ezb_arg_get -s "-p" -l "--password" -a "${@}") || return 1
+    local password && password=$(ezb_arg_get -s "-p" -l "--password" -a "${@}") || return 1
     echo "$(ezb_string_repeat --string "*" --count ${#password})"
     echo "password = \"${password}\""
 }
@@ -163,11 +163,11 @@ password = "my secret"
 ```bash
 function ezb_test_list_arg_default() {
     if ezb_function_unregistered; then
-        ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
+        ezb_arg_set -s "-l" -l "--list" -d "Def1" "Def2" "Def3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list; list=$(ezb_arg_get -s "-l" -l "--list" -a "${@}") || return 1
-    ezb_function_get_list "${list}"
+    local list && list=($(ezb_function_get_list "$(ezb_arg_get -s "-l" -l "--list" -a "${@}")")) || return 1
+    for item in ${list[@]}; do echo "${item}"; done
 }
 
 > ezb_test_list_arg_default --help
@@ -176,14 +176,14 @@ function ezb_test_list_arg_default() {
 -l       --list  List    False       None       Def 1, Def 2, Def 3  None       None
 
 > ezb_test_list_arg_default
-Def 1
-Def 2
-Def 3
+Def1
+Def2
+Def3
 
-> ezb_test_list_arg_default -l "Item 1" "Item 2" "Item 3"
-Item 1
-Item 2
-Item 3
+> ezb_test_list_arg_default -l "Item1" "Item2" "Item3"
+Item1
+Item2
+Item3
 ```
 ### --type "Flag"
 ```bash
@@ -192,7 +192,7 @@ function ezb_test_flag_arg() {
         ezb_arg_set --short "-f" --long "--flag" --type "Flag" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local flag; flag=$(ezb_arg_get --short "-f" --long "--flag" --arguments "${@}") || return 1
+    local flag && flag=$(ezb_arg_get --short "-f" --long "--flag" --arguments "${@}") || return 1
     echo "flag = ${flag}"
 }
 
