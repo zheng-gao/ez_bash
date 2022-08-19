@@ -80,8 +80,8 @@ function ezb_test_list_arg_default() {
         ezb_arg_set --short "-l" --long "--list" --default "Def 1" "Def 2" "Def 3" --type "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list && list="$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
-    ezb_function_get_list "${list}"
+    local list && ezb_function_get_list "list" "$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
+    local item; for item in "${list[@]}"; do echo "${item}"; done
 }
 ezb_test_list_arg_default
 ezb_test_list_arg_default -l "Item 1" "Item 2" "Item 3"
@@ -109,14 +109,15 @@ function ezb_test_core_function_1() {
     local title && title="$(ezb_arg_get --short "-t" --arguments "${@}")" &&
     local name && name="$(ezb_arg_get --short "-n" --long "--name" --arguments "${@}")" &&
     local gender && gender="$(ezb_arg_get --short "-g" --long "--gender" --arguments "${@}")" &&
-    local pets && pets="$(ezb_arg_get --short "-p" --long "--pets" --arguments "${@}")" &&
+    local pets && ezb_function_get_list "pets" "$(ezb_arg_get --short "-p" --long "--pets" --arguments "${@}")" &&
     local happy && happy="$(ezb_arg_get --short "-h" --long "--happy" --arguments "${@}")" || return 1
     echo "Title = ${title}"
     echo "Name = ${name}"
     echo "Gender = ${gender}"
     echo "Happy = ${happy}"
-    echo "Pets = "; tr "${EZB_CHAR_NON_SPACE_DELIMITER}" "\n" <<< "${pets}"
-    echo "Pets = "; ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${pets}"
+    echo "Pets: ["
+    local item; for item in "${pets[@]}"; do echo "${item},"; done
+    echo "]"
 }
 
 echo "[Test 1]"

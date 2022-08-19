@@ -163,11 +163,19 @@ function ezb_os_name() {
 }
 
 function ezb_quote() {
-    local output=""; for item in "${@}"; do output="${output} '${item}'"; done; echo "${output}"
+    local output item
+    for item in "${@}"; do
+        [[ -z "${output}" ]] && output="'${item}'" || output+=" '${item}'"
+    done
+    echo "${output}"
 }
 
 function ezb_double_quote() {
-    local output=""; for item in "${@}"; do output="${output} \"${item}\""; done; echo "${output}"
+    local output item
+    for item in "${@}"; do
+        [[ -z "${output}" ]] && output="\"${item}\"" || output+=" \"${item}\""
+    done
+    echo "${output}"
 }
 
 function ezb_list_size() {
@@ -202,27 +210,32 @@ function ezb_sort() {
 
 function ezb_join() {
     # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-    local delimiter="${1}"; local i=0; local out_put=""; local data=""
+    local delimiter="${1}" i=0 out_put="" data=""
     for data in "${@:2}"; do [ "${i}" -eq 0 ] && out_put="${data}" || out_put+="${delimiter}${data}"; ((++i)); done
     echo "${out_put}"
 }
 
 function ezb_split() {
-    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
-    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
-    local item=""; local tmp=""; local k=0
+    # ${1} = list reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
+    local -n ezb_split_arg_reference="${1}"
+    local delimiter="${2}" string="${@:3}" item="" tmp="" k=0
+    local d_length="${#delimiter}" s_length="${#string}"
+    ezb_split_arg_reference=()
     while [[ "${k}" -lt "${s_length}" ]]; do
         tmp="${string:k:${d_length}}"
-        if [[ "${tmp}" = "${delimiter}" ]]; then [[ -n "${item}" ]] && echo "${item}"; item=""; ((k+=d_length))
-        else item+="${string:k:1}"; ((++k)); fi
-        [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && echo "${item}"
+        if [[ "${tmp}" = "${delimiter}" ]]; then
+            [[ -n "${item}" ]] && ezb_split_arg_reference+=("${item}"); item=""; ((k+=d_length))
+        else
+            item+="${string:k:1}"; ((++k))
+        fi
+        [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && ezb_split_arg_reference+=("${item}")
     done
 }
 
 function ezb_count_items() {
     # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
-    local delimiter="${1}"; local string="${@:2}"; local d_length="${#delimiter}"; local s_length="${#string}"
-    local k=0; local count=0
+    local delimiter="${1}" string="${@:2}" k=0 count=0
+    local d_length="${#delimiter}" s_length="${#string}"
     while [[ "${k}" -lt "${s_length}" ]]; do
         if [[ "${string:k:${d_length}}" = "${delimiter}" ]]; then ((++count)) && ((k += d_length)); else ((++k)); fi
     done
@@ -230,7 +243,7 @@ function ezb_count_items() {
 }
 
 function ezb_log_stack() {
-    local ignore_top_x="${1}"; local stack=""; local i=$((${#FUNCNAME[@]} - 1))
+    local ignore_top_x="${1}" stack="" i=$((${#FUNCNAME[@]} - 1))
     if [[ -n "${ignore_top_x}" ]]; then
         for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
     else
@@ -292,12 +305,12 @@ function ezb_now() {
     [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
 }
 
-function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
-}
-
 function ezb_log_info() {
     echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
+}
+
+function ezb_log_error() {
+    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
 }
 
 function ezb_log_warning() {
@@ -305,9 +318,6 @@ function ezb_log_warning() {
 }
 
 function ezb_print_usage() {
-    # local tab_size=30
-    # tabs "${tab_size}" && (>&2 printf "${1}\n") && tabs
-    # column delimiter = "#"
     echo; printf "${1}\n" | column -s "#" -t; echo
 }
 
@@ -438,7 +448,8 @@ function ezb_function_get_long_arguments() {
 }
 
 function ezb_function_get_list() {
-    ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${@}"
+    local -n ezb_function_get_list_arg_reference="${1}"
+    ezb_split "ezb_function_get_list_arg_reference" "${EZB_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
 }
 
 function ezb_function_unregistered() {

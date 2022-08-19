@@ -50,10 +50,9 @@ function ezb_file_delete_lines() {
     fi
     ezb_function_usage "${@}" && return
     local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
-    local keywords && keywords="$(ezb_arg_get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
+    local keywords && ezb_function_get_list "keywords" "$(ezb_arg_get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_list=($(ezb_function_get_list "${keywords}"))
-        local exclude_string=$(ezb_join "\|" "${exclude_list[@]}")
+        local exclude_string=$(ezb_join "\|" "${keywords[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
         rm "${path}.bak"

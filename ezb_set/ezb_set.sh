@@ -7,11 +7,11 @@ function ezb_set_operation() {
     fi
     ezb_function_usage "${@}" && return
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
-    local left && left="$(ezb_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
-    local right && right="$(ezb_arg_get --short "-r" --long "--right" --arguments "${@}")" || return 1
+    local left && ezb_function_get_list "left" "$(ezb_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
+    local right && ezb_function_get_list "right" "$(ezb_arg_get --short "-r" --long "--right" --arguments "${@}")" || return 1
     declare -A left_set; declare -A right_set; local item=""
-    for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${left}"); do left_set["${item}"]=0; done
-    for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${right}"); do right_set["${item}"]=0; done
+    for item in "${left[@]}"; do left_set["${item}"]=0; done
+    for item in "${right[@]}"; do right_set["${item}"]=0; done
     if [[ "${operation}" = "Intersection" ]]; then
         for item in "${!left_set[@]}"; do [[ ${right_set["${item}"]+_} ]] && echo "${item}"; done
     elif [[ "${operation}" = "Union" ]]; then
@@ -28,19 +28,19 @@ function ezb_set_operation() {
 
 function ezb_set_contains() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-l" --long "--large" --type "List" --info "Large Set: Item_l1 Item_l2 ..." &&
-        ezb_arg_set --short "-s" --long "--small" --type "List" --info "Small Set: Item_s1 Item_s2 ..." &&
+        ezb_arg_set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
+        ezb_arg_set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
         ezb_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local large && large="$(ezb_arg_get --short "-l" --long "--large" --arguments "${@}")" &&
-    local small && small="$(ezb_arg_get --short "-s" --long "--small" --arguments "${@}")" &&
+    local superset && ezb_function_get_list "superset" "$(ezb_arg_get --short "-sp" --long "--superset" --arguments "${@}")" &&
+    local subset && ezb_function_get_list "subset" "$(ezb_arg_get --short "-sb" --long "--subset" --arguments "${@}")" &&
     local verbose && verbose="$(ezb_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
-    declare -A large_set; declare -A small_set; local item=""
-    for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${large}"); do large_set["${item}"]=0; done
-    for item in $(ezb_split "${EZB_CHAR_NON_SPACE_DELIMITER}" "${small}"); do small_set["${item}"]=0; done
-    for item in "${!small_set[@]}"; do
-        if [[ ! ${large_set["${item}"]+_} ]]; then
+    declare -A sp_set; declare -A sb_set; local item=""
+    for item in "${superset[@]}"; do sp_set["${item}"]=0; done
+    for item in "${subset[@]}"; do sb_set["${item}"]=0; done
+    for item in "${!sb_set[@]}"; do
+        if [[ ! ${sp_set["${item}"]+_} ]]; then
             [[ "${verbose}" = "${EZB_BOOL_TRUE}" ]] && echo "${EZB_BOOL_FALSE}"; return 1
         fi
     done
