@@ -7,8 +7,7 @@ ezb_dependency_check "date" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ezb_clock() {
-    ezb_time_now; sleep 1;
-    while true; do ezb_clear -l 1; ezb_now; sleep 1; done
+    ezb_time_now; sleep 1; while true; do ezb_clear -l 1; ezb_time_now; sleep 1; done
 }
 
 function ezb_time_from_epoch_seconds() {

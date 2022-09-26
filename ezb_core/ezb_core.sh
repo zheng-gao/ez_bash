@@ -301,20 +301,24 @@ function ezb_format_string() {
     fi
 }
 
-function ezb_now() {
-    [[ -z "${1}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${1}"
+function ezb_time_now() {
+    local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${format}"
+}
+
+function ezb_time_today() {
+    local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d" || date "${format}"
 }
 
 function ezb_log_info() {
-    echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
+    echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
 }
 
 function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
+    (>&2 echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
 }
 
 function ezb_log_warning() {
-    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundYellow WARNING)] ${@}"
+    echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundYellow WARNING)] ${@}"
 }
 
 function ezb_print_usage() {
@@ -421,9 +425,9 @@ function ezb_log() {
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
         if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
-            (>&2 echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}")
+            (>&2 echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}")
         else
-            echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
+            echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
@@ -432,7 +436,7 @@ function ezb_log() {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
+        echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
     fi
 }
 
