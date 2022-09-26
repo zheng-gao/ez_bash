@@ -21,7 +21,7 @@ function ezb_time_from_epoch_seconds() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then date -r "${epoch}" "${format}"
     elif [[ "${os}" = "linux" ]]; then date "${format}" -d "@${epoch}"
-    else ezb_log_error "Bad ${os}" && return 2
+    else ezb_log_error "Unsupported ${os}" && return 2
     fi
 }
 
@@ -38,8 +38,35 @@ function ezb_time_to_epoch_seconds() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then date -j -f "%Y-%m-%d %H:%M:%S" "${date} ${time}" "+%s"
     elif [[ "${os}" = "linux" ]]; then date -d "${date} ${time}" "+%s"
-    else ezb_log_error "Bad ${os}" && return 2
+    else ezb_log_error "Unsupported ${os}" && return 2
     fi
+}
+
+function ezb_time_calculation() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-b" --long "--base" --required --info "Base Timestamp" &&
+        ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" &&
+        ezb_arg_set --short "-t" --long "--type" --required --default "seconds" --choices "weeks" "days" "hours" "minutes" "seconds" --info "Time Diff Type" &&
+        ezb_arg_set --short "-v" --long "--value" --required --default "0" --info "Time Diff Value" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local base && base="$(ezb_arg_get --short "-b" --long "--base" --arguments "${@}")" &&
+    local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" &&
+    local type && type="$(ezb_arg_get --short "-t" --long "--type" --arguments "${@}")" &&
+    local value && value="$(ezb_arg_get --short "-v" --long "--value" --arguments "${@}")" || return 1
+    local os=$(ezb_os_name) epoch_seconds offset_base
+    if [[ "${os}" = "macos" ]]; then epoch_seconds=$(date -j -f "${format}" "${base}" "+%s")
+    elif [[ "${os}" = "linux" ]]; then epoch_seconds=$(date -d "${base}" "+%s")
+    else ezb_log_error "Unsupported ${os}" && return 2
+    fi
+    if [[ "${type}" == "seconds" ]]; then offset_base=1
+    elif [[ "${type}" == "minutes" ]]; then offset_base=60
+    elif [[ "${type}" == "hours" ]]; then offset_base=3600
+    elif [[ "${type}" == "days" ]]; then offset_base=86400
+    elif [[ "${type}" == "weeks" ]]; then offset_base=604800
+    fi
+    ((epoch_seconds+=offset_base*value))
+    ezb_time_from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
 }
 
 function ezb_time_seconds_to_readable() {
