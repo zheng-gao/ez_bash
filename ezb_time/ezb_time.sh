@@ -27,45 +27,41 @@ function ezb_time_from_epoch_seconds() {
 
 function ezb_time_to_epoch_seconds() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-d" --long "--date" --required --default "Today" --info "YYYY-MM-DD" &&
-        ezb_arg_set --short "-t" --long "--time" --required --default "Now" --info "HH:mm:SS" || return 1
+        ezb_arg_set --short "-t" --long "--timestamp" --required --info "Timestamp" &&
+        ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
-    [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local date && date="$(ezb_arg_get --short "-d" --long "--date" --arguments "${@}")" &&
-    local time && time="$(ezb_arg_get --short "-t" --long "--time" --arguments "${@}")" || return 1
-    [[ "${date}" = "Today" ]] && date=$(date "+%F")
-    [[ "${time}" = "Now" ]] && time=$(date "+%H:%M:%S")
+    ezb_function_usage "${@}" && return
+    local timestamp && timestamp="$(ezb_arg_get --short "-t" --long "--timestamp" --arguments "${@}")" &&
+    local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local os=$(ezb_os_name)
-    if [[ "${os}" = "macos" ]]; then date -j -f "%Y-%m-%d %H:%M:%S" "${date} ${time}" "+%s"
-    elif [[ "${os}" = "linux" ]]; then date -d "${date} ${time}" "+%s"
+    if [[ "${os}" = "macos" ]]; then date -j -f "${format}" "${timestamp}" "+%s"
+    elif [[ "${os}" = "linux" ]]; then date -d "${timestamp}" "+%s"
     else ezb_log_error "Unsupported ${os}" && return 2
     fi
 }
 
-function ezb_time_calculation() {
+function ezb_time_offset() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-b" --long "--base" --required --info "Base Timestamp" &&
+        ezb_arg_set --short "-t" --long "--timestamp" --required --info "Base Timestamp" &&
         ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" &&
-        ezb_arg_set --short "-t" --long "--type" --required --default "seconds" --choices "weeks" "days" "hours" "minutes" "seconds" --info "Time Diff Type" &&
-        ezb_arg_set --short "-v" --long "--value" --required --default "0" --info "Time Diff Value" || return 1
+        ezb_arg_set --short "-u" --long "--unit" --required --default "seconds" --choices "seconds" "minutes" "hours" "days" "weeks" --info "Offset Unit" &&
+        ezb_arg_set --short "-o" --long "--offset" --required --default "0" --info "Offset Value" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local base && base="$(ezb_arg_get --short "-b" --long "--base" --arguments "${@}")" &&
+    local timestamp && timestamp="$(ezb_arg_get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" &&
-    local type && type="$(ezb_arg_get --short "-t" --long "--type" --arguments "${@}")" &&
-    local value && value="$(ezb_arg_get --short "-v" --long "--value" --arguments "${@}")" || return 1
-    local os=$(ezb_os_name) epoch_seconds offset_base
-    if [[ "${os}" = "macos" ]]; then epoch_seconds=$(date -j -f "${format}" "${base}" "+%s")
-    elif [[ "${os}" = "linux" ]]; then epoch_seconds=$(date -d "${base}" "+%s")
-    else ezb_log_error "Unsupported ${os}" && return 2
-    fi
-    if [[ "${type}" == "seconds" ]]; then offset_base=1
-    elif [[ "${type}" == "minutes" ]]; then offset_base=60
-    elif [[ "${type}" == "hours" ]]; then offset_base=3600
-    elif [[ "${type}" == "days" ]]; then offset_base=86400
-    elif [[ "${type}" == "weeks" ]]; then offset_base=604800
-    fi
-    ((epoch_seconds+=offset_base*value))
+    local unit && unit="$(ezb_arg_get --short "-u" --long "--unit" --arguments "${@}")" &&
+    local offset && offset="$(ezb_arg_get --short "-o" --long "--offset" --arguments "${@}")" || return 1
+    local unit_value=0 epoch_seconds=$(ezb_time_to_epoch_seconds --timestamp "${timestamp}" --format "${format}")
+    case "${unit}" in
+        "seconds") unit_value=1 ;;
+        "minutes") unit_value=60 ;;
+          "hours") unit_value=3600 ;;
+           "days") unit_value=86400 ;;
+          "weeks") unit_value=604800 ;;
+                *) unit_value=0 ;;
+    esac
+    ((epoch_seconds += unit_value * offset))
     ezb_time_from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
 }
 
@@ -94,7 +90,7 @@ function ezb_time_seconds_to_readable() {
     echo "${output_string}"
 }
 
-function ezb_time_elapsed() {
+function ezb_time_elapsed_epoch() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
         ezb_arg_set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
@@ -102,7 +98,25 @@ function ezb_time_elapsed() {
     ezb_function_usage "${@}" && return
     local start && start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ezb_arg_get --short "-e" --long "--end" --arguments "${@}")" || return 1
-    [[ "${start}" -gt "${end}" ]] && ezb_log_error "Start Time \"${start}\" Cannot Be Greater Than End Time \"${end}\"" && return 1
+    [[ "${start}" -gt "${end}" ]] && ezb_log_error "Start time \"${start}\" is greater than end time \"${end}\"" && return 1
     ezb_time_seconds_to_readable -s "$((end - start))"
 }
+
+function ezb_time_elapsed() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-s" --long "--start" --required --info "Start Timestamp" &&
+        ezb_arg_set --short "-e" --long "--end" --required --info "End Timestamp" &&
+        ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local start && start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
+    local end && end="$(ezb_arg_get --short "-e" --long "--end" --arguments "${@}")" &&
+    local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
+    local start_epoch_seconds=$(ezb_time_to_epoch_seconds --timestamp "${start}" --format "${format}")
+    local end_epoch_seconds=$(ezb_time_to_epoch_seconds --timestamp "${end}" --format "${format}")
+    [[ "${start_epoch_seconds}" -gt "${end_epoch_seconds}" ]] && ezb_log_error "Start time \"${start}\" is greater than end time \"${end}\"" && return 1
+    ezb_time_seconds_to_readable -s "$((end_epoch_seconds - start_epoch_seconds))"
+}
+
+
 
