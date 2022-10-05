@@ -224,11 +224,11 @@ function ezb_split() {
     while [[ "${k}" -lt "${s_length}" ]]; do
         tmp="${string:k:${d_length}}"
         if [[ "${tmp}" = "${delimiter}" ]]; then
-            [[ -n "${item}" ]] && ezb_split_arg_reference+=("${item}"); item=""; ((k+=d_length))
+            ezb_split_arg_reference+=("${item}"); item=""; ((k+=d_length))
         else
             item+="${string:k:1}"; ((++k))
         fi
-        [[ "${k}" -ge "${s_length}" ]] && [[ -n "${item}" ]] && ezb_split_arg_reference+=("${item}")
+        [[ "${k}" -ge "${s_length}" ]] && ezb_split_arg_reference+=("${item}")
     done
 }
 

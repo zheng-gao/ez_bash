@@ -11,13 +11,16 @@ EZB_MATH_SCALE=6
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_math() {
-	# bc scale does not work for mode %
+function ezb_arithmetic() {
+    # bc scale does not work for mode %
     bc <<< "scale=${EZB_MATH_SCALE}; ${@}"
 }
 
 function ezb_floor() {
-    cut -d "." -f "1" <<< "${1}"
+    local parts; ezb_split "parts" "." "${1}"
+    local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
+    [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" = "-" ]] && ((--result))
+    echo "${result}"
 }
 
 function ezb_ceiling() {

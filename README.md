@@ -23,4 +23,5 @@ source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```
 # Contents
 * [Core](ezb_core/ezb_core.md)
+* [Core](ezb_core/ezb_math.md)
 * [Time](ezb_time/ezb_time.md)
