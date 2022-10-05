@@ -67,27 +67,27 @@ function ezb_time_offset() {
 
 function ezb_time_seconds_to_readable() {
     if ezb_function_unregistered; then
-        local output_formats=("Mini" "Short" "Long")
+        local output_formats=("Short" "Long")
         ezb_arg_set --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
-        ezb_arg_set --short "-f" --long "--format" --required --default "Mini" --choices "${output_formats[@]}" || return 1
+        ezb_arg_set --short "-f" --long "--format" --required --default "Short" --choices "${output_formats[@]}" || return 1
     fi
     ezb_function_usage "${@}" && return
     local seconds && seconds="$(ezb_arg_get --short "-s" --long "--seconds" --arguments "${@}")" &&
     local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
+    local output=""
+    if [[ "${seconds}" -lt 0 ]]; then
+        seconds="${seconds:1}"
+        output="-"
+    fi
     local days=$((seconds / 86400))
     local hours=$((seconds / 3600 % 24))
     local minutes=$((seconds / 60 % 60))
     local seconds=$((seconds % 60))
-    local output_string=""
-    if [[ "${format}" = "Mini" ]]; then
-        if [ ${days} -gt 0 ]; then output_string+="${days}d"; fi
-        if [ ${hours} -gt 0 ]; then output_string+="${hours}h"; fi
-        if [ ${minutes} -gt 0 ]; then output_string+="${minutes}m"; fi
-        if [ ${seconds} -ge 0 ]; then output_string+="${seconds}s"; fi
-    elif [[ "${format}" = "Short" ]]; then output_string="${days} D ${hours} H ${minutes} M ${seconds} S"
-    elif [[ "${format}" = "Long" ]]; then output_string="${days} Days ${hours} Hours ${minutes} Minutes ${seconds} Seconds"
-    fi
-    echo "${output_string}"
+    if [ ${days} -gt 0 ]; then [[ "${format}" = "Short" ]] && output+="${days}d" || output+="${days} Days "; fi
+    if [ ${hours} -gt 0 ]; then [[ "${format}" = "Short" ]] && output+="${hours}h" || output+="${hours} Hours "; fi
+    if [ ${minutes} -gt 0 ]; then [[ "${format}" = "Short" ]] && output+="${minutes}m" || output+="${minutes} Minutes "; fi
+    if [ ${seconds} -ge 0 ]; then [[ "${format}" = "Short" ]] && output+="${seconds}s" || output+="${seconds} Seconds"; fi
+    echo "${output}"
 }
 
 function ezb_time_elapsed_epoch() {
@@ -98,8 +98,7 @@ function ezb_time_elapsed_epoch() {
     ezb_function_usage "${@}" && return
     local start && start="$(ezb_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ezb_arg_get --short "-e" --long "--end" --arguments "${@}")" || return 1
-    [[ "${start}" -gt "${end}" ]] && ezb_log_error "Start time \"${start}\" is greater than end time \"${end}\"" && return 1
-    ezb_time_seconds_to_readable -s "$((end - start))"
+    ezb_time_seconds_to_readable --seconds "$((end - start))"
 }
 
 function ezb_time_elapsed() {
@@ -114,8 +113,7 @@ function ezb_time_elapsed() {
     local format && format="$(ezb_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local start_epoch_seconds=$(ezb_time_to_epoch_seconds --timestamp "${start}" --format "${format}")
     local end_epoch_seconds=$(ezb_time_to_epoch_seconds --timestamp "${end}" --format "${format}")
-    [[ "${start_epoch_seconds}" -gt "${end_epoch_seconds}" ]] && ezb_log_error "Start time \"${start}\" is greater than end time \"${end}\"" && return 1
-    ezb_time_seconds_to_readable -s "$((end_epoch_seconds - start_epoch_seconds))"
+    ezb_time_seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))"
 }
 
 

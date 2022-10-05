@@ -2,6 +2,8 @@
 ```shell
 $ ezb_time_elapsed --start "2022-09-27 01:20:35" --end "2022-09-27 03:40:45"
 2h20m10s
+$ ezb_time_elapsed --start "2022-09-28 01:20:35" --end "2022-09-27 03:40:45"
+-21h39m50s
 
 $ format="%m/%d/%Y %H:%M:%S"
 $ start=$(date "+${format}"); sleep 90; end=$(date "+${format}")
