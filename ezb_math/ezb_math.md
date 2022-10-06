@@ -22,19 +22,22 @@ Number  Floor  Ceiling
 
 ### ezb_min & ezb_max
 ```shell
-$ data=(3 5 1 0 2 0 3); echo "min: $(ezb_min ${data[@]}), max: $(ezb_max ${data[@]})"
+$ data=(3 5 1 0 2 0 3)
+$ echo "min: $(ezb_min ${data[@]}), max: $(ezb_max ${data[@]})"
 min: 0, max: 5
 ```
 
 ### ezb_sum & ezb_average
 ```shell
-$ data=(3 5 1 0 2 0 3); echo "sum: $(ezb_sum ${data[@]}), average: $(ezb_average -d ${data[@]} -s 2)"
+$ data=(3 5 1 0 2 0 3)
+$ echo "sum: $(ezb_sum ${data[@]}), average: $(ezb_average -d ${data[@]} -s 2)"
 sum: 14, average: 2.00
 ```
 
 ### ezb_variance & ezb_std_deviation
 ```shell
-$ data=(3 5 1 0 2 0 3); echo "variance: $(ezb_variance -d ${data[@]}), std_deviation: $(ezb_std_deviation -d ${data[@]})"
+$ data=(3 5 1 0 2 0 3)
+$ echo "variance: $(ezb_variance -d ${data[@]}), std_deviation: $(ezb_std_deviation -d ${data[@]})"
 variance: 3.333333, std_deviation: 1.825741
 ```
 
