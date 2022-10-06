@@ -50,6 +50,7 @@ else
     elif [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
         all_ezb_libraries=(
+            "ezb_algorithm"
             "ezb_file"
             "ezb_math"
             "ezb_set"

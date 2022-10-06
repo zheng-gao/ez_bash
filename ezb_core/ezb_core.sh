@@ -204,10 +204,6 @@ function ezb_excludes() {
     local data; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
 }
 
-function ezb_sort() {
-    local data; { for data in "${@}"; do echo "${data}"; done; } | sort
-}
-
 function ezb_join() {
     # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
     local delimiter="${1}" i=0 out_put="" data=""

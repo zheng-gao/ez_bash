@@ -4,16 +4,24 @@
 ezb_dependency_check "bc" || return 1
 
 ###################################################################################################
-# -------------------------------------- Global Variables --------------------------------------- #
-###################################################################################################
-EZB_MATH_SCALE=6
-
-###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_arithmetic() {
+function ezb_calculate() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-e" --long "--expression" --required &&
+        ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local expression && expression="$(ezb_arg_get --short "-e" --long "--expression" --arguments "${@}")" &&
+    local scale && scale="$(ezb_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     # bc scale does not work for mode %
-    bc <<< "scale=${EZB_MATH_SCALE}; ${@}"
+    local result=$(bc -l <<< "scale=${scale}; ${expression}")
+    if [[ "${result:0:1}" = "." ]]; then
+        result="0${result}"
+    elif [[ "${result:0:2}" = "-." ]]; then
+        result="-0${result:1}"
+    fi
+    echo "${result}"
 }
 
 function ezb_floor() {
