@@ -6,32 +6,38 @@ ezb_dependency_check "ssh" "expect" "sed" "grep" "tail" "date" "cut" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_remote_host_run_local_script() {
+function ezb_mssh_run_local_script() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-h" --long "--host" --required --info "The remote host name" &&
+        ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
         ezb_arg_set --short "-s" --long "--script" --required --info "The local script path" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local host && host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
+    local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local script && script="$(ezb_arg_get --short "-s" --long "--script" --arguments "${@}")" || return 1
-    ssh -q "${USER}@${host}" "bash -s" < "${script}"
+    local ezb_ssh_run_local_script_host_list; ezb_function_get_list "ezb_ssh_run_local_script_host_list" "${hosts}"
+    local host
+    for host in "${ezb_ssh_run_local_script_host_list[@]}"; do
+        echo; echo "[${host}]"
+        ssh -q "${USER}@${host}" "bash -s" < "${script}"
+    done
+    echo
 }
 
-function ezb_remote_host_run_local_function() {
+function ezb_mssh_run_local_function() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-h" --long "--host" --required --info "The remote host name" &&
+        ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
         ezb_arg_set --short "-f" --long "--function" --required --info "The local function name" &&
         ezb_arg_set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
     fi
     ezb_function_usage "${@}" && return
-    local host && host="$(ezb_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
+    local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local func && func="$(ezb_arg_get --short "-f" --long "--function" --arguments "${@}")" &&
     local args && ezb_function_get_list "args" "$(ezb_arg_get -s "-a" -l "--arguments" --arguments "${@}")" || return 1
     local script="${EZB_DIR_SCRIPTS}/${func}.sh"
     local args_str="$(ezb_double_quote "${args[@]}")"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ezb_remote_host_run_local_script --host "${host}" --script "${script}"
+    ezb_mssh_run_local_script --hosts "${hosts[@]}" --script "${script}"
 }
 
 function ezb_command_md5() {
