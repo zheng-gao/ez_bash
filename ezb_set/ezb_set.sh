@@ -9,7 +9,7 @@ function ezb_set_operation() {
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
     local left && ezb_function_get_list "left" "$(ezb_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
     local right && ezb_function_get_list "right" "$(ezb_arg_get --short "-r" --long "--right" --arguments "${@}")" || return 1
-    declare -A left_set; declare -A right_set; local item=""
+    declare -A left_set; declare -A right_set; local item
     for item in "${left[@]}"; do left_set["${item}"]=0; done
     for item in "${right[@]}"; do right_set["${item}"]=0; done
     if [[ "${operation}" = "Intersection" ]]; then
@@ -36,7 +36,7 @@ function ezb_set_contains() {
     local superset && ezb_function_get_list "superset" "$(ezb_arg_get --short "-sp" --long "--superset" --arguments "${@}")" &&
     local subset && ezb_function_get_list "subset" "$(ezb_arg_get --short "-sb" --long "--subset" --arguments "${@}")" &&
     local verbose && verbose="$(ezb_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
-    declare -A sp_set; declare -A sb_set; local item=""
+    declare -A sp_set; declare -A sb_set; local item
     for item in "${superset[@]}"; do sp_set["${item}"]=0; done
     for item in "${subset[@]}"; do sb_set["${item}"]=0; done
     for item in "${!sb_set[@]}"; do

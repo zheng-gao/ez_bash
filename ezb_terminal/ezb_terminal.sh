@@ -147,10 +147,8 @@ function ezb_print_progress() {
 }
 
 function ezb_print_list_with_progress_bar() {
-    local out=""; local i=0; local data=""
-    for data in ${@}; do
-        out+="${data} "
-        ((++i))
+    local out i=0 data; for data in ${@}; do
+        out+="${data} "; ((++i))
         ezb_print_progress -p -c "${i}" -t "${#}" -d1 0 -dx 2
         echo "${out}"
     done

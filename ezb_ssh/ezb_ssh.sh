@@ -15,12 +15,9 @@ function ezb_mssh_local_script() {
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local script && script="$(ezb_arg_get --short "-s" --long "--script" --arguments "${@}")" || return 1
     local ezb_mssh_local_script_host_list; ezb_function_get_list "ezb_mssh_local_script_host_list" "${hosts}"
-    local host
-    for host in "${ezb_mssh_local_script_host_list[@]}"; do
-        echo; echo "[${host}]"
-        ssh -q "${USER}@${host}" "bash -s" < "${script}"
+    local host; for host in "${ezb_mssh_local_script_host_list[@]}"; do
+        echo "[${host}]"; ssh -q "${USER}@${host}" "bash -s" < "${script}"
     done
-    echo
 }
 
 function ezb_mssh_local_function() {
@@ -150,7 +147,7 @@ function ezb_mssh_sudo_cmd() {
     local failure_count=0; results["Failure"]=""
     local output=""; local md5_string=""
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
-    local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
+    local host; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         ezb_ssh_sudo_cmd --host "${host}" --user "${user}" --command "${command}" --password "${password}" \
                         --timeout "${timeout}" --prompt "${prompt}" --output "${output}"
@@ -168,8 +165,8 @@ function ezb_mssh_sudo_cmd() {
         fi
     done
     ezb_banner -m "Command Output"
-    local host_count=0; local host=""; local key=""
-    for key in "${!results[@]}"; do
+    local host_count=0 host=""
+    local key; for key in "${!results[@]}"; do
         if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
             host_count=$(tr "," " " <<< "${results[${key}]}" | wc -w | bc)
             host=$(cut -d "," -f 1 <<< "${results[${key}]}")
@@ -211,7 +208,7 @@ function ezb_mssh_cmd() {
     local cmd_timeout=$(ezb_command_timeout); local cmd_md5=$(ezb_command_md5)
     local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
     local data_dir="${EZB_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
-    local host=""; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
+    local host; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
         output="${data_dir}/${host}"
         if [[ -z "${user}" ]] || [[ "${user}" = "${USER}" ]]; then destination="${host}"; else destination="${user}@${host}"; fi
         is_successful=${EZB_BOOL_FALSE}
@@ -239,8 +236,8 @@ function ezb_mssh_cmd() {
         fi
     done
     ezb_banner -m "Command Output"
-    local host_count=0; local host=""; local key=""
-    for key in "${!results[@]}"; do
+    local host_count=0; local host=""
+    local key; for key in "${!results[@]}"; do
         if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
             host_count=$(echo "${results[${key}]}" | tr "," " " | wc -w | bc)
             host=$(echo "${results[${key}]}" | cut -d "," -f 1)

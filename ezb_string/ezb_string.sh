@@ -12,7 +12,7 @@ function ezb_string_repeat() {
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
     local count && count="$(ezb_arg_get --short "-c" --long "--count" --arguments "${@}")" || return 1
     [[ "${count}" -lt 0 ]] && ezb_log_error "Invalid Count \"${count}\"" && return 1
-    local line=""; local index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
+    local line index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
 }
 
 function ezb_string_trim() {

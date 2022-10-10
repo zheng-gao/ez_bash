@@ -1,7 +1,6 @@
 function ezb_min() {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
-    local min=2147483647; local data=""
-    for data in "${@}"; do
+    local min=2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi
     done
     echo "${min}"
@@ -9,8 +8,7 @@ function ezb_min() {
 
 function ezb_max() {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
-    local max=-2147483647; local data=""
-    for data in "${@}"; do
+    local max=-2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi
     done
     echo "${max}"
@@ -18,8 +16,7 @@ function ezb_max() {
 
 function ezb_sum() {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
-    local sum=0; local data=""
-    for data in "${@}"; do
+    local sum=0 data; for data in "${@}"; do
         sum=$(ezb_calculate --expression "${sum} + ${data}")
     done
     echo "${sum}"
@@ -49,8 +46,7 @@ function ezb_variance() {
     local ezb_variance_data_list; ezb_function_get_list "ezb_variance_data_list" "${data}"
     if [[ "${#ezb_variance_data_list[@]}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
     local average=$(ezb_average --data "${ezb_variance_data_list[@]}")
-    local variance=0; local data=""
-    for data in "${ezb_variance_data_list[@]}"; do
+    local variance=0 data; for data in "${ezb_variance_data_list[@]}"; do
         variance=$(ezb_calculate --expression "${variance} + (${data} - ${average}) ^ 2")
     done
     ezb_calculate --expression "${variance} / (${#ezb_variance_data_list[@]} - 1)" --scale "${scale}"

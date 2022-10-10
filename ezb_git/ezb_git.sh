@@ -63,7 +63,7 @@ function ezb_git_push_in_batches() {
     local remote && remote="$(ezb_arg_get --short "-r" --long "--remote" --arguments "${@}")" || return 1
     local branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
     local number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
-    local git_command=""; local git_tag=""
+    local git_command=""
 
     # git for-each-ref --format='delete %(refname)' refs/pull | git update-ref --stdin
 
@@ -72,13 +72,12 @@ function ezb_git_push_in_batches() {
     echo "[Turn Off Mirror] ${git_command}" && ${git_command}
     
     # Push Each Tag
-    for git_tag in $(git "tag" -l); do
+    local git_tag; for git_tag in $(git "tag" -l); do
         git_command="git push ${remote} refs/tags/${git_tag}"
         echo "[Push Tag] ${git_command}" && ${git_command}
     done
 
-    # local x_th_commit_before_head=0
-    # for x_th_commit_before_head in $(seq "${number_of_commits}" "-${batch_size}" "1"); do
+    # local x_th_commit_before_head=0; for x_th_commit_before_head in $(seq "${number_of_commits}" "-${batch_size}" "1"); do
     #     # Get the hash of the commit to push
     #     # local commit_hash=$(git log --first-parent --reverse --format=format:%H --skip "${x_th_commit_before_head}" -n1)
     #     # echo "[Pushing] git push ${remote} ${commit_hash}:refs/heads/${branch}"
@@ -137,7 +136,7 @@ function ezb_git_file_stats() {
             cat "${log_file}"
         elif [[ "${operation}" = "ExcludeHeadFiles" ]]; then
             declare -A file_hashes_in_head
-            local line=""; for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
+            local line; for line in $(git -C "${repo_path}" ls-tree -r HEAD | awk '{print $3}'); do
                 file_hashes_in_head["${line}"]="true"
             done
             while read -r line; do

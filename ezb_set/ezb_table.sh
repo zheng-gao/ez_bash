@@ -24,7 +24,7 @@ function ezb_table_print() {
         local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
         [[ -z "${file_content}" ]] && return 1
         if [[ "${row_delimiter}" = "\n" ]]; then
-            local line=""; for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
+            local line; for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
         else
             number_of_rows=$(ezb_count_items "${row_delimiter}" "${file_content}")
             IFS="${row_delimiter}" read -ra rows <<< "${file_content}"
