@@ -22,6 +22,8 @@ source "${EZ_BASH_HOME}/ez_bash.sh" "lib_1" "lib_2" ...
 source "${EZ_BASH_HOME}/ez_bash.sh" --all
 ```
 # Contents
-* [Function](ezb_core/ezb_function.md)
-* [Math](ezb_math/ezb_math.md)
-* [Time](ezb_time/ezb_time.md)
+* [Function](docs/ezb_function.md)
+* [Math](docs/ezb_math.md)
+* [Time](docs/ezb_time.md)
+* [SSH](docs/ezb_ssh.md)
+
