@@ -1,6 +1,8 @@
 ###################################################################################################
 # ------------------------------------ Independent Functions ------------------------------------ #
 ###################################################################################################
+function ezb_variables() { set | grep "^EZB_"; }
+function ezb_functions() { set | grep "^ezb_" | cut -d " " -f 1; }
 function ezb_to_lower() { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ezb_to_upper() { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
 function ezb_time_now() { local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${format}"; }

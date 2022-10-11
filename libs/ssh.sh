@@ -1,12 +1,12 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ezb_dependency_check "ssh" "expect" "sed" "grep" "tail" "date" "cut" || return 1
+ezb_dependency_check "ssh" "expect" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_mssh_local_script() {
+function ezb_ssh_local_script() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
@@ -30,7 +30,7 @@ function ezb_mssh_local_script() {
     done
 }
 
-function ezb_mssh_local_function() {
+function ezb_ssh_local_function() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
@@ -49,7 +49,7 @@ function ezb_mssh_local_function() {
     local script="${EZB_DIR_SCRIPTS}/${func}.sh"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ezb_mssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}"
+    ezb_ssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}"
 }
 
 function ezb_command_md5() {

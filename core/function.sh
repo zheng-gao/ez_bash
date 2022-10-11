@@ -75,15 +75,10 @@ function ezb_dependency_check() {
     done
 }
 
-# Check Dependencies
-ezb_dependency_check "column" "find" "grep" "sed" || return 1
-
 ###################################################################################################
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
-function ezb_print_usage() {
-    echo; printf "${1}\n" | column -s "#" -t; echo
-}
+function ezb_print_usage() { echo; printf "${1}\n" | column -s "#" -t; echo; }
 
 function ezb_build_usage() {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
