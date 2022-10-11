@@ -143,7 +143,8 @@ function ezb_test_list_arg_default() {
         ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list && ezb_function_get_list "list" "$(ezb_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
+    local list_arg && list_arg="$(ezb_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
+    local list; ezb_function_get_list "list" "${list_arg}"
     for item in "${list[@]}"; do echo "${item}"; done
 }
 

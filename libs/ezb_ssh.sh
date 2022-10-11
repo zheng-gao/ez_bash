@@ -9,32 +9,47 @@ ezb_dependency_check "ssh" "expect" "sed" "grep" "tail" "date" "cut" || return 1
 function ezb_mssh_local_script() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
+        ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ezb_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
         ezb_arg_set --short "-s" --long "--script" --required --info "The local script path" || return 1
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ezb_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
     local script && script="$(ezb_arg_get --short "-s" --long "--script" --arguments "${@}")" || return 1
-    local ezb_mssh_local_script_host_list; ezb_function_get_list "ezb_mssh_local_script_host_list" "${hosts}"
-    local host; for host in "${ezb_mssh_local_script_host_list[@]}"; do
-        echo "[${host}]"; ssh -q "${USER}@${host}" "bash -s" < "${script}"
+    local host_list; ezb_function_get_list "host_list" "${hosts}"
+    local host; for host in "${host_list[@]}"; do
+        echo "[${host}]"
+        if [[ -z "${key}" ]]; then
+            ssh -q "${user}@${host}" "bash -s" < "${script}"
+        else
+            ssh -i "${key}" -q "${user}@${host}" "bash -s" < "${script}"
+        fi
+        echo
     done
 }
 
 function ezb_mssh_local_function() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
+        ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ezb_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
         ezb_arg_set --short "-f" --long "--function" --required --info "The local function name" &&
         ezb_arg_set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
     fi
     ezb_function_usage "${@}" && return
     local hosts && hosts="$(ezb_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ezb_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ezb_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
     local func && func="$(ezb_arg_get --short "-f" --long "--function" --arguments "${@}")" &&
-    local args && ezb_function_get_list "args" "$(ezb_arg_get -s "-a" -l "--arguments" --arguments "${@}")" || return 1
+    local args && args="$(ezb_arg_get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
+    local arg_list; ezb_function_get_list "arg_list" "${args}"
+    local args_str="$(ezb_double_quote "${arg_list[@]}")"
     local script="${EZB_DIR_SCRIPTS}/${func}.sh"
-    local args_str="$(ezb_double_quote "${args[@]}")"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ezb_mssh_local_script --hosts "${hosts[@]}" --script "${script}"
+    ezb_mssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}"
 }
 
 function ezb_command_md5() {

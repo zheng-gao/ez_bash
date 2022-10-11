@@ -1,24 +1,18 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZB_LOGO="EZ-Bash"
-
 EZB_BOOL_TRUE="True"
 EZB_BOOL_FALSE="False"
-
 EZB_OPT_ALL="All"
 EZB_OPT_ANY="Any"
 EZB_OPT_NONE="None"
-
 EZB_CHAR_SHARP="EZB_SHARP"
 EZB_CHAR_SPACE="EZB_SPACE"
 EZB_CHAR_NON_SPACE_DELIMITER="#"
-
 EZB_DIR_WORKSPACE="/var/tmp/ezb_workspace"; mkdir -p "${EZB_DIR_WORKSPACE}"
 EZB_DIR_SCRIPTS="${EZB_DIR_WORKSPACE}/scripts"; mkdir -p "${EZB_DIR_SCRIPTS}"
 EZB_DIR_LOGS="${EZB_DIR_WORKSPACE}/logs"; mkdir -p "${EZB_DIR_LOGS}"
 EZB_DIR_DATA="${EZB_DIR_WORKSPACE}/data"; mkdir -p "${EZB_DIR_DATA}"
-
 EZB_DEFAULT_LOG="${EZB_DIR_LOGS}/ez_bash.log"
 
 EZB_FUNC_HELP="--help"
@@ -36,7 +30,7 @@ declare -g -A EZB_ARG_TYPE_SET=(
     ["Password"]="${EZB_BOOL_TRUE}"
 )
 unset EZB_FUNC_SET;                              declare -g -A EZB_FUNC_SET
-# Key Format: function
+# Key Format: function, Value Format: arg1#arg2#...
 unset EZB_FUNC_TO_S_ARG_MAP;                     declare -g -A EZB_FUNC_TO_S_ARG_MAP
 unset EZB_FUNC_TO_L_ARG_MAP;                     declare -g -A EZB_FUNC_TO_L_ARG_MAP
 # Key Format: function + "::" + long name
@@ -58,68 +52,6 @@ unset EZB_S_ARG_TO_INFO_MAP;                     declare -g -A EZB_S_ARG_TO_INFO
 unset EZB_S_ARG_TO_CHOICES_MAP;                  declare -g -A EZB_S_ARG_TO_CHOICES_MAP
 unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCLUDE_MAP
 
-# https://misc.flogisoft.com/bash/tip_colors_and_formatting
-unset EZB_FORMAT_SET
-declare -g -A EZB_FORMAT_SET=(
-# Formatting
-    # Set
-    ["Bold"]="\e[1m"
-    ["Dim"]="\e[2m"
-    ["Italic"]="\e[3m"
-    ["Underlined"]="\e[4m"
-    ["Blink"]="\e[5m"
-    ["Reverse"]="\e[7m" # invert the foreground and background colors
-    ["Hidden"]="\e[8m" # useful for passwords
-    # ["StrikeThrough"]="\e[9m"
-    # Reset
-    ["ResetAll"]="\e[0m"
-    ["ResetBold"]="\e[21m"
-    ["ResetDim"]="\e[22m"
-    ["ResetItalic"]="\e[23m"
-    ["ResetUnderlined"]="\e[24m"
-    ["ResetBlink"]="\e[25m"
-    ["ResetReverse"]="\e[27m"
-    ["ResetHidden"]="\e[28m"
-    # ["ResetStrikeThrough"]="\e[29m"
-# Colors
-    # Foreground
-    ["ForegroundDefault"]="\e[39m"
-    ["ForegroundBlack"]="\e[30m"
-    ["ForegroundRed"]="\e[31m"
-    ["ForegroundGreen"]="\e[32m"
-    ["ForegroundYellow"]="\e[33m"
-    ["ForegroundBlue"]="\e[34m"
-    ["ForegroundMagenta"]="\e[35m"
-    ["ForegroundCyan"]="\e[36m"
-    ["ForegroundLightGray"]="\e[37m"
-    ["ForegroundDarkGray"]="\e[90m"
-    ["ForegroundLightRed"]="\e[91m"
-    ["ForegroundLightGreen"]="\e[92m"
-    ["ForegroundLightYellow"]="\e[93m"
-    ["ForegroundLightBlue"]="\e[94m"
-    ["ForegroundLightMagenta"]="\e[95m"
-    ["ForegroundLightCyan"]="\e[96m"
-    ["ForegroundWhite"]="\e[97m"
-    # Background
-    ["BackgroundDefault"]="\e[49m"
-    ["BackgroundBlack"]="\e[40m"
-    ["BackgroundRed"]="\e[41m"
-    ["BackgroundGreen"]="\e[42m"
-    ["BackgroundYellow"]="\e[43m"
-    ["BackgroundBlue"]="\e[44m"
-    ["BackgroundMagenta"]="\e[45m"
-    ["BackgroundCyan"]="\e[46m"
-    ["BackgroundLightGray"]="\e[47m"
-    ["BackgroundDarkGray"]="\e[100m"
-    ["BackgroundLightRed"]="\e[101m"
-    ["BackgroundLightGreen"]="\e[102m"
-    ["BackgroundLightYellow"]="\e[103m"
-    ["BackgroundLightBlue"]="\e[104m"
-    ["BackgroundLightMagenta"]="\e[105m"
-    ["BackgroundLightCyan"]="\e[106m"
-    ["BackgroundWhite"]="\e[107m"
-)
-
 ###################################################################################################
 # ------------------------------------- EZ-Bash Debug Tools ------------------------------------- #
 ###################################################################################################
@@ -134,184 +66,21 @@ function ezb_show_registered_functions() {
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-function ezb_command_check() {
-    which "${1}" &> "${EZB_DEFAULT_LOG}" && return 0 || return 1
-}
-
 function ezb_dependency_check() {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZB_DEPENDENCY_SET[${cmd}]}" ]]; then
-            ezb_command_check "${cmd}" || { echo "[${EZB_LOGO}][ERROR] Command \"${cmd}\" not found"; return 1; }
+            ezb_command_check "${cmd}" || { ezb_log_error "Command \"${cmd}\" not found"; return 1; }
             EZB_DEPENDENCY_SET["${cmd}"]="${EZB_BOOL_TRUE}"
         fi
     done
 }
 
 # Check Dependencies
-ezb_dependency_check "uname" "date" "printf" "column" "find" "grep" "sed" || return 1
+ezb_dependency_check "column" "find" "grep" "sed" || return 1
 
 ###################################################################################################
-# ----------------------------------- EZ Bash Core Functions ------------------------------------ #
+# ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
-function ezb_os_name() {
-    local name="$(uname -s)"
-    if [[ "${name}" = "Darwin" ]]; then echo "macos" && return 0
-    elif [[ "${name}" = "Linux" ]]; then echo "linux" && return 0
-    else echo "unknown" && return 1
-    fi
-}
-
-function ezb_quote() {
-    local output item; for item in "${@}"; do
-        [[ -z "${output}" ]] && output="'${item}'" || output+=" '${item}'"
-    done
-    echo "${output}"
-}
-
-function ezb_double_quote() {
-    local output item; for item in "${@}"; do
-        [[ -z "${output}" ]] && output="\"${item}\"" || output+=" \"${item}\""
-    done
-    echo "${output}"
-}
-
-function ezb_list_size() {
-    echo "${#@}"
-}
-
-function ezb_string_size() {
-    echo "${#1}"
-}
-
-function ezb_to_lower() {
-    tr "[:upper:]" "[:lower:]" <<< "${@}"
-}
-
-function ezb_to_upper() {
-    tr "[:lower:]" "[:upper:]" <<< "${@}"
-}
-
-function ezb_contains() {
-    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    local data; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 0; done; return 1
-}
-
-function ezb_excludes() {
-    # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-    local data; for data in "${@:2}"; do [[ "${1}" = "${data}" ]] && return 1; done; return 0
-}
-
-function ezb_join() {
-    # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-    local delimiter="${1}" i=0 output=""
-    local data; for data in "${@:2}"; do [ "${i}" -eq 0 ] && output="${data}" || output+="${delimiter}${data}"; ((++i)); done
-    echo "${output}"
-}
-
-function ezb_split() {
-    # ${1} = list reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
-    local -n ezb_split_arg_reference="${1}"
-    local delimiter="${2}" string="${@:3}" item="" tmp="" k=0 d_length="${#delimiter}" s_length="${#string}"
-    ezb_split_arg_reference=()
-    while [[ "${k}" -lt "${s_length}" ]]; do
-        tmp="${string:k:${d_length}}"
-        if [[ "${tmp}" = "${delimiter}" ]]; then
-            ezb_split_arg_reference+=("${item}"); item=""; ((k+=d_length))
-        else
-            item+="${string:k:1}"; ((++k))
-        fi
-        [[ "${k}" -ge "${s_length}" ]] && ezb_split_arg_reference+=("${item}")
-    done
-}
-
-function ezb_count_items() {
-    # ${1} = delimiter, ${2} ~ ${n} = ${input_string[@]}
-    local delimiter="${1}" string="${@:2}" k=0 count=0
-    local d_length="${#delimiter}" s_length="${#string}"
-    while [[ "${k}" -lt "${s_length}" ]]; do
-        if [[ "${string:k:${d_length}}" = "${delimiter}" ]]; then ((++count)) && ((k += d_length)); else ((++k)); fi
-    done
-    [[ -n "${string}" ]] && echo "$((++count))" || echo "${count}"
-}
-
-function ezb_log_stack() {
-    local ignore_top_x="${1}" stack="" i=$((${#FUNCNAME[@]} - 1))
-    if [[ -n "${ignore_top_x}" ]]; then
-        for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
-    else
-        # i > 0 to ignore self "ezb_log_stack"
-        for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
-    fi
-    [[ "${stack}" != "[]" ]] && echo "${stack}"
-}
-
-function ezb_256_color_format() {
-    local foreground=38 background=48 color
-    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
-        echo; echo "[Usage]"
-        echo "${FUNCNAME[0]} [-f|--foreground or -b|--background] [0~255]"
-        echo; echo "[Foreground]"
-        for color in {0..255} ; do
-            printf "\e[${foreground};5;%sm  %3s  ${EZB_FORMAT_SET[ResetAll]}" "${color}" "${color}"
-            # Print 6 colors per line
-            [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
-        done
-        echo; echo "[Background]"
-        for color in {0..255} ; do
-            printf "\e[${background};5;%sm${EZB_FORMAT_SET[ForegroundBlack]}  %3s  ${EZB_FORMAT_SET[ResetAll]}" \
-                   "${color}" "${color}"
-            # Print 6 colors per line
-            [[ $(((${color} + 1) % 6)) -eq 4 ]] && echo
-        done
-        echo
-        return 0
-    fi
-    if [[ -n "${2}" ]] && [[ "${2}" -ge 0 ]] && [[ "${2}" -lt 255 ]]; then
-        if [[ "${1}" = "-f" ]] || [[ "${1}" = "--foreground" ]]; then
-            echo "\e[${foreground};5;${2}m"; return 0
-        elif [[ "${1}" = "-b" ]] || [[ "${1}" = "--background" ]]; then
-            echo "\e[${background};5;${2}m"; return 0
-        else
-            return 1
-        fi
-    else
-        return 2
-    fi
-}
-
-function ezb_format_string() {
-    # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
-    if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
-        echo; echo "[Usage]"; echo "${FUNCNAME[0]} [Format] [String]"; echo; echo "[Available Format]"
-        local format; for format in "${!EZB_FORMAT_SET[@]}"; do
-            echo -e "    ${EZB_FORMAT_SET[${format}]}demo${EZB_FORMAT_SET[ResetAll]}    ${format}"
-        done
-        echo
-    else
-        echo "${EZB_FORMAT_SET[${1}]}${@:2}${EZB_FORMAT_SET[ResetAll]}"
-    fi
-}
-
-function ezb_time_now() {
-    local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${format}"
-}
-
-function ezb_time_today() {
-    local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d" || date "${format}"
-}
-
-function ezb_log_info() {
-    echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"
-}
-
-function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundRed ERROR)] ${@}")
-}
-
-function ezb_log_warning() {
-    echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_format_string ForegroundYellow WARNING)] ${@}"
-}
-
 function ezb_print_usage() {
     echo; printf "${1}\n" | column -s "#" -t; echo
 }
@@ -415,9 +184,11 @@ function ezb_log() {
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
         if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
-            (>&2 echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}")
+            (>&2 echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundRed ${logger})] ${message[@]}")
+        elif [[ "$(ezb_to_lower ${logger})" = "warning" ]]; then
+            echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundYellow ${logger})] ${message[@]}"
         else
-            echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
+            echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
@@ -586,16 +357,6 @@ function ezb_arg_set() {
         [[ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ]] && return
     elif [[ -n "${short}" ]]; then [[ -n "${EZB_S_ARG_SET[${function}${delimiter}${short}]}" ]] && return
     else [[ -n "${EZB_L_ARG_SET[${function}${delimiter}${long}]}" ]] && return; fi
-    #local default_str=
-    #local choices_str=
-    # local default_str=""
-    # local i=0; for ((; i < ${#default[@]}; ++i)); do
-    #     [[ "${i}" -eq 0 ]] && default_str="${default[${i}]}" || default_str+="${delimiter}${default[${i}]}"
-    # done
-    # local choices_str=""
-    # local i=0; for ((; i < ${#choices[@]}; ++i)); do
-    #     [[ "${i}" -eq 0 ]] && choices_str="${choices[${i}]}" || choices_str+="${delimiter}${choices[${i}]}"
-    # done
     # Register Function
     EZB_FUNC_SET["${function}"]="${EZB_BOOL_TRUE}"
     local key=""
@@ -711,9 +472,8 @@ function ezb_arg_get() {
         echo; return 0
     fi
     # Must Run Inside Other Functions
-    local function="${FUNCNAME[1]}"
+    local function="${FUNCNAME[1]}" short long arguments=()
     [[ -z "${EZB_FUNC_SET[${function}]}" ]] && ezb_log_error "Function \"${function}\" NOT registered" && return 2
-    local short=""; local long=""; local arguments=()
     if [ "${1}" = "-s" -o "${1}" = "--short" ]; then short="${2}"
         if [ "${3}" = "-l" -o "${3}" = "--long" ]; then long="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
@@ -806,18 +566,17 @@ function ezb_arg_get() {
         echo "${EZB_BOOL_FALSE}"; return 0
     elif [[ "${argument_type}" = "String" ]] || [[ "${argument_type}" = "Password" ]]; then
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
-            local name="${arguments[${i}]}"
-            if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
+            local argument_name="${arguments[${i}]}" argument_value="${arguments[$((i+1))]}"
+            if [[ "${argument_name}" = "${short}" ]] || [[ "${argument_name}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ezb_arg_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ezb_arg_exclude_check "${function}" "${argument_name}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
-                ((i++))
-                local value="${arguments[${i}]}"
                 if [[ -n "${argument_choices}" ]]; then
                     declare -A choice_set
-                    local choice="" length="${#argument_choices}" last_index=$((length - 1))
+                    local choice="" length="${#argument_choices}"
+                    local last_index=$((length - 1))
                     local k=0; for ((; k < "${length}"; ++k)); do
-                        local char="${argument_choices:k:1}"
+                        local char="${argument_choices:${k}:1}"
                         if [[ "${char}" = "${delimiter}" ]]; then
                             [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZB_BOOL_TRUE}"
                             choice=""
@@ -826,15 +585,15 @@ function ezb_arg_get() {
                         fi
                         [[ "${k}" -eq "${last_index}" ]] && [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZB_BOOL_TRUE}"
                     done
-                    if [[ -z "${choice_set[${value}]}" ]]; then
+                    if [[ -z "${choice_set[${argument_value}]}" ]]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ezb_log_error "Invalid value \"${value}\" for argument \"${name}\""
+                        ezb_log_error "Invalid value \"${argument_value}\" for argument \"${name}\""
                         ezb_log_error "Please choose from [${choices_string}] for argument \"${name}\""
                         return 5
                     fi
                 fi
                 # No Choices Restriction
-                echo "${value}"; return
+                echo "${argument_value}"; return
             fi
         done
         # Required but not found and no default
@@ -856,9 +615,10 @@ function ezb_arg_get() {
             fi
         fi
         # Not Found, Use Default, Only print the first item in the default list
-        local default_value=""; local length="${#argument_default}"; local last_index=$((length - 1))
+        local default_value=""; local length="${#argument_default}"
+        local last_index=$((length - 1))
         local k=0; for ((; k < "${length}"; ++k)); do
-            local char="${argument_default:k:1}"
+            local char="${argument_default:${k}:1}"
             if [[ "${char}" = "${delimiter}" ]]; then
                 [[ -n "${default_value}" ]] && echo "${default_value}"
                 return
@@ -869,7 +629,6 @@ function ezb_arg_get() {
         done
     elif [[ "${argument_type}" = "List" ]]; then
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
-            local name="${arguments[${i}]}"
             if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
                     ezb_arg_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
@@ -877,8 +636,9 @@ function ezb_arg_get() {
                 local output=""; local count=0
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
-                    # List ends with another argument identifier "-" or end of line
-                    [[ "${arguments[${index}]:0:1}" = "-" ]] && break
+                    # List ends with another argument identifier or end of line
+                    ezb_contains "${arguments[${index}]}" $(ezb_function_get_short_arguments "${function}") && break
+                    ezb_contains "${arguments[${index}]}" $(ezb_function_get_long_arguments "${function}") && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done

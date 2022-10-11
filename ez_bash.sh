@@ -12,22 +12,10 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
+EZB_LOGO="EZ-Bash"
 EZB_VERSION="0.1.3"
 EZB_DEFAULT_BASH_VERSION="5"
 
-EZB_LIBRARIES=(
-    "ezb_algorithm"
-    "ezb_file"
-    "ezb_math"
-    "ezb_set"
-    "ezb_ssh"
-    "ezb_string"
-    "ezb_time"
-    "ezb_terminal"
-    "ezb_git"
-    "ezb_docker"
-    "ezb_web"
-)
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
@@ -56,23 +44,21 @@ else
     }
     rm -f "/var/tmp/null"
     # Source EZ-Bash Core
-    source "${EZ_BASH_HOME}/ezb_core/ezb_core.sh" || return 1
+    source "${EZ_BASH_HOME}/core/ezb_basic.sh" || return 1
+    source "${EZ_BASH_HOME}/core/ezb_function.sh" || return 1
     # Source Other Libs
     if [[ -z "${1}" ]]; then
         echo "[EZ-Bash][INFO] Complete loading EZ-Bash library: ezb_core"
     elif [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
-        for ezb_library_name in "${EZB_LIBRARIES[@]}"; do
-            ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
-        done
-        unset ezb_library_name
-        echo -e "[EZ-Bash][INFO] Complete loading $(ezb_format_string ForegroundYellow ALL) EZ-Bash libraries!"
+        ezb_source_dir --path "${EZ_BASH_HOME}/libs" || return 1
+        echo -e "[EZ-Bash][INFO] Complete loading $(ezb_string_format ForegroundYellow ALL) EZ-Bash libraries!"
     else
         # Source the designated libraries
-        for ezb_library_name in "${@}"; do
-            ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library_name}" || return 1
+        for ezb_library in "${@}"; do
+            ezb_source_dir --path "${EZ_BASH_HOME}/${ezb_library}" || return 1
         done
-        unset ezb_library_name
+        unset ezb_library
         echo "[EZ-Bash][INFO] Complete loading EZ-Bash libraries: ${@}"
     fi
 fi

@@ -2,7 +2,8 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
-source "${EZ_BASH_HOME}/ezb/ezb.sh" || exit 1
+source "${EZ_BASH_HOME}/core/ezb_basic.sh" || exit 1
+source "${EZ_BASH_HOME}/core/ezb_function.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #
@@ -77,11 +78,12 @@ ezb_test_password_arg
 
 function ezb_test_list_arg_default() {
     if ezb_function_unregistered; then
-        ezb_arg_set --short "-l" --long "--list" --default "Def 1" "Def 2" "Def 3" --type "List" || return 1
+        ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
-    local list && ezb_function_get_list "list" "$(ezb_arg_get --short "-l" --long "--list" --arguments "${@}")" || return 1
-    local item; for item in "${list[@]}"; do echo "${item}"; done
+    local list_arg && list_arg="$(ezb_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
+    local list; ezb_function_get_list "list" "${list_arg}"
+    for item in "${list[@]}"; do echo "${item}"; done
 }
 ezb_test_list_arg_default
 ezb_test_list_arg_default -l "Item 1" "Item 2" "Item 3"

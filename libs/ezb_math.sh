@@ -1,3 +1,60 @@
+###################################################################################################
+# -------------------------------------- Dependency Check --------------------------------------- #
+###################################################################################################
+ezb_dependency_check "bc" || return 1
+
+###################################################################################################
+# -------------------------------------- EZ Bash Functions -------------------------------------- #
+###################################################################################################
+function ezb_calculate() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-e" --long "--expression" --required &&
+        ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local expression && expression="$(ezb_arg_get --short "-e" --long "--expression" --arguments "${@}")" &&
+    local scale && scale="$(ezb_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
+    # bc scale does not work for mode %
+    local result=$(bc -l <<< "scale=${scale}; ${expression}")
+    if [[ "${result:0:1}" = "." ]]; then
+        result="0${result}"
+    elif [[ "${result:0:2}" = "-." ]]; then
+        result="-0${result:1}"
+    fi
+    echo "${result}"
+}
+
+function ezb_floor() {
+    local parts; ezb_split "parts" "." "${1}"
+    local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
+    [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" = "-" ]] && ((--result))
+    echo "${result}"
+}
+
+function ezb_ceiling() {
+    local parts; ezb_split "parts" "." "${1}"
+    local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
+    [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" != "-" ]] && ((++result))
+    echo "${result}"
+}
+
+function ezb_decimal_to_base_x() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
+        ezb_arg_set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
+        ezb_arg_set --short "-p" --long "--padding" --default "2" --info "Zero Padding Size" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local decimal && decimal="$(ezb_arg_get --short "-d" --long "--decimal" --arguments "${@}")" &&
+    local base && base="$(ezb_arg_get --short "-b" --long "--base" --arguments "${@}")" &&
+    local padding && padding="$(ezb_arg_get --short "-p" --long "--padding" --arguments "${@}")" || return 1
+    if [[ "${base}" -eq "16" ]]; then
+        printf "%0${padding}x\n" "${decimal}"
+    else
+        printf "%0${padding}d\n" $(bc <<< "obase=${base};${decimal}")
+    fi
+}
+
 function ezb_min() {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
     local min=2147483647 data; for data in "${@}"; do
@@ -110,6 +167,16 @@ function ezb_percentile() {
     fi
 }
 
-
-
-
+function ezb_random_int() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-l" --long "--lower-bound" --required --default 0 --info "Inclusive Lower Bound" &&
+        ezb_arg_set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local lower_bound && lower_bound="$(ezb_arg_get --short "-l" --long "--lower-bound" --arguments "${@}")" &&
+    local upper_bound && upper_bound="$(ezb_arg_get --short "-u" --long "--upper-bound" --arguments "${@}")" || return 1
+    [ "${lower_bound}" -gt "${upper_bound}" ] && return 2
+    # Use $RANDOM as seed, which is an internal Bash function that returns a pseudo-random integer in the range [0, 32767]
+    local seed="${RANDOM}"
+    echo $(( (seed * 214013 + 2531011) % (upper_bound - lower_bound) + lower_bound ))
+}

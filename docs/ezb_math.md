@@ -20,6 +20,31 @@ Number  Floor  Ceiling
 -1.7    -2     -1
 ```
 
+### ezb_decimal_to_base_x
+```shell
+$ for i in {0..8}; do echo -n "BIN(${i}): "; ezb_decimal_to_base_x --decimal $i --base 2 --padding 4; done
+BIN(0): 0000
+BIN(1): 0001
+BIN(2): 0010
+BIN(3): 0011
+BIN(4): 0100
+BIN(5): 0101
+BIN(6): 0110
+BIN(7): 0111
+BIN(8): 1000
+
+$ for i in {28..36}; do echo -n "HEX(${i}): "; ezb_decimal_to_base_x --decimal $i --base 16; done
+HEX(28): 1c
+HEX(29): 1d
+HEX(30): 1e
+HEX(31): 1f
+HEX(32): 20
+HEX(33): 21
+HEX(34): 22
+HEX(35): 23
+HEX(36): 24
+````
+
 ### ezb_min & ezb_max
 ```shell
 $ data=(3 5 1 0 2 0 3)
