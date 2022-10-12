@@ -2,11 +2,11 @@
 ## Installation Steps
 #### 1. Clone this project
 ```shell
-git clone https://github.com/zheng-gao/ez_bash.git ${SOME_DIRECTORY}/ez_bash
+git clone https://github.com/zheng-gao/ez_bash.git
 ```
-#### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash)
+#### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash/blob/master/ezb.sh#L10)
 ```shell
-export EZ_BASH_HOME="${SOME_DIRECTORY}/ez_bash"
+export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
 #### 3. Import "ezb" libraries
 ```shell
