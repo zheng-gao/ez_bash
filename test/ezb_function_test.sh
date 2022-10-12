@@ -2,8 +2,8 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
-source "${EZ_BASH_HOME}/core/ezb_basic.sh" || exit 1
-source "${EZ_BASH_HOME}/core/ezb_function.sh" || exit 1
+source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
+source "${EZ_BASH_HOME}/core/function.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Main Function ----------------------------------------- #

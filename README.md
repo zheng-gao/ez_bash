@@ -1,4 +1,4 @@
-# Pure Bash Tools for Linux and MacOS
+# Pure Shellscript Tools for Linux and MacOS
 ## Installation Steps
 #### 1. Clone this project
 ```shell
