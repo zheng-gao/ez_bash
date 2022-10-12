@@ -17,6 +17,7 @@ function ezb_file_create_dummy() {
     local os=$(ezb_os_name)
     if [[ "${os}" = "linux" ]]; then
         dd "if=/dev/random" "of=${path}" "bs=4k" "iflag=fullblock,count_bytes" "count=${size}M"
+        # dd "if=/dev/zero" "of=${path}" "bs=${size}M" "count=1"
     elif [[ "${os}" = "macos" ]]; then
         mkfile "${size}m" "${path}"
     else
