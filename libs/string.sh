@@ -61,10 +61,11 @@ function ezb_string_cut() {
     local string && string="$(ezb_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
     local length && length="$(ezb_arg_get --short "-l" --long "--length" --arguments "${@}")" &&
     local key && key="$(ezb_arg_get --short "-k" --long "--key" --arguments "${@}")" || return 1
-    if [[ "${key}" = "Left" ]]; then echo "${string:${length}}"
-    elif [[ "${key}" = "Right" ]]; then echo "${string::-${length}}"
-    else echo "${string:${length}:-${length}}"
-    fi
+    case "${key}" in
+        "Left") echo "${string:${length}}" ;;
+        "Right") echo "${string::-${length}}" ;;
+        *) echo "${string:${length}:-${length}}" ;;
+    esac
 }
 
 function ezb_string_check() {
