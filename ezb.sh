@@ -23,19 +23,20 @@ if [[ "${0:0:1}" != "-" ]] && [[ "$(basename ${0})" = "ezb.sh" ]]; then
     # To run this script
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "[Usage]"
-        echo "  -i|--info              Show Copyright"
-        echo "  -v|--version           Show Version"
-        echo "  -r|--requirements      Show Requirements"; echo
-        echo "To import EZ-Bash libraries: \"source ${EZ_BASH_HOME}/ezb.sh\""; echo
+        echo "  -i|--info                   Show Info"
+        echo "  -t|--test                   Run Unit Tests"
+        echo
+        echo "To import EZ-Bash libraries:"
+        echo "\$ source ${EZ_BASH_HOME}/ezb.sh --all"
+        echo
+        exit 0
     fi
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-i" | "--info") shift; echo "EZ-Bash Copyright: Zheng Gao, 2018-05-18" ;;
-            "-v" | "--version") shift; echo "${EZB_VERSION}" ;;
-            "-r" | "--requirements") shift; echo "Bash ${EZB_DEFAULT_BASH_VERSION}" ;;
+            "-i" | "--info") shift; echo -e "Author: Zheng Gao\nVersion: ${EZB_VERSION}\nRequirements: Bash ${EZB_DEFAULT_BASH_VERSION}" ;;
+            "-t" | "--test") shift; echo "test" ;;
             *) echo "[EZ-Bash][ERROR] Unknown argument identifier \"${1}\""; exit 1 ;;
         esac
-        [[ -n "${1}" ]] && shift
     done
 else
     # To source this script, "${0}" is "-bash" or "-sh"
