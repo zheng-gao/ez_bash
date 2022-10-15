@@ -17,27 +17,52 @@ EZB_VERSION="2.0.0"
 EZB_DEFAULT_BASH_VERSION="5"
 
 ###################################################################################################
+# ------------------------------------------ Utilities ------------------------------------------ #
+###################################################################################################
+function ezb_self_version() {
+    echo "      Author: Zheng Gao"
+    echo "     Version: ${EZB_VERSION}"
+    echo "Requirements: Bash v${EZB_DEFAULT_BASH_VERSION}"
+}
+
+function ezb_self_tests() {
+    local tests_dir="${1}" test_file test_result test_summary has_error test_error
+    local spliter="--------------------------------------------------------------------------------"
+    test_error+="${spliter}\n[Test Error]\n"
+    for test_file in "$(ls -1 ${tests_dir})"; do
+        if test_result=$("${tests_dir}/${test_file}"); then
+            test_summary+="[Passed] ${test_file}\n"
+        else
+            has_error="True"
+            test_summary+="[\e[31mFailed\e[0m] ${test_file}\n"
+            test_error+="${spliter}\n[${test_file}]\n${test_result}"
+        fi
+    done
+    echo -e "${test_summary}"
+    [[ -n "${has_error}" ]] && echo -e "${test_error}"
+}
+
+###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
 if [[ "${0:0:1}" != "-" ]] && [[ "$(basename ${0})" = "ezb.sh" ]]; then
     # To run this script
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
-        echo; echo "[Usage]"
-        echo "  -i|--info                   Show Info"
-        echo "  -t|--test                   Run Unit Tests"
+        echo
+        echo "[Usage]"
+        echo "    -v|--version    Show version info"
+        echo "    -t|--tests      Run unit tests"
         echo
         echo "To import EZ-Bash libraries:"
         echo "\$ source ${EZ_BASH_HOME}/ezb.sh --all"
         echo
         exit 0
     fi
-    while [[ -n "${1}" ]]; do
-        case "${1}" in
-            "-i" | "--info") shift; echo -e "Author: Zheng Gao\nVersion: ${EZB_VERSION}\nRequirements: Bash ${EZB_DEFAULT_BASH_VERSION}" ;;
-            "-t" | "--test") shift; echo "test" ;;
-            *) echo "[EZ-Bash][ERROR] Unknown argument identifier \"${1}\""; exit 1 ;;
-        esac
-    done
+    case "${1}" in
+        "-v" | "--version") ezb_self_version ;;
+        "-t" | "--tests") ezb_self_tests "$(dirname ${0})/tests";;
+        *) echo "[EZ-Bash][ERROR] Unknown argument identifier \"${1}\"" && exit 1 ;;
+    esac
 else
     # To source this script, "${0}" is "-bash" or "-sh"
     bash --version | grep "version ${EZB_DEFAULT_BASH_VERSION}\." &> "/var/tmp/null" || {
