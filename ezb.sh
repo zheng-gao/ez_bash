@@ -28,18 +28,17 @@ function ezb_self_version() {
 function ezb_self_tests() {
     local tests_dir="${1}" test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"
-    test_error+="${spliter}\n[Test Error]\n"
-    for test_file in "$(ls -1 ${tests_dir})"; do
+    for test_file in $(ls -1 ${tests_dir} | grep -v 'utils.sh'); do
         if test_result=$("${tests_dir}/${test_file}"); then
             test_summary+="[Passed] ${test_file}\n"
         else
             has_error="True"
             test_summary+="[\e[31mFailed\e[0m] ${test_file}\n"
-            test_error+="${spliter}\n[${test_file}]\n${test_result}"
+            test_error+="${spliter}\nError in ${test_file}\n${spliter}\n${test_result}"
         fi
     done
-    echo -e "${test_summary}"
-    [[ -n "${has_error}" ]] && echo -e "${test_error}"
+    echo -e "${spliter}\n[Test Summary]\n${spliter}\n${test_summary}"
+    [[ -n "${has_error}" ]] && echo -e "${test_error}\n"
 }
 
 ###################################################################################################

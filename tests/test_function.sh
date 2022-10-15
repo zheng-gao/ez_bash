@@ -1,15 +1,14 @@
 ###################################################################################################
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
-# [[ -z "${EZ_BASH_HOME}" ]] && echo "[EZ-BASH][ERROR] EZ_BASH_HOME is not set!" && exit 1
-# source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
-# source "${EZ_BASH_HOME}/core/function.sh" || exit 1
+source "${EZ_BASH_HOME}/tests/utils.sh" || exit 1
+source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
+source "${EZ_BASH_HOME}/core/function.sh" || exit 1
 
-echo "Test1"
-exit 1
-
+echo "test"
+exit 0
 ###################################################################################################
-# --------------------------------------- Main Function ----------------------------------------- #
+# --------------------------------------- Test Function ----------------------------------------- #
 ###################################################################################################
 function ezb_test_string_arg_required() {
     if ezb_function_unregistered; then
