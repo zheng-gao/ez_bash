@@ -6,6 +6,8 @@ ezb_dependency_check "lsof" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_file_read_lines() { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
+
 function ezb_file_create_dummy() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
