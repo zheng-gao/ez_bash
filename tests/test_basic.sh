@@ -21,7 +21,21 @@ function test_ezb_upper() {
     ezb_expect_result "${expect}" "${result}" || HAS_ERROR="True"
 }
 
+function test_ezb_today() {
+    local expect="$(date '+%F')"
+    local result="$(ezb_today)"
+    ezb_expect_result "${expect}" "${result}" || HAS_ERROR="True"
+}
+
+function test_ezb_now() {
+    local expect="$(date '+%F %T')"
+    local result="$(ezb_now)"
+    ezb_expect_result "${expect}" "${result}" || HAS_ERROR="True"
+}
+
 test_ezb_lower
 test_ezb_upper
+test_ezb_today
+test_ezb_now
 
 [[ "${HAS_ERROR}" = "True" ]] && exit 1 || exit 0
