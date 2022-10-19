@@ -178,12 +178,12 @@ function ezb_log() {
         return 2
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
-        if [[ "$(ezb_to_lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundRed ${logger})] ${message[@]}")
-        elif [[ "$(ezb_to_lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundYellow ${logger})] ${message[@]}"
+        if [[ "$(ezb_lower ${logger})" = "error" ]]; then
+            (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundRed ${logger})] ${message[@]}")
+        elif [[ "$(ezb_lower ${logger})" = "warning" ]]; then
+            echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[$(ezb_string_format ForegroundYellow ${logger})] ${message[@]}"
         else
-            echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
+            echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZB_OPT_ALL}" ]]; then
@@ -192,7 +192,7 @@ function ezb_log() {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
+        echo "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
     fi
 }
 

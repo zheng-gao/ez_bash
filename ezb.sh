@@ -30,10 +30,10 @@ function ezb_self_tests() {
     local spliter="--------------------------------------------------------------------------------"
     for test_file in $(ls -1 ${tests_dir} | grep -v 'utils.sh'); do
         if test_result=$("${tests_dir}/${test_file}"); then
-            test_summary+="[Passed] ${test_file}\n"
+            test_summary+="[✓] ${test_file}\n"
         else
             has_error="True"
-            test_summary+="[\e[31mFailed\e[0m] ${test_file}\n"
+            test_summary+="[\e[31m☓\e[0m] ${test_file}\n"
             test_error+="${spliter}\nError in ${test_file}\n${spliter}\n${test_result}"
         fi
     done

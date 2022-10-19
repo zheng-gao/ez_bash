@@ -3,10 +3,10 @@
 ###################################################################################################
 function ezb_variables() { set | grep "^EZB_"; }
 function ezb_functions() { set | grep "^ezb_" | cut -d " " -f 1; }
-function ezb_to_lower() { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
-function ezb_to_upper() { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
-function ezb_time_now() { local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d %H:%M:%S" || date "${format}"; }
-function ezb_time_today() { local format="${1}"; [[ -z "${format}" ]] && date "+%Y-%m-%d" || date "${format}"; }
+function ezb_lower() { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
+function ezb_upper() { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
+function ezb_now() { date "+%F %T"; }
+function ezb_today() { date "+%F"; }
 function ezb_command_check() { which "${1}" &> "/dev/null" && return 0 || return 1; }
 function ezb_quote() { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
 function ezb_double_quote() { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
@@ -173,12 +173,12 @@ function ezb_string_format() {
     fi
 }
 
-function ezb_log_info() { echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
+function ezb_log_info() { echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
 
 function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundRed ERROR)] ${@}")
+    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundRed ERROR)] ${@}")
 }
 
 function ezb_log_warning() {
-    echo -e "[$(ezb_time_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundYellow WARNING)] ${@}"
+    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundYellow WARNING)] ${@}"
 }
