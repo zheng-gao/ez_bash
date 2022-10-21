@@ -442,11 +442,9 @@ function ezb_arg_exclude_check() {
         fi
     done
     for x_arg in "${arguments[@]}"; do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            if [[ -n "${exclude_set[${x_arg}]}" ]]; then
-                ezb_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive"
-                return 1
-            fi
+        if [[ -n "${x_arg}" ]] && [[ "${x_arg}" != "${arg_name}" ]] && [[ -n "${exclude_set[${x_arg}]}" ]]; then
+            ezb_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive in group: ${exclude}"
+            return 1
         fi
     done
     return 0
@@ -582,8 +580,8 @@ function ezb_arg_get() {
                     done
                     if [[ -z "${choice_set[${argument_value}]}" ]]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ezb_log_error "Invalid value \"${argument_value}\" for argument \"${name}\""
-                        ezb_log_error "Please choose from [${choices_string}] for argument \"${name}\""
+                        ezb_log_error "Invalid value \"${argument_value}\" for argument \"${argument_name}\""
+                        ezb_log_error "Please choose from [${choices_string}] for argument \"${argument_name}\""
                         return 5
                     fi
                 fi
