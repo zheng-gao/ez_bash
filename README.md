@@ -1,4 +1,4 @@
-# Pure Shellscript Tools for Linux and MacOS
+# Pure Shell Tools for Linux & MacOS
 ## Installation Steps
 #### 1. Clone this project
 ```shell
@@ -14,7 +14,7 @@ source "${EZ_BASH_HOME}/ezb.sh"                    # Import core functions only
 source "${EZ_BASH_HOME}/ezb.sh" "lib1" "lib2" ...  # Import "ezb" libraries (including core)
 source "${EZ_BASH_HOME}/ezb.sh" --all              # Import ALL "ezb" libraries (including core)
 ```
-#### 4. List "ezb" variables & functions
+#### 4. Check "ezb" variables & functions
 ```shell
 ezb_variables
 ezb_functions
