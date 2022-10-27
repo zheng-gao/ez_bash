@@ -14,14 +14,14 @@ source "${EZ_BASH_HOME}/ezb.sh"                    # Import core functions only
 source "${EZ_BASH_HOME}/ezb.sh" "lib1" "lib2" ...  # Import "ezb" libraries (including core)
 source "${EZ_BASH_HOME}/ezb.sh" --all              # Import ALL "ezb" libraries (including core)
 ```
-## Unit Test
-```shell
-${EZ_BASH_HOME}/ezb.sh -t
-```
-## Show All EZ-Bash Variables/Functions
+#### 4. List "ezb" variables & functions
 ```shell
 ezb_variables
 ezb_functions
+```
+## Unit Test
+```shell
+${EZ_BASH_HOME}/ezb.sh -t
 ```
 # Contents
 * [Function](docs/function.md)
