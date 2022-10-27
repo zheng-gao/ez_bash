@@ -18,7 +18,11 @@ source "${EZ_BASH_HOME}/ezb.sh" --all              # Import ALL "ezb" libraries 
 ```shell
 ${EZ_BASH_HOME}/ezb.sh -t
 ```
-
+## Show All EZ-Bash Variables/Functions
+```shell
+ezb_variables
+ezb_functions
+```
 # Contents
 * [Function](docs/function.md)
 * [Math](docs/math.md)
