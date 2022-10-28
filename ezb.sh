@@ -33,38 +33,40 @@ function ezb_self_installation() {
     local bash_profile="${HOME}/.bash_profile" bashrc="${HOME}/.bashrc"
     if [[ -n "${uninstall}" ]]; then
         if [[ -f "${bash_profile}" ]]; then
-            if grep "export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
-                grep -v "EZ_BASH" < "${bash_profile}" > "${bash_profile}.new"
+            if grep "^export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
+                grep -v "^export EZ_BASH_HOME=" < "${bash_profile}" > "${bash_profile}.new"
                 mv "${bash_profile}.new" "${bash_profile}"
             else
                 echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] ${EZB_LOGO} not found!" && return 1
             fi
         elif [[ -f "${bashrc}" ]]; then
-            if grep "export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
-                grep -v "EZ_BASH" < "${bashrc}" > "${bashrc}.new"
+            if grep "^export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
+                grep -v "^export EZ_BASH_HOME=" < "${bashrc}" > "${bashrc}.new"
                 mv "${bashrc}.new" "${bashrc}"
             else
                 echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] ${EZB_LOGO} not found!" && return 1
             fi
         fi
         echo "[${EZB_LOGO}][INFO] Uninstalled ${EZB_LOGO}!"
-        echo "[${EZB_LOGO}][INFO] Please restart all the terminals."
+        echo "[${EZB_LOGO}][INFO] Please restart all the existing terminals."
     else
         if [[ -f "${bash_profile}" ]]; then
-            if grep "export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
+            if grep "^export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
                 echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] ${EZB_LOGO} was previously installed!" && return 1
             else
-                echo -e "\n# ${EZB_LOGO}\nexport EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ezb.sh --all\n" >> "${bash_profile}"
+                echo -e "export EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ezb.sh --all\n" >> "${bash_profile}"
+                source "${bash_profile}"
             fi
         elif [[ -f "${bashrc}" ]]; then
-            if grep "export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
+            if grep "^export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
                 echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] ${EZB_LOGO} was previously installed!" && return 1
             else
-                echo -e "\n# ${EZB_LOGO}\nexport EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ezb.sh --all\n" >> "${bashrc}"
+                echo -e "export EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ezb.sh --all\n" >> "${bashrc}"
+                source "${bashrc}"
             fi
         fi
         echo "[${EZB_LOGO}][INFO] Installation Complete!"
-        echo "[${EZB_LOGO}][INFO] Please restart all the terminals."
+        echo "[${EZB_LOGO}][INFO] Please restart all the other terminals."
     fi
 }
 
@@ -97,8 +99,8 @@ function ezb_self_unit_test() {
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-if [[ "${0:0:1}" != "-" ]] && [[ "$(basename ${0})" = "ezb.sh" ]]; then
-    # To run this script
+if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
+    # The script is being executed
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo
         echo "[${EZB_LOGO}]"
@@ -117,7 +119,7 @@ if [[ "${0:0:1}" != "-" ]] && [[ "$(basename ${0})" = "ezb.sh" ]]; then
         *) echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] Unknown argument identifier \"${1}\"" && exit 1 ;;
     esac
 else
-    # To source this script, "${0}" is "-bash" or "-sh"
+    # The script is being sourced
     if ! ezb_self_verification; then return 1; fi
     bash --version | grep "version ${EZB_DEFAULT_BASH_VERSION}\." &> "/var/tmp/null" || {
         echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] \"Bash ${EZB_DEFAULT_BASH_VERSION}\" not found!"; return 1
