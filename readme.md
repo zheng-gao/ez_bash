@@ -13,7 +13,7 @@ git clone https://github.com/zheng-gao/ez_bash.git
 ```shell
 export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
-## Import "ezb" libraries
+#### 3. Import "ezb" libraries
 ```shell
 source "${EZ_BASH_HOME}/ezb.sh"                    # Import core functions only
 source "${EZ_BASH_HOME}/ezb.sh" "lib1" "lib2" ...  # Import "ezb" libraries (including core)
