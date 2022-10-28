@@ -10,7 +10,7 @@ ez_bash/ezb.sh --test     # Run unit test
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
 ````
-#### 2. Setup environment variable: [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash/blob/master/ezb.sh#L10)
+#### 2. Set variable [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash/blob/master/ezb.sh#L10)
 ```shell
 export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
