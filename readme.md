@@ -1,11 +1,12 @@
 # Pure Shell Tools for Linux & MacOS
-## Auto Install
+## Installation
+### Auto Install
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
 ez_bash/ezb.sh --install  # set EZ_BASH_HOME and import all the libraries
 ```
-## Manual Install
-### 1. Clone the project
+### Manual Install
+#### 1. Clone the project
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
 ````
