@@ -77,7 +77,7 @@ function ezb_self_version() {
     echo
 }
 
-function ezb_self_tests() {
+function ezb_self_unit_test() {
     if ! ezb_self_verification; then return 1; fi
     local tests_dir="${1}" test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"
@@ -102,18 +102,18 @@ if [[ "${0:0:1}" != "-" ]] && [[ "$(basename ${0})" = "ezb.sh" ]]; then
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo
         echo "[${EZB_LOGO}]"
-        echo "    -v|--version      Show version info"
-        echo "    -t|--tests        Run unit tests"
+        echo "    -t|--test         Run unit test"
         echo "    -i|--install      Install ${EZB_LOGO}"
         echo "    -u|--uninstall    Uninstall ${EZB_LOGO}"
+        echo "    -v|--version      Show version info"
         echo
         exit 0
     fi
     case "${1}" in
-        "-v" | "--version") ezb_self_version ;;
-        "-t" | "--tests") ezb_self_tests "$(dirname ${0})/tests" ;;
+        "-t" | "--test") ezb_self_unit_test "$(dirname ${0})/tests" ;;
         "-i" | "--install") ezb_self_installation "$(pwd)/$(dirname ${0})" ;;
         "-u" | "--uninstall") ezb_self_installation "$(pwd)/$(dirname ${0})" "uninstall" ;;
+        "-v" | "--version") ezb_self_version ;;
         *) echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] Unknown argument identifier \"${1}\"" && exit 1 ;;
     esac
 else
@@ -145,5 +145,7 @@ fi
 
 unset ezb_self_installation
 unset ezb_self_verification
+unset ezb_self_unit_test
 unset ezb_self_version
-unset ezb_self_tests
+
+

@@ -1,11 +1,11 @@
 # Pure Shell Tools for Linux & MacOS
-## Installation
-### Auto Install
+## Full Installation
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
-ez_bash/ezb.sh --install  # set EZ_BASH_HOME and import all the libraries
+ez_bash/ezb.sh --install  # Set EZ_BASH_HOME and import all the ezb libraries
+ez_bash/ezb.sh --test     # Run unit test
 ```
-### Manual Install
+## Partial Installation
 #### 1. Clone the project
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
@@ -24,10 +24,6 @@ source "${EZ_BASH_HOME}/ezb.sh" --all              # Import ALL "ezb" libraries 
 ```shell
 ezb_variables
 ezb_functions
-```
-## Unit Test
-```shell
-${EZ_BASH_HOME}/ezb.sh -t
 ```
 # Contents
 * [Function](docs/function.md)
