@@ -1,8 +1,8 @@
 ###################################################################################################
 # ------------------------------------ Independent Functions ------------------------------------ #
 ###################################################################################################
-function ezb_variables() { set | grep "^EZB_"; }
-function ezb_functions() { set | grep "^ezb_" | cut -d " " -f 1; }
+function ezb_variables() { set | grep "^EZB_" --color; }
+function ezb_functions() { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
 function ezb_lower() { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ezb_upper() { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
 function ezb_now() { date "+%F %T"; }
