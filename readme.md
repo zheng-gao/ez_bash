@@ -2,7 +2,7 @@
 ## Full Installation
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
-ez_bash/ezb.sh --install  # Set EZ_BASH_HOME and import all the ezb libraries
+ez_bash/ezb.sh --install  # Import all the libraries and update ~/.bashrc or ~/.bash_profile
 ez_bash/ezb.sh --test     # Run unit test
 ```
 ## Partial Installation
