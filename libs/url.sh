@@ -9,3 +9,6 @@ function ezb_url_encode() {
     done
     echo
 }
+
+# : is a builtin to expand arguments 
+function ezb_url_decode() { : "${*//+/ }"; echo -e "${_//%/\\x}"; }

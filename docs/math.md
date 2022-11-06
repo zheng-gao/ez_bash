@@ -33,6 +33,17 @@ BIN(6): 0110
 BIN(7): 0111
 BIN(8): 1000
 
+$ for i in {28..36}; do echo -n "OCT(${i}): "; ezb_decimal_to_base_x --decimal $i --base 8; done
+OCT(28): 34
+OCT(29): 35
+OCT(30): 36
+OCT(31): 37
+OCT(32): 40
+OCT(33): 41
+OCT(34): 42
+OCT(35): 43
+OCT(36): 44
+
 $ for i in {28..36}; do echo -n "HEX(${i}): "; ezb_decimal_to_base_x --decimal $i --base 16; done
 HEX(28): 1c
 HEX(29): 1d

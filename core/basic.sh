@@ -176,9 +176,9 @@ function ezb_string_format() {
 function ezb_log_info() { echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
 
 function ezb_log_error() {
-    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundRed ERROR)] ${@}")
+    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundRed" "ERROR")] ${@}")
 }
 
 function ezb_log_warning() {
-    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format ForegroundYellow WARNING)] ${@}"
+    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundYellow" "WARNING")] ${@}"
 }
