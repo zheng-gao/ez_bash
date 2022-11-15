@@ -114,14 +114,16 @@ function ezb_source_dir() {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
         usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
+        usage+=$(ezb_build_usage -o "add" -a "-d|--depth" -d "Directory Search Depth, default = None")
         usage+=$(ezb_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
         ezb_print_usage "${usage}" && return 0
     fi
-    local path="." exclude=""
+    local path="." exclude="" depth=""
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1} && [[ -n "${1}" ]] && shift ;;
-            "-r" | "--exclude") shift; exclude=${1} && [[ -n "${1}" ]] && shift ;;
+            "-d" | "--depth") shift; depth=${1} && [[ -n "${1}" ]] && shift ;;
+            "-e" | "--exclude") shift; exclude=${1} && [[ -n "${1}" ]] && shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -129,12 +131,13 @@ function ezb_source_dir() {
     path="${path%/}" # Remove a trailing slash if there is one
     [[ ! -d "${path}" ]] && ezb_log_error "\"${path}\" is not a directory" && return 2
     [[ ! -r "${path}" ]] && ezb_log_error "Cannot read directory \"${dir_path}\"" && return 3
+    [[ -n "${depth}" ]] && depth="-depth ${depth}"
     if [[ -z "${exclude}" ]]; then
-        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh"); do
+        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh" ${depth}); do
             if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
         done
     else
-        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh" | grep -v "${exclude}"); do
+        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v "${exclude}"); do
             if ! source "${sh_file}"; then ezb_log_error "Failed to source \"${sh_file}\"" && return 4; fi
         done
     fi
