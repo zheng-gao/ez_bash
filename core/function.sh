@@ -339,8 +339,7 @@ function ezb_arg_set() {
     [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
     [[ -z "${short}" ]] && [[ -z "${long}" ]] && ezb_log_error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [[ -z "${EZB_ARG_TYPE_SET[${type}]}" ]]; then
-        ezb_log_error "Invalid value \"${type}\" for \"-t|--type\""
-        ezb_log_error "Please choose from [$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
+        ezb_log_error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
@@ -583,8 +582,7 @@ function ezb_arg_get() {
                     done
                     if [[ -z "${choice_set[${argument_value}]}" ]]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ezb_log_error "Invalid value \"${argument_value}\" for argument \"${argument_name}\""
-                        ezb_log_error "Please choose from [${choices_string}] for argument \"${argument_name}\""
+                        ezb_log_error "Invalid value \"${argument_value}\" for \"${argument_name}\", please choose from [${choices_string}]"
                         return 5
                     fi
                 fi
