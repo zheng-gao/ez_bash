@@ -136,6 +136,28 @@ function ezb_file_parse_value() {
     fi
 }
 
+function ezb_file_parse_ip() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
+        ezb_arg_set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local path && path="$(ezb_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local version && version="$(ezb_arg_get --short "-v" --long "--version" --arguments "${@}")" || return 1
+    if [[ -f "${path}" ]]; then
+        {
+            echo "Count IPv${version}"
+            if [[ "${version}" = "4" ]]; then    
+                grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" "${path}" | sort | uniq -c | sort -nr
+            else
+                grep -oE "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))" "${path}" | sort | uniq -c | sort -nr
+            fi
+        } | column -s " " -t
+    else
+        ezb_log_error "File \"${path}\" not exist"
+    fi
+}
+
 function ezb_backup() {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
