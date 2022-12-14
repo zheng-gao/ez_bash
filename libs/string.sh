@@ -6,6 +6,11 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_string_replace() {
+    local string="${1}" pattern="${2}" replacement="${3}"
+    echo "${string//${pattern}/${replacement}}"
+}
+
 function ezb_string_count_substring() {
     local input_string="${1}" substring="${2}"
     echo "${input_string}" | grep -o "${substring}" | wc -l | bc
