@@ -13,7 +13,7 @@ EZB_DOCKER_PS_FORMAT="\nID\t{{.ID}}\nIMAGE\t{{.Image}}\nCOMMAND\t{{.Command}}\nC
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_docker_ps() {
+function ezb_docker_ps {
 	docker ps --format "${EZB_DOCKER_PS_FORMAT}"
 }
 

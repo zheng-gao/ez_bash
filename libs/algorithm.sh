@@ -7,7 +7,7 @@ ezb_dependency_check "sort" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_sort() {
+function ezb_sort {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--data" --type "List" --required &&
         ezb_arg_set --short "-n" --long "--number" --type "Flag" &&

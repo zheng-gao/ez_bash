@@ -6,17 +6,17 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_string_replace() {
+function ezb_string_replace {
     local string="${1}" pattern="${2}" replacement="${3}"
     echo "${string//${pattern}/${replacement}}"
 }
 
-function ezb_string_count_substring() {
+function ezb_string_count_substring {
     local input_string="${1}" substring="${2}"
     echo "${input_string}" | grep -o "${substring}" | wc -l | bc
 }
 
-function ezb_string_repeat() {
+function ezb_string_repeat {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
         ezb_arg_set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
@@ -28,7 +28,7 @@ function ezb_string_repeat() {
     local line index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
 }
 
-function ezb_string_trim() {
+function ezb_string_trim {
     if ezb_function_unregistered; then
         local valid_keys=("Left" "Right" "Both" "Any")
         ezb_arg_set --short "-s" --long "--string" --required --info "The string to be trimmed" &&
@@ -55,7 +55,7 @@ function ezb_string_trim() {
     fi
 }
 
-function ezb_string_cut() {
+function ezb_string_cut {
     if ezb_function_unregistered; then
         local valid_keys=("Left" "Right" "Both")
         ezb_arg_set --short "-s" --long "--string" --required --info "The string to be cut" &&
@@ -73,7 +73,7 @@ function ezb_string_cut() {
     esac
 }
 
-function ezb_string_check() {
+function ezb_string_check {
     if ezb_function_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ezb_arg_set --short "-s" --long "--string" --required --info "The string to be checked" &&
@@ -98,7 +98,7 @@ function ezb_string_check() {
     fi
 }
 
-function ezb_banner() {
+function ezb_banner {
     if ezb_function_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ezb_arg_set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&

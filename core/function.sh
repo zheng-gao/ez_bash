@@ -55,18 +55,18 @@ unset EZB_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZB_S_ARG_TO_EXCL
 ###################################################################################################
 # ------------------------------------- EZ-Bash Debug Tools ------------------------------------- #
 ###################################################################################################
-function ezb_show_checked_dependencies() {
+function ezb_show_checked_dependencies {
     local dependency; for dependency in "${!EZB_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
 }
 
-function ezb_show_registered_functions() {
+function ezb_show_registered_functions {
     local function; for function in "${!EZB_FUNC_SET[@]}"; do echo "${function}"; done
 }
 
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-function ezb_dependency_check() {
+function ezb_dependency_check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZB_DEPENDENCY_SET[${cmd}]}" ]]; then
             ezb_command_check "${cmd}" || { ezb_log_error "Command \"${cmd}\" not found"; return 1; }
@@ -78,9 +78,9 @@ function ezb_dependency_check() {
 ###################################################################################################
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
-function ezb_print_usage() { echo; printf "${1}\n" | column -s "#" -t; echo; }
+function ezb_print_usage { echo; printf "${1}\n" | column -s "#" -t; echo; }
 
-function ezb_build_usage() {
+function ezb_build_usage {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         # column delimiter = "#"
         local usage="[Function Name]#ezb_build_usage#\n[Function Info]#EZ-BASH usage builder\n"
@@ -92,9 +92,9 @@ function ezb_build_usage() {
     local operation="" argument="" description="No Description"
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-o" | "--operation") shift; operation=${1} && [ -n "${1}" ] && shift ;;
-            "-a" | "--argument") shift; argument=${1} && [ -n "${1}" ] && shift ;;
-            "-d" | "--description") shift; description=${1} && [ -n "${1}" ] && shift ;;
+            "-o" | "--operation") shift; operation=${1}; shift ;;
+            "-a" | "--argument") shift; argument=${1}; shift ;;
+            "-d" | "--description") shift; description=${1}; shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -110,7 +110,7 @@ function ezb_build_usage() {
     esac
 }
 
-function ezb_source_dir() {
+function ezb_source_dir {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Source whole directory")
         usage+=$(ezb_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
@@ -121,9 +121,9 @@ function ezb_source_dir() {
     local path="." exclude="" depth=""
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-p" | "--path") shift; path=${1} && [[ -n "${1}" ]] && shift ;;
-            "-d" | "--depth") shift; depth=${1} && [[ -n "${1}" ]] && shift ;;
-            "-e" | "--exclude") shift; exclude=${1} && [[ -n "${1}" ]] && shift ;;
+            "-p" | "--path") shift; path=${1}; shift ;;
+            "-d" | "--depth") shift; depth=${1}; shift ;;
+            "-e" | "--exclude") shift; exclude=${1}; shift ;;
             *) ezb_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -143,7 +143,7 @@ function ezb_source_dir() {
     fi
 }
 
-function ezb_log() {
+function ezb_log {
     local valid_output_to=("Console" "File" "${EZB_OPT_ALL}")
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local valid_output_to_str="$(ezb_join ', ' ${valid_output_to[@]})"
@@ -163,10 +163,10 @@ function ezb_log() {
     local stack="1"; local output_to="Console"
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-l" | "--logger") shift; logger="${1}"; [[ -n "${1}" ]] && shift ;;
-            "-f" | "--file") shift; file="${1}"; [[ -n "${1}" ]] && shift ;;
-            "-o" | "--output-to") shift; output_to="${1}"; [[ -n "${1}" ]] && shift ;;
-            "-s" | "--stack") shift; stack="${1}"; [[ -n "${1}" ]] && shift ;;
+            "-l" | "--logger") shift; logger="${1}"; shift ;;
+            "-f" | "--file") shift; file="${1}"; shift ;;
+            "-o" | "--output-to") shift; output_to="${1}"; shift ;;
+            "-s" | "--stack") shift; stack="${1}"; shift ;;
             "-m" | "--message") shift;
                 while [[ -n "${1}" ]]; do
                     [[ -n "${arg_set_of_ezb_log_to_file["${1}"]}" ]] && break
@@ -202,32 +202,32 @@ function ezb_log() {
 ###################################################################################################
 # ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
 ###################################################################################################
-function ezb_function_get_short_arguments() {
+function ezb_function_get_short_arguments {
     sed "s/${EZB_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZB_FUNC_TO_S_ARG_MAP[${1}]}"
 }
 
-function ezb_function_get_long_arguments() {
+function ezb_function_get_long_arguments {
     sed "s/${EZB_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZB_FUNC_TO_L_ARG_MAP[${1}]}"
 }
 
-function ezb_function_get_list() {
+function ezb_function_get_list {
     local -n ezb_function_get_list_arg_reference="${1}"
     ezb_split "ezb_function_get_list_arg_reference" "${EZB_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
 }
 
-function ezb_function_unregistered() {
+function ezb_function_unregistered {
     # Should only be called by another function. If not, give the function name in 1st argument
     if [[ -z "${1}" ]]; then [[ -z "${EZB_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 0
     else [[ -z "${EZB_FUNC_SET[${1}]}" ]] && return 0; fi
     return 1
 }
 
-function ezb_function_check_help_keyword() {
+function ezb_function_check_help_keyword {
     [[ -z "${1}" ]] && return 0 # Print help info if no argument given
     ezb_excludes "${EZB_FUNC_HELP}" "${@}" && return 1 || return 0
 }
 
-function ezb_function_print_help() {
+function ezb_function_print_help {
     if [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Print Function Help")
         usage+=$(ezb_build_usage -o "add" -a "-f|--function" -d "Function Name")
@@ -280,13 +280,13 @@ function ezb_function_print_help() {
     } | column -t -s "${delimiter}"; echo
 }
 
-function ezb_function_usage() {
+function ezb_function_usage {
     # By default it will print the "help" when no argument is given
     [[ "${1}" = "--run-with-no-argument" ]] && [[ -z "${2}" ]] && return 1
     ezb_function_check_help_keyword "${@}" && ezb_function_print_help -f "${FUNCNAME[1]}" && return 0 || return 1
 }
 
-function ezb_arg_set() {
+function ezb_arg_set {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local type_info="[$(ezb_join ', ' ${!EZB_ARG_TYPE_SET[@]})], default = \"${EZB_ARG_TYPE_DEFAULT}\""
         local usage=$(ezb_build_usage -o "init" -d "Register Function Argument")
@@ -316,12 +316,12 @@ function ezb_arg_set() {
     local default=() choices=()
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-f" | "--function") shift; function=${1}; [[ -n "${1}" ]] && shift ;;
-            "-t" | "--type") shift; type=${1}; [[ -n "${1}" ]] && shift ;;
-            "-s" | "--short") shift; short=${1}; [[ -n "${1}" ]] && shift ;;
-            "-l" | "--long") shift; long=${1}; [[ -n "${1}" ]] && shift ;;
-            "-e" | "--exclude") shift; exclude=${1}; [[ -n "${1}" ]] && shift ;;
-            "-i" | "--info") shift; info=${1}; [[ -n "${1}" ]] && shift ;;
+            "-f" | "--function") shift; function=${1}; shift ;;
+            "-t" | "--type") shift; type=${1}; shift ;;
+            "-s" | "--short") shift; short=${1}; shift ;;
+            "-l" | "--long") shift; long=${1}; shift ;;
+            "-e" | "--exclude") shift; exclude=${1}; shift ;;
+            "-i" | "--info") shift; info=${1}; shift ;;
             "-r" | "--required") shift; required="${EZB_BOOL_TRUE}" ;;
             "-d" | "--default") shift
                 while [[ -n "${1}" ]]; do
@@ -428,7 +428,7 @@ function ezb_arg_set() {
     fi
 }
 
-function ezb_arg_exclude_check() {
+function ezb_arg_exclude_check {
     local function="${1}" arg_name="${2}" exclude="${3}" arguments=("${@:4}") key x_arg
     declare -A exclude_set
     for x_arg in $(ezb_function_get_short_arguments "${function}"); do
@@ -452,7 +452,7 @@ function ezb_arg_exclude_check() {
     return 0
 }
 
-function ezb_arg_get() {
+function ezb_arg_get {
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local usage=$(ezb_build_usage -o "init" -d "Get argument value from argument list")
         usage+=$(ezb_build_usage -o "add" -a "-s|--short" -d "Short Identifier")

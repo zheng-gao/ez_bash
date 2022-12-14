@@ -1,4 +1,4 @@
-function ezb_version_compare() {
+function ezb_version_compare {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
                     --info "Must quote operation \">\" and \">=\"" &&

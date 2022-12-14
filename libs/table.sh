@@ -6,7 +6,7 @@ ezb_dependency_check "awk" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_table_print() {
+function ezb_table_print {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
         ezb_arg_set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&

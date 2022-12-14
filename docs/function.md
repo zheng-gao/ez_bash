@@ -12,7 +12,7 @@
 | -r | --required | Flag | Mark the argument required |
 ### --required
 ```bash
-function ezb_test_string_arg_required() {
+function ezb_test_string_arg_required {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-i" --long "--input" --required || return 1
     fi
@@ -34,7 +34,7 @@ input = "hello world"
 ```
 ### --default
 ```bash
-function ezb_test_string_arg_default() {
+function ezb_test_string_arg_default {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-i" --long "--input" --default "A default string" || return 1
     fi
@@ -56,7 +56,7 @@ input = "hello world"
 ```
 ### --exclude
 ```bash
-function ezb_test_string_arg_exclude() {
+function ezb_test_string_arg_exclude {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-m" --long "--male" --exclude "1" || return 1
         ezb_arg_set --short "-f" --long "--female" --exclude "1" || return 1
@@ -94,7 +94,7 @@ lock = "Test"
 ```
 ### --choices
 ```bash
-function ezb_test_string_arg_choices() {
+function ezb_test_string_arg_choices {
     if ezb_function_unregistered; then
         ezb_arg_set -s "-i" -l "--input" -r --choices "Cappuccino" "Espresso" "Latte" || return 1
     fi
@@ -117,7 +117,7 @@ input = "Latte"
 ```
 ### --type "Password"
 ```bash
-function ezb_test_password_arg() {
+function ezb_test_password_arg {
     if ezb_function_unregistered; then
         ezb_arg_set -s "-p" -l "--password" -r -t "Password" -i "Admin password" || return 1
     fi
@@ -138,7 +138,7 @@ password = "my secret"
 ```
 ### --type "List"
 ```bash
-function ezb_test_list_arg_default() {
+function ezb_test_list_arg_default {
     if ezb_function_unregistered; then
         ezb_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
@@ -165,7 +165,7 @@ Item 3
 ```
 ### --type "Flag"
 ```bash
-function ezb_test_flag_arg() {
+function ezb_test_flag_arg {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-f" --long "--flag" --type "Flag" || return 1
     fi

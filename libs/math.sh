@@ -5,7 +5,7 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_calculate() {
+function ezb_calculate {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-e" --long "--expression" --required &&
         ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
@@ -23,21 +23,21 @@ function ezb_calculate() {
     echo "${result}"
 }
 
-function ezb_floor() {
+function ezb_floor {
     local parts; ezb_split "parts" "." "${1}"
     local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
     [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" = "-" ]] && ((--result))
     echo "${result}"
 }
 
-function ezb_ceiling() {
+function ezb_ceiling {
     local parts; ezb_split "parts" "." "${1}"
     local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
     [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" != "-" ]] && ((++result))
     echo "${result}"
 }
 
-function ezb_decimal_to_base_x() {
+function ezb_decimal_to_base_x {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
         ezb_arg_set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
@@ -54,7 +54,7 @@ function ezb_decimal_to_base_x() {
     fi
 }
 
-function ezb_min() {
+function ezb_min {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
     local min=2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi
@@ -62,7 +62,7 @@ function ezb_min() {
     echo "${min}"
 }
 
-function ezb_max() {
+function ezb_max {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
     local max=-2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi
@@ -70,7 +70,7 @@ function ezb_max() {
     echo "${max}"
 }
 
-function ezb_sum() {
+function ezb_sum {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
     local sum=0 data; for data in "${@}"; do
         sum=$(ezb_calculate --expression "${sum} + ${data}")
@@ -78,7 +78,7 @@ function ezb_sum() {
     echo "${sum}"
 }
 
-function ezb_average() {
+function ezb_average {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--data" --type "List" --required &&
         ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
@@ -91,7 +91,7 @@ function ezb_average() {
     ezb_calculate --expression "$(ezb_sum ${ezb_average_data_list[@]}) / ${#ezb_average_data_list[@]}" --scale "${scale}"
 }
 
-function ezb_variance() {
+function ezb_variance {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--data" --type "List" --required &&
         ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
@@ -108,7 +108,7 @@ function ezb_variance() {
     ezb_calculate --expression "${variance} / (${#ezb_variance_data_list[@]} - 1)" --scale "${scale}"
 }
 
-function ezb_std_deviation() {
+function ezb_std_deviation {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--data" --type "List" --required &&
         ezb_arg_set --short "-s" --long "--scale" --required --default 6 || return 1
@@ -121,7 +121,7 @@ function ezb_std_deviation() {
     ezb_calculate --expression "sqrt($(ezb_variance --data ${ezb_std_deviation_data_list[@]}))" --scale "${scale}"
 }
 
-function ezb_percentile() {
+function ezb_percentile {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--data" --type "List" --required &&
         ezb_arg_set --short "-p" --long "--percentile" --required --default 50 &&
@@ -166,7 +166,7 @@ function ezb_percentile() {
     fi
 }
 
-function ezb_random_int() {
+function ezb_random_int {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--lower-bound" --required --default 0 --info "Inclusive Lower Bound" &&
         ezb_arg_set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1

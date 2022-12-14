@@ -1,4 +1,4 @@
-function ezb_set_operation() {
+function ezb_set_operation {
     if ezb_function_unregistered; then
         local valid_operation=("Intersection" "Union" "LeftOnly" "RightOnly")
         ezb_arg_set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
@@ -26,7 +26,7 @@ function ezb_set_operation() {
     fi
 }
 
-function ezb_set_contains() {
+function ezb_set_contains {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
         ezb_arg_set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&

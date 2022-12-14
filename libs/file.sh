@@ -6,9 +6,9 @@ ezb_dependency_check "lsof" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_file_read_lines() { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
+function ezb_file_read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
 
-function ezb_file_create_dummy() {
+function ezb_file_create_dummy {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
         ezb_arg_set --short "-s" --long "--size" --required --info "Size in MB" || return 1
@@ -27,7 +27,7 @@ function ezb_file_create_dummy() {
     fi
 }
 
-function ezb_file_string_replace() {
+function ezb_file_string_replace {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
         ezb_arg_set --short "-s" --long "--search" --required --info "String to be replaced" &&
@@ -46,7 +46,7 @@ function ezb_file_string_replace() {
     fi
 }
 
-function ezb_file_delete_lines() {
+function ezb_file_delete_lines {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
         ezb_arg_set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
@@ -64,7 +64,7 @@ function ezb_file_delete_lines() {
     fi
 }
 
-function ezb_file_get_lines() {
+function ezb_file_get_lines {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
         ezb_arg_set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
@@ -95,7 +95,7 @@ function ezb_file_get_lines() {
     fi
 }
 
-function ezb_file_descriptor_count() {
+function ezb_file_descriptor_count {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--process-id" --info "Process ID" &&
         ezb_arg_set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
@@ -119,7 +119,7 @@ function ezb_file_descriptor_count() {
     echo "${fd_count}"
 }
 
-function ezb_file_parse_value() {
+function ezb_file_parse_value {
     #  File Content:
     #  ...key="value"...
     if ezb_function_unregistered; then
@@ -136,7 +136,7 @@ function ezb_file_parse_value() {
     fi
 }
 
-function ezb_file_parse_ip() {
+function ezb_file_parse_ip {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
         ezb_arg_set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
@@ -158,7 +158,7 @@ function ezb_file_parse_ip() {
     fi
 }
 
-function ezb_backup() {
+function ezb_backup {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
         ezb_arg_set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||

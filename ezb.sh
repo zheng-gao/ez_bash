@@ -18,7 +18,7 @@ EZB_DEFAULT_BASH_VERSION="5"
 ###################################################################################################
 # ------------------------------------------ Utilities ------------------------------------------ #
 ###################################################################################################
-function ezb_self_verification() {
+function ezb_self_verification {
     if [[ -z "${EZ_BASH_HOME}" ]]; then
         echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] \e[33mEZ_BASH_HOME\e[0m is not set!" && return 1
     elif [[ ! -d "${EZ_BASH_HOME}" ]]; then
@@ -28,7 +28,7 @@ function ezb_self_verification() {
     fi
 }
 
-function ezb_self_installation() {
+function ezb_self_installation {
     local ez_bash_home="${1}" uninstall="${2}"
     local bash_profile="${HOME}/.bash_profile" bashrc="${HOME}/.bashrc"
     if [[ -n "${uninstall}" ]]; then
@@ -70,7 +70,7 @@ function ezb_self_installation() {
     fi
 }
 
-function ezb_self_version() {
+function ezb_self_version {
     echo
     echo "[${EZB_LOGO}]"
     echo "    Author : Zheng Gao"
@@ -79,7 +79,7 @@ function ezb_self_version() {
     echo
 }
 
-function ezb_self_unit_test() {
+function ezb_self_unit_test {
     if ! ezb_self_verification; then return 1; fi
     local tests_dir="${1}" test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"

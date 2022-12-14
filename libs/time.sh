@@ -5,11 +5,11 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_clock() {
+function ezb_clock {
     ezb_now; sleep 1; while true; do ezb_clear -l 1; ezb_now; sleep 1; done
 }
 
-function ezb_time_from_epoch_seconds() {
+function ezb_time_from_epoch_seconds {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
         ezb_arg_set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
@@ -24,7 +24,7 @@ function ezb_time_from_epoch_seconds() {
     fi
 }
 
-function ezb_time_to_epoch_seconds() {
+function ezb_time_to_epoch_seconds {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-t" --long "--timestamp" --required --info "Timestamp" &&
         ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
@@ -39,7 +39,7 @@ function ezb_time_to_epoch_seconds() {
     fi
 }
 
-function ezb_time_offset() {
+function ezb_time_offset {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-t" --long "--timestamp" --required --info "Base Timestamp" &&
         ezb_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" &&
@@ -64,7 +64,7 @@ function ezb_time_offset() {
     ezb_time_from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
 }
 
-function ezb_time_seconds_to_readable() {
+function ezb_time_seconds_to_readable {
     if ezb_function_unregistered; then
         local output_formats=("Short" "Long")
         ezb_arg_set --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
@@ -89,7 +89,7 @@ function ezb_time_seconds_to_readable() {
     echo "${output}"
 }
 
-function ezb_time_elapsed_epoch() {
+function ezb_time_elapsed_epoch {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
         ezb_arg_set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
@@ -100,7 +100,7 @@ function ezb_time_elapsed_epoch() {
     ezb_time_seconds_to_readable --seconds "$((end - start))"
 }
 
-function ezb_time_elapsed() {
+function ezb_time_elapsed {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-s" --long "--start" --required --info "Start Timestamp" &&
         ezb_arg_set --short "-e" --long "--end" --required --info "End Timestamp" &&

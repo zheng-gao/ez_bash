@@ -7,7 +7,7 @@ ezb_dependency_check "nc" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_web() {
+function ezb_web {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--host" --required --default "localhost" --info "Hostname or IP" &&
         ezb_arg_set --short "-p" --long "--port" --required --default "5555" &&

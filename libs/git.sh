@@ -7,7 +7,7 @@ ezb_dependency_check "git" "sort" "awk" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_git_flow() {
+function ezb_git_flow {
     echo
     echo "           + \----------------------------------\  +                               "
     echo "           |  >>>>>>>>>>> commit -a >>>>>>>>>>>>>> |                               "
@@ -53,7 +53,7 @@ function ezb_git_flow() {
     echo
 }
 
-function ezb_git_push_in_batches() {
+function ezb_git_push_in_batches {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
         ezb_arg_set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
@@ -96,7 +96,7 @@ function ezb_git_push_in_batches() {
     echo "[Final Push] ${git_command}" && ${git_command}
 }
 
-function ezb_git_commit_stats() {
+function ezb_git_commit_stats {
     if ezb_function_unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
         ezb_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
@@ -113,7 +113,7 @@ function ezb_git_commit_stats() {
 }
 
 
-function ezb_git_file_stats() {
+function ezb_git_file_stats {
     if ezb_function_unregistered; then
         local valid_operations=("${EZB_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
         ezb_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
@@ -147,7 +147,7 @@ function ezb_git_file_stats() {
     fi
 }
 
-function ezb_git_remove_file_from_history() {
+function ezb_git_remove_file_from_history {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
         ezb_arg_set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1

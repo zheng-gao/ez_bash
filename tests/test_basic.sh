@@ -9,49 +9,49 @@ source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
 ###################################################################################################
 TEST_FAILURE=0
 
-function test_ezb_lower() {
+function test_ezb_lower {
     local expect='aa1bb2cc(%@#&!$+-*/=.?"^{}|~)'
     local result="$(ezb_lower 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_upper() {
+function test_ezb_upper {
     local expect='AA1BB2CC(%@#&!$+-*/=.?"^{}|~)'
     local result="$(ezb_upper 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_today() {
+function test_ezb_today {
     local expect="$(date '+%F')"
     local result="$(ezb_today)"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_now() {
+function test_ezb_now {
     local expect="$(date '+%F %T')"
     local result="$(ezb_now)"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_quote() {
+function test_ezb_quote {
     local expect="'abc' '123' ''' '  '"
     local result="$(ezb_quote "abc" "123" "'" "  ")"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_double_quote() {
+function test_ezb_double_quote {
     local expect="\"abc\" \"123\" \"\"\" \"  \""
     local result="$(ezb_double_quote "abc" "123" "\"" "  ")"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_join() {
-    local expect="abc-123-XYZ"
-    local result="$(ezb_join "-" "abc" "123" "XYZ")"
+function test_ezb_join {
+    local expect="abc-123--XYZ"
+    local result="$(ezb_join "-" "abc" "123" "" XYZ")"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_contains() {
+function test_ezb_contains {
     local result
     ezb_contains "123" "abc" "123" "XYZ" && result="True" || result="False"
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
@@ -59,7 +59,7 @@ function test_ezb_contains() {
     ezb_expect_result "False" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_excludes() {
+function test_ezb_excludes {
     local result
     ezb_excludes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ezb_expect_result "False" "${result}" || ((++TEST_FAILURE))
@@ -67,13 +67,13 @@ function test_ezb_excludes() {
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_count_items() {
+function test_ezb_count_items {
     local expect=5
     local result="$(ezb_count_items "@@" "@@123@@@xyz@@@@")"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ezb_split() {
+function test_ezb_split {
     local expect=("abc" "123" "" "XYZ" ".") result
     ezb_split "result" "," "abc,123,,XYZ,."
     local i; for ((i=0; i<${#expect[@]}; ++i)); do

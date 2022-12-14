@@ -5,7 +5,7 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_clear() {
+function ezb_clear {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--lines" --required --default "0" \
                     --info "Lines to clean, non-positve clear console" || return 1
@@ -19,7 +19,7 @@ function ezb_clear() {
     fi
 }
 
-function ezb_terminal_set_title() {
+function ezb_terminal_set_title {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-t" --long "--title" --type "String" --required --default "hostname" \
                     --info "Terminal Title" || return 1
@@ -30,7 +30,7 @@ function ezb_terminal_set_title() {
     echo -n -e "\033]0;${title}\007"
 }
 
-function ezb_sleep() {
+function ezb_sleep {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-u" --long "--unit" --required --default "Second" \
                     --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name" &&
@@ -73,7 +73,7 @@ function ezb_sleep() {
     done
 }
 
-function ezb_print_progress() {
+function ezb_print_progress {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
         ezb_arg_set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
@@ -145,7 +145,7 @@ function ezb_print_progress() {
     # ezb_print_list_with_progress_bar "I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)"
 }
 
-function ezb_print_list_with_progress_bar() {
+function ezb_print_list_with_progress_bar {
     local out i=0 data; for data in ${@}; do
         out+="${data} "; ((++i))
         ezb_print_progress -p -c "${i}" -t "${#}" -d1 0 -dx 2
@@ -153,7 +153,7 @@ function ezb_print_list_with_progress_bar() {
     done
 }
 
-function ezb_watch() {
+function ezb_watch {
     local sleep_seconds="${1}" function_name="${2}"
     while true; do
         clear

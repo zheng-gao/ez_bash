@@ -6,7 +6,7 @@ ezb_dependency_check "ssh" "expect" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_ssh_local_script() {
+function ezb_ssh_local_script {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
@@ -30,7 +30,7 @@ function ezb_ssh_local_script() {
     done
 }
 
-function ezb_ssh_local_function() {
+function ezb_ssh_local_function {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
         ezb_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
@@ -52,7 +52,7 @@ function ezb_ssh_local_function() {
     ezb_ssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}"
 }
 
-function ezb_command_md5() {
+function ezb_command_md5 {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
         if ! ezb_command_check "md5"; then ezb_log_error "Not found \"md5\", please run \"brew install md5\""
@@ -63,7 +63,7 @@ function ezb_command_md5() {
     fi
 }
 
-function ezb_command_timeout() {
+function ezb_command_timeout {
     local os=$(ezb_os_name)
     if [[ "${os}" = "macos" ]]; then
         if ! ezb_command_check "gtimeout"; then ezb_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
@@ -75,7 +75,7 @@ function ezb_command_timeout() {
 
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
-function ezb_ssh_sudo_cmd() {
+function ezb_ssh_sudo_cmd {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--host" --required --info "The host to run the command on" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
@@ -133,7 +133,7 @@ EOF
     fi
 }
 
-function ezb_mssh_sudo_cmd() {
+function ezb_mssh_sudo_cmd {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
@@ -196,7 +196,7 @@ function ezb_mssh_sudo_cmd() {
     fi
 }
 
-function ezb_mssh_cmd() {
+function ezb_mssh_cmd {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
         ezb_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&

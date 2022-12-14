@@ -5,7 +5,7 @@ source "${EZ_BASH_HOME}/tests/utils.sh" || exit 1
 source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
 source "${EZ_BASH_HOME}/core/function.sh" || exit 1
 
-function registered_function() {
+function registered_function {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-r" --long "--required-arg" --required &&
         ezb_arg_set --short "-d" --long "--default-arg" --default "A default string" &&
@@ -33,35 +33,35 @@ function registered_function() {
 ###################################################################################################
 TEST_FAILURE=0
 
-function test_string_required() {
+function test_string_required {
     local error_output="$(registered_function 2>&1)" result
     [[  "${error_output}" =~ "Argument \"-r\" is required" ]] && result="True" || result="False"
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_string_exclude() {
+function test_string_exclude {
     local error_output="$(registered_function -r '' -b -s 2>&1)" result
     [[  "${error_output}" =~ "\"-b\" and \"-s\" are mutually exclusive in group: order" ]] && result="True" || result="False"
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_string_choices() {
+function test_string_choices {
     local error_output="$(registered_function -r '' -c 'My Choice' 2>&1)" result
-    [[  "${error_output}" =~ "Invalid value \"My Choice\" for argument \"-c\"" ]] && result="True" || result="False"
+    [[  "${error_output}" =~ "Invalid value \"My Choice\" for \"-c\"" ]] && result="True" || result="False"
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
-    [[  "${error_output}" =~ "Please choose from [Choice 1, Choice 2, Choice 3] for argument \"-c\"" ]] && result="True" || result="False"
+    [[  "${error_output}" =~ "please choose from [Choice 1, Choice 2, Choice 3]" ]] && result="True" || result="False"
     ezb_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_string_default() {
+function test_string_default {
     ezb_expect_result "default_arg: A default string" "$(registered_function -r '' | grep 'default_arg')" || ((++TEST_FAILURE))
 }
 
-function test_list_default() {
+function test_list_default {
     ezb_expect_result "list_arg: Def 1#Def 2#Def 3" "$(registered_function -r '' | grep 'list_arg')" || ((++TEST_FAILURE))   
 }
 
-function test_flag() {
+function test_flag {
     ezb_expect_result "flag_arg: True" "$(registered_function -r '' -f | grep 'flag_arg')" || ((++TEST_FAILURE))
     ezb_expect_result "flag_arg: False" "$(registered_function -r '' | grep 'flag_arg')" || ((++TEST_FAILURE))
 }

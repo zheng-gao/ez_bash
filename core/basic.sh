@@ -1,27 +1,28 @@
 ###################################################################################################
 # ------------------------------------ Independent Functions ------------------------------------ #
 ###################################################################################################
-function ezb_variables() { set | grep "^EZB_" --color; }
-function ezb_functions() { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
-function ezb_lower() { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
-function ezb_upper() { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
-function ezb_now() { date "+%F %T"; }
-function ezb_today() { date "+%F"; }
-function ezb_command_check() { which "${1}" &> "/dev/null" && return 0 || return 1; }
-function ezb_quote() { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
-function ezb_double_quote() { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
+function ezb_variables { set | grep "^EZB_" --color; }
+function ezb_functions { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
+function ezb_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
+function ezb_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
+function ezb_now { date "+%F %T"; }
+function ezb_today { date "+%F"; }
+function ezb_command_check { which "${1}" &> "/dev/null" && return 0 || return 1; }
+function ezb_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
+function ezb_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
 
-function ezb_list_size() { echo "${#@}"; }
-function ezb_string_size() { echo "${#1}"; }
+function ezb_list_size { echo "${#@}"; }
+function ezb_string_size { echo "${#1}"; }
 
 # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-function ezb_contains() { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
-function ezb_excludes() { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
+function ezb_contains { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
+function ezb_excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-function ezb_join() { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
+function ezb_join { local IFS="${1}"; shift; echo "${*}"; } 
+# { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
 
-function ezb_os_name() {
+function ezb_os_name {
     case "$(uname -s)" in
         "Darwin") echo "macos" && return 0 ;;
         "Linux") echo "linux" && return 0 ;;
@@ -29,7 +30,7 @@ function ezb_os_name() {
     esac
 }
 
-function ezb_count_items() {
+function ezb_count_items {
     local delimiter="${1}" string="${@:2}" k=0 count=0
     [[ -z "${string}" ]] && echo "${count}" && return
     while [[ "${k}" -lt "${#string}" ]]; do
@@ -38,7 +39,7 @@ function ezb_count_items() {
     echo "$((++count))"
 }
 
-function ezb_log_stack() {
+function ezb_log_stack {
     local ignore_top_x="${1}" i=$((${#FUNCNAME[@]} - 1)) stack
     if [[ -n "${ignore_top_x}" ]]; then
         for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
@@ -49,7 +50,7 @@ function ezb_log_stack() {
     [[ "${stack}" != "[]" ]] && echo "${stack}"
 }
 
-function ezb_split() {
+function ezb_split {
     # ${1} = list reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
     local -n ezb_split_arg_reference="${1}"
     local delimiter="${2}" string="${@:3}" item="" k=0
@@ -126,7 +127,7 @@ declare -g -A EZB_FORMAT_SET=(
     ["BackgroundWhite"]="\e[107m"
 )
 
-function ezb_256_color_format() {
+function ezb_256_color_format {
     local foreground=38 background=48 color
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "[Usage]"
@@ -160,7 +161,7 @@ function ezb_256_color_format() {
     fi
 }
 
-function ezb_string_format() {
+function ezb_string_format {
     # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "[Usage]"; echo "${FUNCNAME[0]} [Format] [String]"; echo; echo "[Available Format]"
@@ -173,12 +174,12 @@ function ezb_string_format() {
     fi
 }
 
-function ezb_log_info() { echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
+function ezb_log_info { echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
 
-function ezb_log_error() {
+function ezb_log_error {
     (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundRed" "ERROR")] ${@}")
 }
 
-function ezb_log_warning() {
+function ezb_log_warning {
     echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundYellow" "WARNING")] ${@}"
 }
