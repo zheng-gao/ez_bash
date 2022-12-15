@@ -37,22 +37,41 @@ function ezb_ceiling {
     echo "${result}"
 }
 
-function ezb_decimal_to_base_x {
+function ezb_convert_decimal_to_base_x {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
         ezb_arg_set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
-        ezb_arg_set --short "-p" --long "--padding" --default "2" --info "Zero Padding Size" || return 1
+        ezb_arg_set --short "-p" --long "--padding" --default "2" --info "Total length for padding if not fill" || return 1
     fi
     ezb_function_usage "${@}" && return
     local decimal && decimal="$(ezb_arg_get --short "-d" --long "--decimal" --arguments "${@}")" &&
     local base && base="$(ezb_arg_get --short "-b" --long "--base" --arguments "${@}")" &&
     local padding && padding="$(ezb_arg_get --short "-p" --long "--padding" --arguments "${@}")" || return 1
-    if [[ "${base}" -eq "16" ]]; then
-        printf "%0${padding}x\n" "${decimal}"
-    else
-        printf "%0${padding}d\n" $(bc <<< "obase=${base};${decimal}")
+    if [[ "${base}" -eq "16" ]]; then printf "%0${padding}x\n" "${decimal}"
+    elif [[ "${base}" -eq "8" ]]; then printf "%0${padding}o\n" "${decimal}"
+    else printf "%0${padding}d\n" $(bc <<< "obase=${base};${decimal}")
     fi
 }
+
+function ezb_convert_base_x_to_decimal {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-v" --long "--value" --required --info "Base X value" &&
+        ezb_arg_set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local value && value="$(ezb_arg_get --short "-v" --long "--value" --arguments "${@}")" &&
+    local base && base="$(ezb_arg_get --short "-b" --long "--base" --arguments "${@}")" || return 1
+    if [[ "${base}" -eq "16" ]]; then
+        [[ "${value:0:2}" != "0x" ]] && value="0x${value}"
+        printf "%d\n" "${value}"
+    elif [[ "${base}" -eq "8" ]]; then
+        [[ "${value:0:1}" != "0" ]] && value="0${value}"
+        printf "%d\n" "${value}"
+    else
+        bc <<< "ibase=${base};${value}"
+    fi
+}
+
 
 function ezb_min {
     if [[ "${#}" -eq 0 ]]; then ezb_log_error "No data found"; return 1; fi
