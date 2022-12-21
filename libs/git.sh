@@ -108,8 +108,8 @@ function ezb_git_commit_stats {
     [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
-    git -C "${repo_path}" config diff.renameLimit 999999
-    git -C "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
+    git --git-dir "${repo_path}" config diff.renameLimit 999999
+    git --git-dir "${repo_path}" log --numstat --first-parent master --no-merges --date="${date_option}" --pretty="format:[%ad] [%H] [%an] [%ae]"
 }
 
 
@@ -124,11 +124,11 @@ function ezb_git_file_stats {
     local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
-         git -C "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
+         git --git-dir "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
         local log_file="${EZB_DIR_LOGS}/${FUNCNAME[0]}.log"
-        git -C "${repo_path}" rev-list --objects --all \
-        | git -C "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
+        git --git-dir "${repo_path}" rev-list --objects --all \
+        | git --git-dir "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
         | sed -n 's/^blob //p' \
         | sort --numeric-sort --key=2 \
         | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest > "${log_file}"
@@ -158,9 +158,54 @@ function ezb_git_remove_file_from_history {
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
     ezb_log_info "Removing ${file_path}"
-    git -C "${repo_path}" "filter-branch" --force --prune-empty --index-filter "git -C ${repo_path} rm --cached --ignore-unmatch ${file_path}" --tag-name-filter cat -- --all
+    git --git-dir "${repo_path}" "filter-branch" --force --prune-empty --index-filter "git --git-dir ${repo_path} rm --cached --ignore-unmatch ${file_path}" --tag-name-filter cat -- --all
 }
 
-
+function ezb_git_find_large_blobs() {
+    if ezb_function_unregistered; then
+        ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ezb_arg_set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
+    fi
+    ezb_function_usage "${@}" && return
+    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local min_bytes && min_bytes="$(ezb_arg_get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ -z "${repo_path}" ]] && repo_path="."
+    local line first_line=true
+    echo "{"
+    echo "    \"objects\": ["
+    git --git-dir "${repo_path}" "rev-list" --objects --all | \
+    git --git-dir "${repo_path}" cat-file --batch-check='%(objectname) %(objectsize) %(objecttype) %(rest)' | \
+    awk '$3 == "blob" && $2 >= '${min_bytes}' {print $0}' | \
+    while read line; do
+        if "${first_line}"; then first_line=false; else echo ","; fi
+        local array=(${line})
+        local blob_size="${array[1]}"
+        # blob_size=$(numfmt --to=iec-i --suffix=B --padding=7 --round=nearest "${array[1]}")
+        echo "        {"
+        echo "            \"name\": \"${array[@]:3}\","
+        echo "            \"blob\": \"${array[0]}\","
+        echo "            \"size\": \"${blob_size}\","
+        echo "            \"commits\": ["
+        local first_commit=true commit
+        for commit in $(git --git-dir "${repo_path}" "log" --pretty="format:%H" --all --find-object="${array[0]}"); do
+            if "${first_commit}"; then first_commit=false; else echo ","; fi
+            echo "                {"
+            echo "                    \"hash\": \"${commit}\","
+            echo "                    \"branches\": ["
+            local first_branch=true branch
+            for branch in $(git --git-dir "${repo_path}" branch -a --contains "${commit}"); do
+                if "${first_branch}"; then first_branch=false; else echo ","; fi
+                echo -n "                        \"${branch}\""
+            done
+            if "${first_branch}"; then echo "]"; else echo; echo "                    ]"; fi
+            echo -n "                }"
+        done
+        if "${first_commit}"; then echo "]"; else echo; echo "            ]"; fi
+        echo -n "        }"
+    done
+    echo; echo "    ]"
+    echo "}"
+}
 
 
