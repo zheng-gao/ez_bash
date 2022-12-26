@@ -113,8 +113,18 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     fi
     case "${1}" in
         "-t" | "--test") ezb_self_unit_test "$(dirname ${0})/tests" ;;
-        "-i" | "--install") ezb_self_installation "$(pwd)/$(dirname ${0})" ;;
-        "-u" | "--uninstall") ezb_self_installation "$(pwd)/$(dirname ${0})" "uninstall" ;;
+        "-i" | "--install")
+            if [[ "$(dirname ${0})" = "." ]]; then
+                ezb_self_installation "$(pwd)"
+            else
+                ezb_self_installation "$(pwd)/$(dirname ${0})"
+            fi ;;
+        "-u" | "--uninstall")
+            if [[ "$(dirname ${0})" = "." ]]; then
+                ezb_self_installation "$(pwd)" "uninstall"
+            else
+                ezb_self_installation "$(pwd)/$(dirname ${0})" "uninstall"
+            fi ;;
         "-v" | "--version") ezb_self_version ;;
         *) echo -e "[${EZB_LOGO}][\e[31mERROR\e[0m] Unknown argument identifier \"${1}\"" && exit 1 ;;
     esac

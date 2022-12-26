@@ -2,7 +2,7 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 source "${EZ_BASH_HOME}/tests/utils.sh" || exit 1
-source "${EZ_BASH_HOME}/core/basic.sh" || exit 1
+source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Test Function ----------------------------------------- #
@@ -47,7 +47,7 @@ function test_ezb_double_quote {
 
 function test_ezb_join {
     local expect="abc-123--XYZ"
-    local result="$(ezb_join "-" "abc" "123" "" XYZ")"
+    local result="$(ezb_join "-" "abc" "123" "" "XYZ")"
     ezb_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
