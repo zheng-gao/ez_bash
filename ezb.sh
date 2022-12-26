@@ -126,19 +126,19 @@ else
     }
     rm -f "/var/tmp/null"
     # Source EZ-Bash Core
-    source "${EZ_BASH_HOME}/core/basic.sh" || return 1
-    source "${EZ_BASH_HOME}/core/function.sh" || return 1
+    source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
+    source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     # Source Other Libs
     if [[ -z "${1}" ]]; then
         echo "[${EZB_LOGO}][INFO] Imported ${EZB_LOGO} core"
     elif [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
-        ezb_source_dir --path "${EZ_BASH_HOME}/libs" || return 1
-        echo -e "[${EZB_LOGO}][INFO] Imported $(ezb_string_format ForegroundYellow ALL) ${EZB_LOGO} libraries!"
+        ezb_source_dir --path "${EZ_BASH_HOME}/src/libs" || return 1
+        echo -e "[${EZB_LOGO}][INFO] Imported $(ezb_string_format 'ForegroundYellow' 'ALL') ${EZB_LOGO} libraries!"
     else
         # Source the designated libraries
         for ezb_library in "${@}"; do
-            ezb_source_dir --path "${EZ_BASH_HOME}/libs/${ezb_library}" || return 1
+            ezb_source_dir --path "${EZ_BASH_HOME}/src/libs/${ezb_library}" || return 1
         done
         unset ezb_library
         echo "[${EZB_LOGO}][INFO] Imported ${EZB_LOGO} libraries: ${@}"
