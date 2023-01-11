@@ -19,8 +19,10 @@ function ezb_contains { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && 
 function ezb_excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-function ezb_join { local IFS="${1}"; shift; echo "${*}"; } 
-# { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
+function ezb_join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
+
+# IFS can only take 1 character
+# function ezb_join { local IFS="${1}"; shift; echo "${*}"; } 
 
 function ezb_os_name {
     case "$(uname -s)" in
