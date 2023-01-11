@@ -1,10 +1,17 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
+ezb_dependency_check "tput" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ezb_terminal_draw_line {
+    local character="${1}"
+    [[ -z "${character}" ]] && character="-"
+    printf %"$(tput cols)"s | tr " " "${character[0]}"
+}
+
 function ezb_clear {
     if ezb_function_unregistered; then
         ezb_arg_set --short "-l" --long "--lines" --required --default "0" \
@@ -13,7 +20,7 @@ function ezb_clear {
     [[ -n "${@}" ]] && ezb_function_usage "${@}" && return
     local lines && lines="$(ezb_arg_get --short "-l" --long "--lines" --arguments "${@}")" || return 1
     if [[ "${lines}" -gt 0 ]]; then
-        local i=0; for ((; i < "${lines}"; ++i)); do tput cuu1 && tput el; done # cursor up one line and clean
+        local i=0; for ((; i < "${lines}"; ++i)); do tput "cuu1" && tput "el"; done # cursor up one line and clean
     else
         clear
     fi
