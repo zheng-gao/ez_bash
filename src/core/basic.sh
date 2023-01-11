@@ -11,7 +11,7 @@ function ezb_command_check { which "${1}" &> "/dev/null" && return 0 || return 1
 function ezb_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
 function ezb_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
 
-function ezb_list_size { echo "${#@}"; }
+function ezb_array_size { echo "${#@}"; }
 function ezb_string_size { echo "${#1}"; }
 
 # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
@@ -51,7 +51,7 @@ function ezb_log_stack {
 }
 
 function ezb_split {
-    # ${1} = list reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
+    # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
     local -n ezb_split_arg_reference="${1}"
     local delimiter="${2}" string="${@:3}" item="" k=0
     ezb_split_arg_reference=()
@@ -63,6 +63,28 @@ function ezb_split {
         fi
         [[ "${k}" -ge "${#string}" ]] && ezb_split_arg_reference+=("${item}")
     done
+}
+
+function ezb_array_delete_item() {
+    # ${1} = array reference, ${2} = item
+    local -n ezb_array_delete_item_arg_reference="${1}"
+    local tmp_array=("${ezb_array_delete_item_arg_reference[@]}") item status=1
+    ezb_array_delete_item_arg_reference=() 
+    for item in "${tmp_array[@]}"; do
+        [[ "${item}" != "${2}" ]] && ezb_array_delete_item_arg_reference+=("${item}") || status=0
+    done
+    return "${status}"
+}
+
+function ezb_array_delete_index() {
+    # ${1} = array reference, ${2} = index
+    local -n ezb_array_delete_index_arg_reference="${1}"
+    local tmp_array=("${ezb_array_delete_index_arg_reference[@]}") i=0 status=1
+    ezb_array_delete_index_arg_reference=() 
+    for ((; i < "${#tmp_array[@]}"; ++i)); do
+        [[ "${i}" -ne "${2}" ]] && ezb_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0
+    done
+    return "${status}"
 }
 
 # https://misc.flogisoft.com/bash/tip_colors_and_formatting

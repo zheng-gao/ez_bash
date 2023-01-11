@@ -81,6 +81,28 @@ function test_ezb_split {
     done
 }
 
+function test_ezb_array_delete_item {
+    local array=("one" "two" "three" "four" "five")
+    local expect=("two" "four")
+    ezb_array_delete_item array "three"
+    ezb_array_delete_item array "five"
+    ezb_array_delete_item array "one"
+    local i; for ((i=0; i<${#expect[@]}; ++i)); do
+        ezb_expect_result "${expect[${i}]}" "${array[${i}]}" || ((++TEST_FAILURE))
+    done
+}
+
+function test_ezb_array_delete_index {
+    local array=("one" "two" "three" "four" "five")
+    local expect=("two" "four")
+    ezb_array_delete_item array 2
+    ezb_array_delete_item array -1
+    ezb_array_delete_item array 0
+    local i; for ((i=0; i<${#expect[@]}; ++i)); do
+        ezb_expect_result "${expect[${i}]}" "${array[${i}]}" || ((++TEST_FAILURE))
+    done
+}
+
 test_ezb_lower
 test_ezb_upper
 test_ezb_today
@@ -92,6 +114,7 @@ test_ezb_contains
 test_ezb_excludes
 test_ezb_count_items
 test_ezb_split
+test_ezb_array_delete_item
 
 exit "${TEST_FAILURE}"
 
