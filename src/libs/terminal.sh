@@ -6,10 +6,8 @@ ezb_dependency_check "tput" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_terminal_draw_line {
-    local character="${1}"
-    [[ -z "${character}" ]] && character="-"
-    printf %"$(tput cols)"s | tr " " "${character[0]}"
+function ezb_draw_a_line {
+    local c="${1}"; [[ -z "${c}" ]] && c="-"; printf %"$(tput 'cols')"s | tr " " "${c[0]}"
 }
 
 function ezb_clear {
