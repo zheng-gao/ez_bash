@@ -10,14 +10,15 @@ function ezb_draw_line {
     local line_size="${1}" line_item="${2}"
     [[ -z "${line_item}" ]] && line_item="-"
     local item_size="${#line_item}" size
-    for ((size=0; size <= line_size - item_size; size += item_size)); do echo -n "${line_item}"; done
+    for ((size=0; size <= line_size - item_size; size += item_size)); do echo -en "${line_item}"; done
     local remainder_size="$((line_size - size))"
-    [[ "${remainder_size}" -gt 0 ]] && echo -n "${line_item::${remainder_size}}"
+    [[ "${remainder_size}" -gt 0 ]] && echo -ne "${line_item::${remainder_size}}"
 }
 
 function ezb_draw_full_line {
     local item="${1}" line_size="$(tput 'cols')"
     ezb_draw_line "${line_size}" "${item}"
+    echo
 }
 
 function ezb_draw_banner {
@@ -26,8 +27,9 @@ function ezb_draw_banner {
     local left_wing_size="$(( (terminal_size - title_size) / 2 ))"
     local right_wing_size="$(( terminal_size - title_size - left_wing_size ))"
     ezb_draw_line "${left_wing_size}" "${line_item}"
-    echo -n "${title}"
+    echo -en "${title}"
     ezb_draw_line "${right_wing_size}" "${line_item}"
+    echo
 }
 
 function ezb_clear {
