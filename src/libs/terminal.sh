@@ -7,33 +7,27 @@ ezb_dependency_check "tput" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ezb_draw_line {
-    local line_component="${1}"
-    [[ -z "${line_component}" ]] && line_component="-"
-    local component_length="${#line_component}" length terminal_length="$(tput 'cols')"
-    for ((length=0; length <= terminal_length - component_length; length += component_length)); do
-        echo -n "${line_component}"
-    done
-    local remainder_length="$((terminal_length - length))"
-    [[ "${remainder_length}" -gt 0 ]] && echo "${line_component::${remainder_length}}"
+    local line_size="${1}" line_item="${2}"
+    [[ -z "${line_item}" ]] && line_item="-"
+    local item_size="${#line_item}" size
+    for ((size=0; size <= line_size - item_size; size += item_size)); do echo -n "${line_item}"; done
+    local remainder_size="$((line_size - size))"
+    [[ "${remainder_size}" -gt 0 ]] && echo -n "${line_item::${remainder_size}}"
+}
+
+function ezb_draw_full_line {
+    local item="${1}" line_size="$(tput 'cols')"
+    ezb_draw_line "${line_size}" "${item}"
 }
 
 function ezb_draw_banner {
-    local title_string=" ${1} " line_component="${2}" length remainder_length
-    [[ -z "${line_component}" ]] && line_component="-"
-    local component_length="${#line_component}" title_length="${#title_string}" terminal_length="$(tput 'cols')"
-    local left_wing_length="$(( (terminal_length - title_length) / 2 ))"
-    local right_wing_length="$(( terminal_length - title_length - left_wing_length ))"
-    for ((length=0; length <= left_wing_length - component_length; length += component_length)); do
-        echo -n "${line_component}"
-    done
-    remainder_length="$((left_wing_length - length))"
-    [[ "${remainder_length}" -gt 0 ]] && echo -n "${line_component::${remainder_length}}"
-    echo -n "${title_string}"
-    for ((length=0; length <= right_wing_length - component_length; length += component_length)); do
-        echo -n "${line_component}"
-    done
-    remainder_length="$((right_wing_length - length))"
-    [[ "${remainder_length}" -gt 0 ]] && echo -n "${line_component::${remainder_length}}"
+    local title=" ${1} " line_item="${2}"
+    local title_size="${#title}" terminal_size="$(tput 'cols')"
+    local left_wing_size="$(( (terminal_size - title_size) / 2 ))"
+    local right_wing_size="$(( terminal_size - title_size - left_wing_size ))"
+    ezb_draw_line "${left_wing_size}" "${line_item}"
+    echo -n "${title}"
+    ezb_draw_line "${right_wing_size}" "${line_item}"
 }
 
 function ezb_clear {
