@@ -6,8 +6,34 @@ ezb_dependency_check "tput" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ezb_draw_a_line {
-    local c="${1}"; [[ -z "${c}" ]] && c="-"; printf %"$(tput 'cols')"s | tr " " "${c[0]}"
+function ezb_draw_line {
+    local line_component="${1}"
+    [[ -z "${line_component}" ]] && line_component="-"
+    local component_length="${#line_component}" length terminal_length="$(tput 'cols')"
+    for ((length=0; length <= terminal_length - component_length; length += component_length)); do
+        echo -n "${line_component}"
+    done
+    local remainder_length="$((terminal_length - length))"
+    [[ "${remainder_length}" -gt 0 ]] && echo "${line_component::${remainder_length}}"
+}
+
+function ezb_draw_banner {
+    local title_string=" ${1} " line_component="${2}" length remainder_length
+    [[ -z "${line_component}" ]] && line_component="-"
+    local component_length="${#line_component}" title_length="${#title_string}" terminal_length="$(tput 'cols')"
+    local left_wing_length="$(( (terminal_length - title_length) / 2 ))"
+    local right_wing_length="$(( terminal_length - title_length - left_wing_length ))"
+    for ((length=0; length <= left_wing_length - component_length; length += component_length)); do
+        echo -n "${line_component}"
+    done
+    remainder_length="$((left_wing_length - length))"
+    [[ "${remainder_length}" -gt 0 ]] && echo -n "${line_component::${remainder_length}}"
+    echo -n "${title_string}"
+    for ((length=0; length <= right_wing_length - component_length; length += component_length)); do
+        echo -n "${line_component}"
+    done
+    remainder_length="$((right_wing_length - length))"
+    [[ "${remainder_length}" -gt 0 ]] && echo -n "${line_component::${remainder_length}}"
 }
 
 function ezb_clear {
