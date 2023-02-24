@@ -1,8 +1,10 @@
 ###################################################################################################
-# ------------------------------------ Independent Functions ------------------------------------ #
+# ------------------------------------- EZB Basic Functions ------------------------------------- #
 ###################################################################################################
-function ezb_variables { set | grep "^EZB_" --color; }
-function ezb_functions { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
+function ezb_show_alias { alias | grep "EZB_" --color; }
+function ezb_show_variables { set | grep "^EZB_" --color; }
+function ezb_show_functions { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
+
 function ezb_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ezb_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
 function ezb_now { date "+%F %T"; }

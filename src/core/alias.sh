@@ -1,0 +1,1 @@
+alias EZB_PIPEABLE_TRIM_BLANK="sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//'"

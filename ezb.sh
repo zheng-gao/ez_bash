@@ -14,6 +14,16 @@
 EZB_LOGO="EZ-Bash"
 EZB_VERSION="2.0.0"
 EZB_DEFAULT_BASH_VERSION="5"
+EZB_DEFAULT_DEPENDENCIES=(
+    "alias"
+    "echo"
+    "grep"
+    "mv"
+    "sed"
+    "tr"
+    "true"
+    "false"
+)
 
 ###################################################################################################
 # ------------------------------------------ Utilities ------------------------------------------ #
@@ -136,6 +146,7 @@ else
     }
     rm -f "/var/tmp/null"
     # Source EZ-Bash Core
+    source "${EZ_BASH_HOME}/src/core/alias.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     # Source Other Libs
