@@ -3,14 +3,14 @@
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
 ez_bash/ez.sh --install  # Import all the libraries and update ~/.bashrc or ~/.bash_profile
-ez_bash/ez.sh --test     # Run unit test
+ez_bash/ez.sh --test     # Run unit tests
 ```
 ## Partial Installation
 #### 1. Clone Repo
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
 ````
-#### 2. Set [__EZ_BASH_HOME__](https://github.com/zheng-gao/ez_bash/blob/master/ez.sh#L10)
+#### 2. Set Environment
 ```shell
 export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
