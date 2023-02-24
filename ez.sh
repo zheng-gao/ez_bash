@@ -47,7 +47,6 @@ EZ_DEFAULT_DEPENDENCIES=(
     "true"
     "uname"
     "unset"
-    "xargs"
 )
 
 unset EZ_DEPENDENCY_SET
