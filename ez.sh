@@ -28,6 +28,7 @@ EZ_DEFAULT_DEPENDENCIES=(
     "echo"
     "false"
     "grep"
+    "ls"
     "mkdir"
     "mv"
     "printf"
@@ -45,6 +46,7 @@ EZ_DEFAULT_DEPENDENCIES=(
     "true"
     "uname"
     "unset"
+    "xargs"
 )
 
 unset EZ_DEPENDENCY_SET
@@ -130,9 +132,10 @@ function ez_self_version {
 
 function ez_self_unit_test {
     if ! ez_self_verification; then return 1; fi
-    local tests_dir="${1}" test_file test_result test_summary has_error test_error
+    local tests_dir="${1}" test_files=("${@:2}") test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"
-    for test_file in $(ls -1 ${tests_dir} | grep -v 'utils.sh'); do
+    [[ -z "${test_files}" ]] && test_files=($(ls -1 ${tests_dir} | grep -v 'utils.sh'))
+    for test_file in "${test_files[@]}"; do
         if test_result=$("${tests_dir}/${test_file}"); then
             test_summary+="[✓] ${test_file}\n"
         else
@@ -153,15 +156,16 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo
         echo "[${EZ_LOGO}]"
-        echo "    -t|--test         Run unit test"
-        echo "    -i|--install      Install ${EZ_LOGO}"
-        echo "    -u|--uninstall    Uninstall ${EZ_LOGO}"
-        echo "    -v|--version      Show version info"
+        echo "    -i|--install                        Install ${EZ_LOGO}"
+        echo "    -u|--uninstall                      Uninstall ${EZ_LOGO}"
+        echo "    -v|--version                        Show version info"
+        echo "    -t|--test <TEST_FILE.sh>            Run unit test"
+        ls -1 "$(dirname ${0})/tests" | grep "^test_" | sed 's/^/              /'
         echo
         exit 0
     fi
     case "${1}" in
-        "-t" | "--test") ez_self_unit_test "$(dirname ${0})/tests" ;;
+        "-t" | "--test") ez_self_unit_test "$(dirname ${0})/tests" "${@:2}";;
         "-i" | "--install")
             if [[ "$(dirname ${0})" = "." ]]; then
                 ez_self_installation "$(pwd)"
