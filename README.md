@@ -14,16 +14,17 @@ git clone https://github.com/zheng-gao/ez_bash.git
 ```shell
 export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
-#### 3. Import "ezb" libraries
+#### 3. Import Libraries
 ```shell
 source "${EZ_BASH_HOME}/ez.sh"                    # Import core functions only
-source "${EZ_BASH_HOME}/ez.sh" "lib1" "lib2" ...  # Import "ezb" libraries (including core)
-source "${EZ_BASH_HOME}/ez.sh" --all              # Import ALL "ezb" libraries (including core)
+source "${EZ_BASH_HOME}/ez.sh" "lib1" "lib2" ...  # Import libraries (including core)
+source "${EZ_BASH_HOME}/ez.sh" --all              # Import ALL libraries (including core)
 ```
-#### 4. Check "ezb" variables & functions
+#### 4. Show Commands
 ```shell
-ez_variables
-ez_functions
+ez_show_pipeables
+ez_show_variables
+ez_show_functions
 ```
 # Contents
 * [Function](docs/function.md)
