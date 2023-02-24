@@ -53,8 +53,8 @@ function ez_set_contains {
     for item in "${subset[@]}"; do sb_set["${item}"]=0; done
     for item in "${!sb_set[@]}"; do
         if [[ ! ${sp_set["${item}"]+_} ]]; then
-            [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_FALSE}"; return 1
+            ez_is_true "${verbose}" && echo "${EZ_FALSE}"; return 1
         fi
     done
-    [[ "${verbose}" == "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_TRUE}"; return 0
+    ez_is_true "${verbose}" && echo "${EZ_TRUE}"; return 0
 }

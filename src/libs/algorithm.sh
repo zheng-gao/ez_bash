@@ -20,11 +20,11 @@ function ez_sort {
     local ez_sort_data_list; ez_function_get_list "ez_sort_data_list" "${data}"
     if [[ "${#ez_sort_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
     local item
-    if [[ "${number}" = "${EZ_BOOL_TRUE}" ]] && [[ "${reverse}" = "${EZ_BOOL_TRUE}" ]]; then
+    if ez_is_true "${number}" && ez_is_true "${reverse}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -n -r
-    elif [[ "${number}" = "${EZ_BOOL_TRUE}" ]]; then
+    elif ez_is_true "${number}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -n
-    elif [[ "${reverse}" = "${EZ_BOOL_TRUE}" ]]; then
+    elif ez_is_true "${reverse}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -r
     else
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort

@@ -12,7 +12,7 @@
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
 EZ_LOGO="EZ-Bash"
-EZ_VERSION="2.0.0"
+EZ_VERSION="2.0.1"
 EZ_DEFAULT_BASH_VERSION="5"
 
 ###################################################################################################
@@ -53,7 +53,7 @@ function ez_dependency_check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
             hash "${cmd}" || return 1
-            EZ_DEPENDENCY_SET["${cmd}"]="${EZ_BOOL_TRUE}"
+            EZ_DEPENDENCY_SET["${cmd}"]="${EZ_TRUE}"
         fi
     done
 }

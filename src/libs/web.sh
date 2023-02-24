@@ -23,13 +23,13 @@ function ez_web {
     local response_html='<!doctype html><html><body><h1>A webpage served with netcat</h1></body></html>'
     if [[ "${os_name}" == "linux" ]]; then
         if [[ -f "${index}" ]]; then
-            if [[ "${background}" == "${EZ_BOOL_FALSE}" ]]; then
+            if ez_is_false "${background}"; then
                 nc -vkl "${host}" "${port}" -c "echo -e 'HTTP/1.1 200 OK\r\n'; cat ${index}"
             else
                 nc -vkl "${host}" "${port}" -c "echo -e 'HTTP/1.1 200 OK\r\n'; cat ${index}" &
             fi
         else
-        	if [[ "${background}" == "${EZ_BOOL_FALSE}" ]]; then
+        	if ez_is_false "${background}"; then
                 nc -vkl "${host}" "${port}" -c "echo -e 'HTTP/1.1 200 OK\r\n'; echo '${response_html}'"
             else
             	nc -vkl "${host}" "${port}" -c "echo -e 'HTTP/1.1 200 OK\r\n'; echo '${response_html}'" &

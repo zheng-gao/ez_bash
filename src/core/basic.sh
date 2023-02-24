@@ -1,9 +1,23 @@
 ###################################################################################################
+# -------------------------------------- Global Variables --------------------------------------- #
+###################################################################################################
+EZ_TRUE="True"
+EZ_FALSE="False"
+EZ_ALL="All"
+EZ_ANY="Any"
+EZ_NONE="None"
+
+###################################################################################################
 # ------------------------------------- EZB Basic Functions ------------------------------------- #
 ###################################################################################################
-function ez_show_alias { alias | grep "EZ_" --color; }
 function ez_show_variables { set | grep "^EZ_" --color; }
 function ez_show_functions { set | grep "^ez_" | cut -d " " -f 1 | grep "^ez_" --color; }
+
+function ez_is_true { [[ "${1}" = "${EZ_TRUE}" ]] && return 0 || return 1; }
+function ez_is_false { [[ "${1}" = "${EZ_FALSE}" ]] && return 0 || return 1; }
+function ez_is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
+function ez_is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
+function ez_is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
 function ez_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ez_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }

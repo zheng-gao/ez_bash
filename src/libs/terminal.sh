@@ -129,7 +129,7 @@ function ez_print_progress {
     local terminal_length="$(tput cols)"
     local percentage_string=""
     local integer_part=0
-    if [[ "${show_percentage}" = "${EZ_BOOL_TRUE}" ]]; then
+    if ez_is_true "${show_percentage}"; then
         local percentage="$((${current_step} * 10000 / ${total_steps}))"
         percentage_string="[  0.00%]"
         local decimal_part=0

@@ -87,14 +87,14 @@ function ez_string_check {
     local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
     local verbose && verbose="$(ez_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
     if [[ "${key}" = "Contains" ]]; then
-        if [[ "${string}" = *"${pattern}"* ]]; then [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_TRUE}"; return 0
-        else [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_FALSE}"; return 2; fi
+        if [[ "${string}" = *"${pattern}"* ]]; then ez_is_true "${verbose}" && echo "${EZ_TRUE}"; return 0
+        else ez_is_true "${verbose}" && echo "${EZ_FALSE}"; return 2; fi
     elif [[ "${key}" == "Starts" ]]; then
-        if [[ "${string}" =~ ^"${pattern}".* ]]; then [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_TRUE}"; return 0
-        else [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_FALSE}"; return 2; fi
+        if [[ "${string}" =~ ^"${pattern}".* ]]; then ez_is_true "${verbose}" && echo "${EZ_TRUE}"; return 0
+        else ez_is_true "${verbose}" && echo "${EZ_FALSE}"; return 2; fi
     elif [[ "${key}" == "Ends" ]]; then
-        if [[ "${string}" =~ .*"${pattern}"$ ]]; then [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_TRUE}"; return 0
-        else [[ "${verbose}" = "${EZ_BOOL_TRUE}" ]] && echo "${EZ_BOOL_FALSE}"; return 2; fi
+        if [[ "${string}" =~ .*"${pattern}"$ ]]; then ez_is_true"${verbose}" && echo "${EZ_TRUE}"; return 0
+        else ez_is_true "${verbose}" && echo "${EZ_FALSE}"; return 2; fi
     fi
 }
 
@@ -112,6 +112,6 @@ function ez_banner {
     local message && message="$(ez_arg_get --short "-m" --long "--message" --arguments "${@}")" &&
     local log_prefix && log_prefix="$(ez_arg_get --short "-l" --long "--log-prefix" --arguments "${@}")" || return 1
     local line_spliter=$(ez_string_repeat --string "${string}" --count ${count})
-    if [[ "${log_prefix}" = "${EZ_BOOL_TRUE}" ]]; then ez_log_info "${line_spliter}"; ez_log_info "${message}"; ez_log_info "${line_spliter}"
+    if ez_is_true "${log_prefix}"; then ez_log_info "${line_spliter}"; ez_log_info "${message}"; ez_log_info "${line_spliter}"
     else echo "${line_spliter}"; echo "${message}"; echo "${line_spliter}"; fi
 }

@@ -115,9 +115,9 @@ function ez_git_commit_stats {
 
 function ez_git_file_stats {
     if ez_function_unregistered; then
-        local valid_operations=("${EZ_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
+        local valid_operations=("${EZ_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
         ez_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
-        ez_arg_set --short "-o" --long "--operation" --default "${EZ_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
+        ez_arg_set --short "-o" --long "--operation" --default "${EZ_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
     ez_function_usage --run-with-no-argument "${@}" && return
     local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
@@ -132,7 +132,7 @@ function ez_git_file_stats {
         | sed -n 's/^blob //p' \
         | sort --numeric-sort --key=2 \
         | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest > "${log_file}"
-        if [[ "${operation}" = "${EZ_OPT_ALL}" ]]; then
+        if [[ "${operation}" = "${EZ_ALL}" ]]; then
             cat "${log_file}"
         elif [[ "${operation}" = "ExcludeHeadFiles" ]]; then
             declare -A file_hashes_in_head

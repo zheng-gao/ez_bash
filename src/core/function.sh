@@ -1,11 +1,6 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZ_BOOL_TRUE="True"
-EZ_BOOL_FALSE="False"
-EZ_OPT_ALL="All"
-EZ_OPT_ANY="Any"
-EZ_OPT_NONE="None"
 EZ_CHAR_SHARP="EZ_SHARP"
 EZ_CHAR_SPACE="EZ_SPACE"
 EZ_CHAR_NON_SPACE_DELIMITER="#"
@@ -22,10 +17,10 @@ EZ_ARG_TYPE_DEFAULT="String"
 # EZ-Bash Function Maps
 unset EZ_ARG_TYPE_SET
 declare -g -A EZ_ARG_TYPE_SET=(
-    ["${EZ_ARG_TYPE_DEFAULT}"]="${EZ_BOOL_TRUE}"
-    ["List"]="${EZ_BOOL_TRUE}"
-    ["Flag"]="${EZ_BOOL_TRUE}"
-    ["Password"]="${EZ_BOOL_TRUE}"
+    ["${EZ_ARG_TYPE_DEFAULT}"]="${EZ_TRUE}"
+    ["List"]="${EZ_TRUE}"
+    ["Flag"]="${EZ_TRUE}"
+    ["Password"]="${EZ_TRUE}"
 )
 unset EZ_FUNC_SET;                              declare -g -A EZ_FUNC_SET
 # Key Format: function, Value Format: arg1#arg2#...
@@ -123,7 +118,7 @@ function ez_source_dir {
 }
 
 function ez_log {
-    local valid_output_to=("Console" "File" "${EZ_OPT_ALL}")
+    local valid_output_to=("Console" "File" "${EZ_ALL}")
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         local valid_output_to_str="$(ez_join ', ' ${valid_output_to[@]})"
         local usage=$(ez_build_usage -o "init" -d "Print log to file in \"EZ-BASH\" standard log format")
@@ -159,7 +154,7 @@ function ez_log {
         ez_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [${valid_output_to_str}]"
         return 2
     fi
-    if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_OPT_ALL}" ]]; then
+    if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         if [[ "$(ez_lower ${logger})" = "error" ]]; then
             (>&2 echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[$(ez_string_format ForegroundRed ${logger})] ${message[@]}")
         elif [[ "$(ez_lower ${logger})" = "warning" ]]; then
@@ -168,7 +163,7 @@ function ez_log {
             echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[${logger}] ${message[@]}"
         fi
     fi
-    if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_OPT_ALL}" ]]; then
+    if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         [[ -z "${file}" ]] && file="${EZ_DEFAULT_LOG}"
         # Make sure the log_file exists and you have the write permission
         [[ ! -e "${file}" ]] && touch "${file}"
@@ -229,30 +224,30 @@ function ez_function_print_help {
         local key type required exclude choices default info
         local short; for short in $(ez_function_get_short_arguments "${function}"); do
             key="${function}${delimiter}${short}"
-            long="${EZ_S_ARG_TO_L_ARG_MAP[${key}]}"; [[ -z "${long}" ]] && long="${EZ_OPT_NONE}"
-            type="${EZ_S_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_OPT_NONE}"
-            required="${EZ_S_ARG_TO_REQUIRED_MAP[${key}]}"; [[ -z "${required}" ]] && required="${EZ_OPT_NONE}"
-            exclude="${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}"; [[ -z "${exclude}" ]] && exclude="${EZ_OPT_NONE}"
+            long="${EZ_S_ARG_TO_L_ARG_MAP[${key}]}"; [[ -z "${long}" ]] && long="${EZ_NONE}"
+            type="${EZ_S_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_NONE}"
+            required="${EZ_S_ARG_TO_REQUIRED_MAP[${key}]}"; [[ -z "${required}" ]] && required="${EZ_NONE}"
+            exclude="${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}"; [[ -z "${exclude}" ]] && exclude="${EZ_NONE}"
             choices="${EZ_S_ARG_TO_CHOICES_MAP[${key}]}"
-            [[ -z "${choices}" ]] && choices="${EZ_OPT_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            [[ -z "${choices}" ]] && choices="${EZ_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
             default="${EZ_S_ARG_TO_DEFAULT_MAP["${key}"]}"
-            [[ -z "${default}" ]] && default="${EZ_OPT_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_OPT_NONE}"
+            [[ -z "${default}" ]] && default="${EZ_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_NONE}"
             echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")
         done
         local long; for long in $(ez_function_get_long_arguments "${function}"); do
             key="${function}${delimiter}${long}"
             short="${EZ_L_ARG_TO_S_ARG_MAP[${key}]}"
-            type="${EZ_L_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_OPT_NONE}"
-            required="${EZ_L_ARG_TO_REQUIRED_MAP[${key}]}"; [[ -z "${required}" ]] && required="${EZ_OPT_NONE}"
-            exclude="${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}"; [[ -z "${exclude}" ]] && exclude="${EZ_OPT_NONE}"
+            type="${EZ_L_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_NONE}"
+            required="${EZ_L_ARG_TO_REQUIRED_MAP[${key}]}"; [[ -z "${required}" ]] && required="${EZ_NONE}"
+            exclude="${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}"; [[ -z "${exclude}" ]] && exclude="${EZ_NONE}"
             choices="${EZ_L_ARG_TO_CHOICES_MAP[${key}]}"
-            [[ -z "${choices}" ]] && choices="${EZ_OPT_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
+            [[ -z "${choices}" ]] && choices="${EZ_NONE}" || choices=$(sed "s/${delimiter}/, /g" <<< "${choices}")
             default="${EZ_L_ARG_TO_DEFAULT_MAP["${key}"]}"
-            [[ -z "${default}" ]] && default="${EZ_OPT_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
-            info="${EZ_L_ARG_TO_INFO_MAP["${key}"]}"; [[ -z "${info}" ]] && info="${EZ_OPT_NONE}"
+            [[ -z "${default}" ]] && default="${EZ_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
+            info="${EZ_L_ARG_TO_INFO_MAP["${key}"]}"; [[ -z "${info}" ]] && info="${EZ_NONE}"
             if [[ -z "${short}" ]]; then
-                short="${EZ_OPT_NONE}"
+                short="${EZ_NONE}"
                 echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")
             fi
         done
@@ -291,7 +286,7 @@ function ez_arg_set {
         ["-c"]="1" ["--choices"]="1"
         ["-i"]="1" ["--info"]="1"
     )
-    local function short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_BOOL_FALSE}"
+    local function short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_FALSE}"
     local default=() choices=()
     while [[ -n "${1}" ]]; do
         case "${1}" in
@@ -301,7 +296,7 @@ function ez_arg_set {
             "-l" | "--long") shift; long=${1}; shift ;;
             "-e" | "--exclude") shift; exclude=${1}; shift ;;
             "-i" | "--info") shift; info=${1}; shift ;;
-            "-r" | "--required") shift; required="${EZ_BOOL_TRUE}" ;;
+            "-r" | "--required") shift; required="${EZ_TRUE}" ;;
             "-d" | "--default") shift
                 while [[ -n "${1}" ]]; do
                     [[ -n "${arg_set_of_ez_arg_set["${1}"]}" ]] && break
@@ -334,10 +329,10 @@ function ez_arg_set {
     elif [[ -n "${short}" ]]; then [[ -n "${EZ_S_ARG_SET[${function}${delimiter}${short}]}" ]] && return
     else [[ -n "${EZ_L_ARG_SET[${function}${delimiter}${long}]}" ]] && return; fi
     # Register Function
-    EZ_FUNC_SET["${function}"]="${EZ_BOOL_TRUE}"
+    EZ_FUNC_SET["${function}"]="${EZ_TRUE}"
     local key=""
     if [ -n "${short}" ]; then
-        key="${function}${delimiter}${short}"; EZ_S_ARG_SET["${key}"]="${EZ_BOOL_TRUE}"
+        key="${function}${delimiter}${short}"; EZ_S_ARG_SET["${key}"]="${EZ_TRUE}"
         if [[ -z "${EZ_FUNC_TO_S_ARG_MAP[${function}]}" ]]; then EZ_FUNC_TO_S_ARG_MAP["${function}"]="${short}"
         else [[ -z "${EZ_S_ARG_TO_TYPE_MAP[${key}]}" ]] && EZ_FUNC_TO_S_ARG_MAP["${function}"]+="${delimiter}${short}"; fi
         EZ_S_ARG_TO_L_ARG_MAP["${key}"]="${long}"
@@ -372,7 +367,7 @@ function ez_arg_set {
     fi
     if [[ -n "${long}" ]]; then
         key="${function}${delimiter}${long}"
-        EZ_L_ARG_SET["${key}"]="${EZ_BOOL_TRUE}"
+        EZ_L_ARG_SET["${key}"]="${EZ_TRUE}"
         if [[ -z "${EZ_FUNC_TO_L_ARG_MAP[${function}]}" ]]; then EZ_FUNC_TO_L_ARG_MAP["${function}"]="${long}"
         else [[ -z "${EZ_L_ARG_TO_TYPE_MAP[${key}]}" ]] && EZ_FUNC_TO_L_ARG_MAP["${function}"]+="${delimiter}${long}"; fi
         EZ_L_ARG_TO_S_ARG_MAP["${key}"]="${short}"
@@ -413,13 +408,13 @@ function ez_arg_exclude_check {
     for x_arg in $(ez_function_get_short_arguments "${function}"); do
         if [[ "${x_arg}" != "${arg_name}" ]]; then
             key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_BOOL_TRUE}"
+            [[ "${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
         fi
     done
     for x_arg in $(ez_function_get_long_arguments "${function}"); do
         if [[ "${x_arg}" != "${arg_name}" ]]; then
             key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_BOOL_TRUE}"
+            [[ "${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
         fi
     done
     for x_arg in "${arguments[@]}"; do
@@ -534,10 +529,10 @@ function ez_arg_get {
                 if [[ -n "${argument_exclude}" ]]; then
                     ez_arg_exclude_check "${function}" "${item}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
-                echo "${EZ_BOOL_TRUE}"; return 0
+                echo "${EZ_TRUE}"; return 0
             fi
         done
-        echo "${EZ_BOOL_FALSE}"; return 0
+        echo "${EZ_FALSE}"; return 0
     elif [[ "${argument_type}" = "String" ]] || [[ "${argument_type}" = "Password" ]]; then
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
             local argument_name="${arguments[${i}]}" argument_value="${arguments[$((i+1))]}"
@@ -552,12 +547,12 @@ function ez_arg_get {
                     local k=0; for ((; k < "${length}"; ++k)); do
                         local char="${argument_choices:${k}:1}"
                         if [[ "${char}" = "${delimiter}" ]]; then
-                            [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZ_BOOL_TRUE}"
+                            [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZ_TRUE}"
                             choice=""
                         else
                             choice+="${char}"
                         fi
-                        [[ "${k}" -eq "${last_index}" ]] && [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZ_BOOL_TRUE}"
+                        [[ "${k}" -eq "${last_index}" ]] && [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZ_TRUE}"
                     done
                     if [[ -z "${choice_set[${argument_value}]}" ]]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
@@ -570,7 +565,7 @@ function ez_arg_get {
             fi
         done
         # Required but not found and no default
-        if [[ -z "${argument_default}" ]] && [[ "${argument_required}" = "${EZ_BOOL_TRUE}" ]]; then
+        if [[ -z "${argument_default}" ]] && ez_is_true "${argument_required}"; then
             if [[ "${argument_type}" = "Password" ]]; then
                 local ask_for_password=""
                 if [[ -n "${long}" ]]; then
@@ -620,7 +615,7 @@ function ez_arg_get {
             fi
         done
         # Required but not found and no default
-        if [[ -z "${argument_default}" ]] && [[ "${argument_required}" = "${EZ_BOOL_TRUE}" ]]; then
+        if [[ -z "${argument_default}" ]] && ez_is_true "${argument_required}"; then
             [[ -n "${short}" ]] && ez_log_error "Argument \"${short}\" is required" && return 6
             [[ -n "${long}" ]] && ez_log_error "Argument \"${long}\" is required" && return 6
         fi

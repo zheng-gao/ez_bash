@@ -17,7 +17,7 @@ function ez_version_compare {
     local print && print="$(ez_arg_get --short '-p' --long "--print" --arguments "${@}")" || return 1
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
-    if [[ "${check_length}" = "${EZ_BOOL_TRUE}" ]] && [[ "${left_length}" -ne "${right_length}" ]]; then
+    if ez_is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
     	ez_log_error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi
     local state=0; local i=0; while [[ "${i}" -lt "${left_length}" ]] && [[ "${i}" -lt "${right_length}" ]]; do
@@ -25,16 +25,16 @@ function ez_version_compare {
     done
     local result;
     if [[ "${state}" -lt 0 ]]; then
-        [[ "${operation}" =~ "<" ]] && result="${EZ_BOOL_TRUE}" || result="${EZ_BOOL_FALSE}"
+        [[ "${operation}" =~ "<" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     elif [[ "${state}" -gt 0 ]]; then
-        [[ "${operation}" =~ ">" ]] && result="${EZ_BOOL_TRUE}" || result="${EZ_BOOL_FALSE}"
+        [[ "${operation}" =~ ">" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     elif [[ "${left_length}" -lt "${right_length}" ]]; then
-        [[ "${operation}" =~ "<" ]] && result="${EZ_BOOL_TRUE}" || result="${EZ_BOOL_FALSE}"
+        [[ "${operation}" =~ "<" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     elif [[ "${left_length}" -gt "${right_length}" ]]; then
-        [[ "${operation}" =~ ">" ]] && result="${EZ_BOOL_TRUE}" || result="${EZ_BOOL_FALSE}"
+        [[ "${operation}" =~ ">" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     else
-        [[ "${operation}" =~ "=" ]] && result="${EZ_BOOL_TRUE}" || result="${EZ_BOOL_FALSE}"
+        [[ "${operation}" =~ "=" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     fi
-    [[ "${print}" =  "${EZ_BOOL_TRUE}" ]] && echo "${result}"
-    [[ "${result}" = "${EZ_BOOL_TRUE}" ]] && return 0 || return 255
+    ez_is_true "${print}" && echo "${result}"
+    ez_is_true "${result}" && return 0 || return 255
 }
