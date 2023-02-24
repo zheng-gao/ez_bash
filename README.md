@@ -1,4 +1,4 @@
-# Pure Shell Tools for Linux & MacOS
+# Pure Bash Tools for Linux & MacOS
 ## Full Installation
 ```shell
 git clone https://github.com/zheng-gao/ez_bash.git
