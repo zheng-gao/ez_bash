@@ -98,7 +98,7 @@ function ez_self_installation {
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] ${EZ_LOGO} not found!" && return 1
             fi
         fi
-        echo "[${EZ_LOGO}][INFO] Uninstalled ${EZ_LOGO}!"
+        echo "[${EZ_LOGO}][INFO] Uninstallation Complete!"
         echo "[${EZ_LOGO}][INFO] Please restart all the existing terminals."
     else
         if [[ -f "${bash_profile}" ]]; then
