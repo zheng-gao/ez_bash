@@ -17,12 +17,13 @@ EZB_DEFAULT_BASH_VERSION="5"
 EZB_DEFAULT_DEPENDENCIES=(
     "alias"
     "echo"
+    "false"
     "grep"
     "mv"
     "sed"
+    "sort"
     "tr"
     "true"
-    "false"
 )
 
 ###################################################################################################
