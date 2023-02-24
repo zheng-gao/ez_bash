@@ -22,9 +22,9 @@ function ezb_ssh_local_script {
     local host; for host in "${host_list[@]}"; do
         echo "[${host}]"
         if [[ -z "${key}" ]]; then
-            ssh -o "PrintBanner=No" -o "PasswordAuthentication=no" -o "BatchMode=yes" "${user}@${host}" "bash -s" < "${script}"
+            ssh -o "LogLevel=error" -o "PasswordAuthentication=no" -o "BatchMode=yes" "${user}@${host}" "bash -s" < "${script}"
         else
-            ssh -i "${key}" -o "PrintBanner=No" -o "PasswordAuthentication=no" -o "BatchMode=yes" "${user}@${host}" "bash -s" < "${script}"
+            ssh -i "${key}" -o "LogLevel=error" -o "PasswordAuthentication=no" -o "BatchMode=yes" "${user}@${host}" "bash -s" < "${script}"
         fi
         echo
     done
