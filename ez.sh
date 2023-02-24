@@ -24,6 +24,7 @@ EZ_DEFAULT_DEPENDENCIES=(
     "bash"
     "column"
     "date"
+    "declare"
     "dirname"
     "echo"
     "false"

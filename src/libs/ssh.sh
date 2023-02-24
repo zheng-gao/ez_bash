@@ -6,29 +6,37 @@ ez_dependency_check "ssh" "expect" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+EZ_SSH_CONNECT_TIMEOUT=10
+EZ_SSH_OPTIONS=(
+    "-o" "BatchMode=yes"
+    "-o" "ConnectTimeout=${EZ_SSH_CONNECT_TIMEOUT}"
+    "-o" "LogLevel=error"
+    "-o" "StrictHostKeyChecking=no"
+    "-o" "PasswordAuthentication=no"
+)
+
 function ez_ssh_local_script {
     if ez_function_unregistered; then
+        ez_arg_set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
         ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
         ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
         ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
         ez_arg_set --short "-s" --long "--script" --required --info "The local script path" || return 1
     fi
     ez_function_usage "${@}" && return
+    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
     local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
     local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
     local script && script="$(ez_arg_get --short "-s" --long "--script" --arguments "${@}")" || return 1
     local host_list; ez_function_get_list "host_list" "${hosts}"
+    (( timeout += EZ_SSH_CONNECT_TIMEOUT ))
     local host; for host in "${host_list[@]}"; do
         echo "[${host}]"
         if [[ -z "${key}" ]]; then
-            ssh -o "LogLevel=error" -o "PasswordAuthentication=no" -o "BatchMode=yes" -o "StrictHostKeyChecking=no" \
-                -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ServerAliveCountMax=3" \
-                "${user}@${host}" "bash -s" < "${script}"  # Timeout = ServerAliveInterval * ServerAliveCountMax
+            $(ez_timeout) "${timeout}" ssh "${EZ_SSH_OPTIONS[@]}" "${user}@${host}" "bash -s" < "${script}"
         else
-            ssh -i "${key}" -o "LogLevel=error" -o "PasswordAuthentication=no" -o "BatchMode=yes" -o "StrictHostKeyChecking=no" \
-                -o "ConnectTimeout=10" -o "ServerAliveInterval=60" -o "ServerAliveCountMax=3" \
-                "${user}@${host}" "bash -s" < "${script}"  # Timeout = ServerAliveInterval * ServerAliveCountMax
+            $(ez_timeout) "${timeout}" ssh "${EZ_SSH_OPTIONS[@]}" -i "${key}" "${user}@${host}" "bash -s" < "${script}"
         fi
         echo
     done
@@ -36,6 +44,7 @@ function ez_ssh_local_script {
 
 function ez_ssh_local_function {
     if ez_function_unregistered; then
+        ez_arg_set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
         ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
         ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
         ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
@@ -43,6 +52,7 @@ function ez_ssh_local_function {
         ez_arg_set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
     fi
     ez_function_usage "${@}" && return
+    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
     local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
     local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
@@ -53,27 +63,76 @@ function ez_ssh_local_function {
     local script="${EZ_DIR_SCRIPTS}/${func}.sh"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
-    ez_ssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}"
+    ez_ssh_local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}" --timeout "${timeout}"
 }
 
-function ez_command_md5 {
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then
-        if ! hash "md5"; then ez_log_error "Not found \"md5\", please run \"brew install md5\""
-        else echo "md5 -q"; fi
-    elif [[ "${os}" = "linux" ]]; then
-        if ! hash "md5sum"; then ez_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
-        else echo "md5sum"; fi
+function ez_mssh_cmd {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
+        ez_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
+        ez_arg_set --short "-u" --long "--user" --info "SSH user" &&
+        ez_arg_set --short "-p" --long "--port" --default "22" --info "SSH port" &&
+        ez_arg_set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
+        ez_arg_set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
+        ez_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
+        ez_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
     fi
-}
-
-function ez_command_timeout {
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then
-        if ! hash "gtimeout"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
-        else echo "gtimeout"; fi
-    elif [[ "${os}" = "linux" ]]; then
-        echo "timeout" # Should be installed by default
+    ez_function_usage "${@}" && return
+    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local port && port="$(ez_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
+    local private_key && private_key="$(ez_arg_get --short "-i" --long "--private-key" --arguments "${@}")" &&
+    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local stats && stats="$(ez_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
+    local print_failure && print_failure="$(ez_arg_get --short "-f" --long "--failure" --arguments "${@}")" || return 1
+    declare -A results
+    local timeout_count=0; results["Timeout"]=""
+    local success_count=0; results["Success"]=""
+    local failure_count=0; results["Failure"]=""
+    local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
+    local data_dir="${EZ_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
+    local host; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
+        output="${data_dir}/${host}"
+        if [[ -z "${user}" ]] || [[ "${user}" = "${USER}" ]]; then destination="${host}"; else destination="${user}@${host}"; fi
+        is_successful=${EZ_FALSE}
+        if [[ -z "${private_key}" ]]; then
+            $(ez_timeout) "${timeout}" ssh "${EZ_SSH_OPTIONS[@]}" -p "${port}" "${destination}" "${command}" &> "${output}"
+        else
+            $(ez_timeout) "${timeout}" ssh "${EZ_SSH_OPTIONS[@]}" -p "${port}" -i "${private_key}" "${destination}" "${command}" &> "${output}"
+        fi
+        exit_code="${?}"
+        if [[ "${exit_code}" -eq 124 ]]; then
+            [[ -z "${results[Timeout]}" ]] && results["Timeout"]="${host}" || results["Timeout"]+=",${host}"
+            is_successful=${EZ_FALSE}; ((++timeout_count))
+        elif [[ "${exit_code}" -eq 0 ]]; then
+            [[ -z "${results[Success]}" ]] && results["Success"]="${host}" || results["Success"]+=",${host}"
+            is_successful=${EZ_TRUE}; ((++success_count))
+        else
+            [[ -z "${results[Failure]}" ]] && results["Failure"]="${host}" || results["Failure"]+=",${host}"
+            is_successful=${EZ_FALSE}; ((++failure_count))
+        fi
+        if ez_is_true "${print_failure}" || ez_is_true "${is_successful}"; then
+            md5_string=$($(ez_md5) "${output}" | cut -f 1)
+            [[ -z "${results[${md5_string}]}" ]] && results["${md5_string}"]="${host}" || results["${md5_string}"]+=",${host}"
+        fi
+    done
+    ez_banner -m "Command Output"
+    local host_count=0; local host=""
+    local key; for key in "${!results[@]}"; do
+        if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
+            host_count=$(echo "${results[${key}]}" | tr "," " " | wc -w | bc)
+            host=$(echo "${results[${key}]}" | cut -d "," -f 1)
+            echo "${results[${key}]} (${host_count}):"
+            cat "${data_dir}/${host}"; echo
+        fi
+    done
+    if ez_is_true "${stats}"; then
+        ez_banner -m "Statistics"
+        echo "Timeout (${timeout_count}): ${results["Timeout"]}"
+        echo "Failure (${failure_count}): ${results["Failure"]}"
+        echo "Success (${success_count}): ${results["Success"]}"; echo
+        [[ "${failure_count}" -gt 0 ]] && ez_log_info "Please check \"${data_dir}\" for details"
     fi
 }
 
@@ -159,7 +218,6 @@ function ez_mssh_sudo_cmd {
     local print_failure && print_failure="$(ez_arg_get --short "-f" --long "--failure" --arguments "${@}")" &&
     local prompt && prompt="$(ez_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
-    local cmd_md5=$(ez_command_md5)
     declare -A results
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
@@ -179,7 +237,7 @@ function ez_mssh_sudo_cmd {
             ((++failure_count))
         fi
         if ez_is_true "${print_failure}" || [[ "${exit_code}" -eq 0 ]]; then
-            md5_string=$(${cmd_md5} "${output}" | cut -f 1)
+            md5_string=$($(ez_md5) "${output}" | cut -f 1)
             [[ -z "${results[${md5_string}]}" ]] && results["${md5_string}"]="${host}" || results["${md5_string}"]+=",${host}"
         fi
     done
@@ -197,78 +255,5 @@ function ez_mssh_sudo_cmd {
         ez_banner -m "Statistics"
         echo "Failure (${failure_count}): ${results["Failure"]}"
         echo "Success (${success_count}): ${results["Success"]}"; echo
-    fi
-}
-
-function ez_mssh_cmd {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
-        ez_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
-        ez_arg_set --short "-u" --long "--user" --info "SSH user" &&
-        ez_arg_set --short "-p" --long "--port" --default "22" --info "SSH port" &&
-        ez_arg_set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
-        ez_arg_set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
-        ez_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
-        ez_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
-    fi
-    ez_function_usage "${@}" && return
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local port && port="$(ez_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
-    local private_key && private_key="$(ez_arg_get --short "-i" --long "--private-key" --arguments "${@}")" &&
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local stats && stats="$(ez_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
-    local print_failure && print_failure="$(ez_arg_get --short "-f" --long "--failure" --arguments "${@}")" || return 1
-    declare -A results
-    local timeout_count=0; results["Timeout"]=""
-    local success_count=0; results["Success"]=""
-    local failure_count=0; results["Failure"]=""
-    local cmd_timeout=$(ez_command_timeout); local cmd_md5=$(ez_command_md5)
-    local output=""; local destination=""; local is_successful=""; local md5_string=""; local exit_code=0
-    local data_dir="${EZ_DIR_DATA}/${FUNCNAME[0]}"; [[ ! -d "${data_dir}" ]] && mkdir -p "${data_dir}"
-    local host; for host in $(echo "${hosts}" | sed "s/,/ /g"); do
-        output="${data_dir}/${host}"
-        if [[ -z "${user}" ]] || [[ "${user}" = "${USER}" ]]; then destination="${host}"; else destination="${user}@${host}"; fi
-        is_successful=${EZ_FALSE}
-        if [[ -z "${private_key}" ]]; then
-            ${cmd_timeout} "${timeout}" ssh -q -p "${port}" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" \
-                -o "BatchMode=yes" "${destination}" "${command}" &> "${output}"
-        else
-            ${cmd_timeout} "${timeout}" ssh -q -p "${port}" -o "StrictHostKeyChecking=no" -o "ConnectTimeout=5" \
-                -o "BatchMode=yes" -i "${private_key}" "${destination}" "${command}" &> "${output}"
-        fi
-        exit_code="${?}"
-        if [[ "${exit_code}" -eq 124 ]]; then
-            [[ -z "${results[Timeout]}" ]] && results["Timeout"]="${host}" || results["Timeout"]+=",${host}"
-            is_successful=${EZ_FALSE}; ((++timeout_count))
-        elif [[ "${exit_code}" -eq 0 ]]; then
-            [[ -z "${results[Success]}" ]] && results["Success"]="${host}" || results["Success"]+=",${host}"
-            is_successful=${EZ_TRUE}; ((++success_count))
-        else
-            [[ -z "${results[Failure]}" ]] && results["Failure"]="${host}" || results["Failure"]+=",${host}"
-            is_successful=${EZ_FALSE}; ((++failure_count))
-        fi
-        if ez_is_true "${print_failure}" || ez_is_true "${is_successful}"; then
-            md5_string=$(${cmd_md5} "${output}" | cut -f 1)
-            [[ -z "${results[${md5_string}]}" ]] && results["${md5_string}"]="${host}" || results["${md5_string}"]+=",${host}"
-        fi
-    done
-    ez_banner -m "Command Output"
-    local host_count=0; local host=""
-    local key; for key in "${!results[@]}"; do
-        if [[ "${key}" != "Timeout" ]] && [[ "${key}" != "Failure" ]] && [[ "${key}" != "Success" ]]; then
-            host_count=$(echo "${results[${key}]}" | tr "," " " | wc -w | bc)
-            host=$(echo "${results[${key}]}" | cut -d "," -f 1)
-            echo "${results[${key}]} (${host_count}):"
-            cat "${data_dir}/${host}"; echo
-        fi
-    done
-    if ez_is_true "${stats}"; then
-        ez_banner -m "Statistics"
-        echo "Timeout (${timeout_count}): ${results["Timeout"]}"
-        echo "Failure (${failure_count}): ${results["Failure"]}"
-        echo "Success (${success_count}): ${results["Success"]}"; echo
-        [[ "${failure_count}" -gt 0 ]] && ez_log_info "Please check \"${data_dir}\" for details"
     fi
 }
