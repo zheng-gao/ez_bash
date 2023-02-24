@@ -5,15 +5,20 @@ function ez_set_operation {
         ez_arg_set --short "-l" --long "--left" --type "List" --info "Left Set: Item_l1 Item_l2 ..." &&
         ez_arg_set --short "-L" --long "--left-from-file" --info "File Path" &&
         ez_arg_set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." &&
-        ez_arg_set --short "-R" --long "--right-from-file" --info "File Path" || return 1
+        ez_arg_set --short "-R" --long "--right-from-file" --info "File Path"
+        ez_arg_set --short "-s" --long "--summary" --type "Flag" --info "Show summary at the end" || return 1
     fi
     ez_function_usage "${@}" && return
     local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
     local left && ez_function_get_list "left" "$(ez_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
     local right && ez_function_get_list "right" "$(ez_arg_get --short "-r" --long "--right" --arguments "${@}")" &&
     local left_path && left_path="$(ez_arg_get --short "-L" --long "--left-from-file" --arguments "${@}")" &&
-    local right_path && right_path="$(ez_arg_get --short "-R" --long "--right-from-file" --arguments "${@}")" || return 1
-    declare -A left_set; declare -A right_set; local item
+    local right_path && right_path="$(ez_arg_get --short "-R" --long "--right-from-file" --arguments "${@}")" &&
+    local summary && summary="$(ez_arg_get --short "-s" --long "--summary" --arguments "${@}")" || return 1
+    declare -A left_set
+    declare -A right_set
+    declare -A result_set
+    local item
     if [[ -f "${left_path}" ]]; then
         for item in $(cat ${left_path}); do left_set["${item}"]=0; done
     else
@@ -25,16 +30,21 @@ function ez_set_operation {
         for item in "${right[@]}"; do right_set["${item}"]=0; done
     fi
     if [[ "${operation}" = "Intersection" ]]; then
-        { for item in "${!left_set[@]}"; do [[ ${right_set["${item}"]+_} ]] && echo "${item}"; done; } | sort
+        for item in "${!left_set[@]}"; do [[ ${right_set["${item}"]+_} ]] && result_set["${item}"]=0; done
     elif [[ "${operation}" = "Union" ]]; then
-        declare -A union_set
-        for item in "${!left_set[@]}"; do union_set["${item}"]=0; done
-        for item in "${!right_set[@]}"; do union_set["${item}"]=0; done
-        { for item in "${!union_set[@]}"; do echo "${item}"; done; } | sort
+        for item in "${!left_set[@]}"; do result_set["${item}"]=0; done
+        for item in "${!right_set[@]}"; do result_set["${item}"]=0; done
     elif [[ "${operation}" = "LeftOnly" ]]; then
-        { for item in "${!left_set[@]}"; do [[ ! ${right_set["${item}"]+_} ]] && echo "${item}"; done; } | sort
+        for item in "${!left_set[@]}"; do [[ ! ${right_set["${item}"]+_} ]] && result_set["${item}"]=0; done
     elif [[ "${operation}" = "RightOnly" ]]; then
-        { for item in "${!right_set[@]}"; do [[ ! ${left_set["${item}"]+_} ]] && echo "${item}"; done; } | sort
+        for item in "${!right_set[@]}"; do [[ ! ${left_set["${item}"]+_} ]] && result_set["${item}"]=0; done
+    fi
+    { for item in "${!result_set[@]}"; do echo "${item}"; done; } | sort
+    if ez_is_true "${summary}"; then
+        echo "------ Summary ------"
+        echo "  Left Size: ${#left_set[@]}"
+        echo " Right Size: ${#right_set[@]}"
+        echo "Result Size: ${#result_set[@]}"
     fi
 }
 
