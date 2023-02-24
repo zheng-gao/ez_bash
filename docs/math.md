@@ -1,15 +1,15 @@
-### ezb_calculate
+### ez_calculate
 ```shell
-$ ezb_calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
+$ ez_calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
 4.000
 ```
 
-### ezb_floor & ezb_ceiling
+### ez_floor & ez_ceiling
 ```shell
 $ {
     echo "Number Floor Ceiling"
     for x in 0.0 5.6 0.3 2.0 -1.7; do
-        echo "$x $(ezb_floor $x) $(ezb_ceiling $x)"
+        echo "$x $(ez_floor $x) $(ez_ceiling $x)"
     done
 } | column -t
 Number  Floor  Ceiling
@@ -20,9 +20,9 @@ Number  Floor  Ceiling
 -1.7    -2     -1
 ```
 
-### ezb_decimal_to_base_x
+### ez_decimal_to_base_x
 ```shell
-$ for i in {0..8}; do echo -n "BIN(${i}): "; ezb_decimal_to_base_x --decimal $i --base 2 --padding 4; done
+$ for i in {0..8}; do echo -n "BIN(${i}): "; ez_decimal_to_base_x --decimal $i --base 2 --padding 4; done
 BIN(0): 0000
 BIN(1): 0001
 BIN(2): 0010
@@ -33,7 +33,7 @@ BIN(6): 0110
 BIN(7): 0111
 BIN(8): 1000
 
-$ for i in {28..36}; do echo -n "OCT(${i}): "; ezb_decimal_to_base_x --decimal $i --base 8; done
+$ for i in {28..36}; do echo -n "OCT(${i}): "; ez_decimal_to_base_x --decimal $i --base 8; done
 OCT(28): 34
 OCT(29): 35
 OCT(30): 36
@@ -44,7 +44,7 @@ OCT(34): 42
 OCT(35): 43
 OCT(36): 44
 
-$ for i in {28..36}; do echo -n "HEX(${i}): "; ezb_decimal_to_base_x --decimal $i --base 16; done
+$ for i in {28..36}; do echo -n "HEX(${i}): "; ez_decimal_to_base_x --decimal $i --base 16; done
 HEX(28): 1c
 HEX(29): 1d
 HEX(30): 1e
@@ -56,28 +56,28 @@ HEX(35): 23
 HEX(36): 24
 ````
 
-### ezb_min & ezb_max
+### ez_min & ez_max
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "min: $(ezb_min ${data[@]}), max: $(ezb_max ${data[@]})"
+$ echo "min: $(ez_min ${data[@]}), max: $(ez_max ${data[@]})"
 min: 0, max: 5
 ```
 
-### ezb_sum & ezb_average
+### ez_sum & ez_average
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "sum: $(ezb_sum ${data[@]}), average: $(ezb_average -d ${data[@]} -s 2)"
+$ echo "sum: $(ez_sum ${data[@]}), average: $(ez_average -d ${data[@]} -s 2)"
 sum: 14, average: 2.00
 ```
 
-### ezb_variance & ezb_std_deviation
+### ez_variance & ez_std_deviation
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "variance: $(ezb_variance -d ${data[@]}), std_deviation: $(ezb_std_deviation -d ${data[@]})"
+$ echo "variance: $(ez_variance -d ${data[@]}), std_deviation: $(ez_std_deviation -d ${data[@]})"
 variance: 3.333333, std_deviation: 1.825741
 ```
 
-### ezb_percentile
+### ez_percentile
 ```shell
 $ data=(1 2 3 4 5 6 7 8 9 10)
 $ percentiles=(0 5 10 25 50 66 70 75 83 90 95 99 100)
@@ -87,7 +87,7 @@ $ {
       for p in "${percentiles[@]}"; do
           line="P${p}"
           for m in "${methods[@]}"; do
-              value=$(ezb_percentile --data "${data[@]}" --percentile "${p}" --method "${m}" --scale 2)
+              value=$(ez_percentile --data "${data[@]}" --percentile "${p}" --method "${m}" --scale 2)
               line+=" ${value}"
           done
           echo "${line}"

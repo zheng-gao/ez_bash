@@ -1,13 +1,13 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ezb_dependency_check "git" "sort" "awk" || return 1
+ez_dependency_check "git" "sort" "awk" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 
-function ezb_git_flow {
+function ez_git_flow {
     echo
     echo "           + \----------------------------------\  +                               "
     echo "           |  >>>>>>>>>>> commit -a >>>>>>>>>>>>>> |                               "
@@ -53,14 +53,14 @@ function ezb_git_flow {
     echo
 }
 
-function ezb_git_push_in_batches {
-    if ezb_function_unregistered; then
-        ezb_arg_set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
-        ezb_arg_set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
+function ez_git_push_in_batches {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
+        ez_arg_set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
     fi
-    ezb_function_usage "${@}" && return
-    local batch_size && batch_size="$(ezb_arg_get --short "-b" --long "--batch-size" --arguments "${@}")" &&
-    local remote && remote="$(ezb_arg_get --short "-r" --long "--remote" --arguments "${@}")" || return 1
+    ez_function_usage "${@}" && return
+    local batch_size && batch_size="$(ez_arg_get --short "-b" --long "--batch-size" --arguments "${@}")" &&
+    local remote && remote="$(ez_arg_get --short "-r" --long "--remote" --arguments "${@}")" || return 1
     local branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
     local number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
     local git_command=""
@@ -96,16 +96,16 @@ function ezb_git_push_in_batches {
     echo "[Final Push] ${git_command}" && ${git_command}
 }
 
-function ezb_git_commit_stats {
-    if ezb_function_unregistered; then
+function ez_git_commit_stats {
+    if ez_function_unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
-        ezb_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
+        ez_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
+        ez_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
     fi
-    ezb_function_usage "${@}" && return
-    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local time_format && time_format="$(ezb_arg_get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
-    [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    ez_function_usage "${@}" && return
+    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local time_format && time_format="$(ez_arg_get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
+    [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
     git --git-dir "${repo_path}" config diff.renameLimit 999999
@@ -113,26 +113,26 @@ function ezb_git_commit_stats {
 }
 
 
-function ezb_git_file_stats {
-    if ezb_function_unregistered; then
-        local valid_operations=("${EZB_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
-        ezb_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-o" --long "--operation" --default "${EZB_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
+function ez_git_file_stats {
+    if ez_function_unregistered; then
+        local valid_operations=("${EZ_OPT_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
+        ez_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
+        ez_arg_set --short "-o" --long "--operation" --default "${EZ_OPT_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
-    ezb_function_usage --run-with-no-argument "${@}" && return
-    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local operation && operation="$(ezb_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    ez_function_usage --run-with-no-argument "${@}" && return
+    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git --git-dir "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
-        local log_file="${EZB_DIR_LOGS}/${FUNCNAME[0]}.log"
+        local log_file="${EZ_DIR_LOGS}/${FUNCNAME[0]}.log"
         git --git-dir "${repo_path}" rev-list --objects --all \
         | git --git-dir "${repo_path}" cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' \
         | sed -n 's/^blob //p' \
         | sort --numeric-sort --key=2 \
         | $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest > "${log_file}"
-        if [[ "${operation}" = "${EZB_OPT_ALL}" ]]; then
+        if [[ "${operation}" = "${EZ_OPT_ALL}" ]]; then
             cat "${log_file}"
         elif [[ "${operation}" = "ExcludeHeadFiles" ]]; then
             declare -A file_hashes_in_head
@@ -147,29 +147,29 @@ function ezb_git_file_stats {
     fi
 }
 
-function ezb_git_remove_file_from_history {
-    if ezb_function_unregistered; then
-        ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
+function ez_git_remove_file_from_history {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ez_arg_set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
     fi
-    ezb_function_usage "${@}" && return
-    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local file_path && file_path="$(ezb_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    ez_function_usage "${@}" && return
+    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local file_path && file_path="$(ez_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
-    ezb_log_info "Removing ${file_path}"
+    ez_log_info "Removing ${file_path}"
     git --git-dir "${repo_path}" "filter-branch" --force --prune-empty --index-filter "git --git-dir ${repo_path} rm --cached --ignore-unmatch ${file_path}" --tag-name-filter cat -- --all
 }
 
-function ezb_git_find_large_blobs() {
-    if ezb_function_unregistered; then
-        ezb_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
-        ezb_arg_set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
+function ez_git_find_large_blobs() {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ez_arg_set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
     fi
-    ezb_function_usage "${@}" && return
-    local repo_path && repo_path="$(ezb_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local min_bytes && min_bytes="$(ezb_arg_get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ezb_log_error "\"${repo_path}\" Not Found!" && return 1
+    ez_function_usage "${@}" && return
+    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local min_bytes && min_bytes="$(ez_arg_get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
     local line first_line=true
     echo "{"

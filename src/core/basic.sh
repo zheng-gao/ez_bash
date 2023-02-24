@@ -1,32 +1,31 @@
 ###################################################################################################
 # ------------------------------------- EZB Basic Functions ------------------------------------- #
 ###################################################################################################
-function ezb_show_alias { alias | grep "EZB_" --color; }
-function ezb_show_variables { set | grep "^EZB_" --color; }
-function ezb_show_functions { set | grep "^ezb_" | cut -d " " -f 1 | grep "^ezb_" --color; }
+function ez_show_alias { alias | grep "EZ_" --color; }
+function ez_show_variables { set | grep "^EZ_" --color; }
+function ez_show_functions { set | grep "^ez_" | cut -d " " -f 1 | grep "^ez_" --color; }
 
-function ezb_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
-function ezb_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
-function ezb_now { date "+%F %T"; }
-function ezb_today { date "+%F"; }
-function ezb_command_check { which "${1}" &> "/dev/null" && return 0 || return 1; }
-function ezb_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
-function ezb_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
+function ez_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
+function ez_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
+function ez_now { date "+%F %T"; }
+function ez_today { date "+%F"; }
+function ez_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
+function ez_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
 
-function ezb_array_size { echo "${#@}"; }
-function ezb_string_size { echo "${#1}"; }
+function ez_array_size { echo "${#@}"; }
+function ez_string_size { echo "${#1}"; }
 
 # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-function ezb_contains { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
-function ezb_excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
+function ez_contains { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
+function ez_excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-function ezb_join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
+function ez_join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
 
 # IFS can only take 1 character
-# function ezb_join { local IFS="${1}"; shift; echo "${*}"; } 
+# function ez_join { local IFS="${1}"; shift; echo "${*}"; } 
 
-function ezb_os_name {
+function ez_os_name {
     case "$(uname -s)" in
         "Darwin") echo "macos" && return 0 ;;
         "Linux") echo "linux" && return 0 ;;
@@ -34,7 +33,7 @@ function ezb_os_name {
     esac
 }
 
-function ezb_count_items {
+function ez_count_items {
     local delimiter="${1}" string="${@:2}" k=0 count=0
     [[ -z "${string}" ]] && echo "${count}" && return
     while [[ "${k}" -lt "${#string}" ]]; do
@@ -43,57 +42,57 @@ function ezb_count_items {
     echo "$((++count))"
 }
 
-function ezb_log_stack {
+function ez_log_stack {
     local ignore_top_x="${1}" i=$((${#FUNCNAME[@]} - 1)) stack
     if [[ -n "${ignore_top_x}" ]]; then
         for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
     else
-        # i > 0 to ignore self "ezb_log_stack"
+        # i > 0 to ignore self "ez_log_stack"
         for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
     fi
     [[ "${stack}" != "[]" ]] && echo "${stack}"
 }
 
-function ezb_split {
+function ez_split {
     # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
-    local -n ezb_split_arg_reference="${1}"
+    local -n ez_split_arg_reference="${1}"
     local delimiter="${2}" string="${@:3}" item="" k=0
-    ezb_split_arg_reference=()
+    ez_split_arg_reference=()
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then
-            ezb_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
+            ez_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
         else
             item+="${string:${k}:1}"; ((++k))
         fi
-        [[ "${k}" -ge "${#string}" ]] && ezb_split_arg_reference+=("${item}")
+        [[ "${k}" -ge "${#string}" ]] && ez_split_arg_reference+=("${item}")
     done
 }
 
-function ezb_array_delete_item() {
+function ez_array_delete_item() {
     # ${1} = array reference, ${2} = item
-    local -n ezb_array_delete_item_arg_reference="${1}"
-    local tmp_array=("${ezb_array_delete_item_arg_reference[@]}") item status=1
-    ezb_array_delete_item_arg_reference=() 
+    local -n ez_array_delete_item_arg_reference="${1}"
+    local tmp_array=("${ez_array_delete_item_arg_reference[@]}") item status=1
+    ez_array_delete_item_arg_reference=() 
     for item in "${tmp_array[@]}"; do
-        [[ "${item}" != "${2}" ]] && ezb_array_delete_item_arg_reference+=("${item}") || status=0
+        [[ "${item}" != "${2}" ]] && ez_array_delete_item_arg_reference+=("${item}") || status=0
     done
     return "${status}"
 }
 
-function ezb_array_delete_index() {
+function ez_array_delete_index() {
     # ${1} = array reference, ${2} = index
-    local -n ezb_array_delete_index_arg_reference="${1}"
-    local tmp_array=("${ezb_array_delete_index_arg_reference[@]}") i=0 status=1
-    ezb_array_delete_index_arg_reference=() 
+    local -n ez_array_delete_index_arg_reference="${1}"
+    local tmp_array=("${ez_array_delete_index_arg_reference[@]}") i=0 status=1
+    ez_array_delete_index_arg_reference=() 
     for ((; i < "${#tmp_array[@]}"; ++i)); do
-        [[ "${i}" -ne "${2}" ]] && ezb_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0
+        [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0
     done
     return "${status}"
 }
 
 # https://misc.flogisoft.com/bash/tip_colors_and_formatting
-unset EZB_FORMAT_SET
-declare -g -A EZB_FORMAT_SET=(
+unset EZ_FORMAT_SET
+declare -g -A EZ_FORMAT_SET=(
 # Formatting
     # Set
     ["Bold"]="\e[1m"
@@ -153,20 +152,20 @@ declare -g -A EZB_FORMAT_SET=(
     ["BackgroundWhite"]="\e[107m"
 )
 
-function ezb_256_color_format {
+function ez_256_color_format {
     local foreground=38 background=48 color
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "[Usage]"
         echo "${FUNCNAME[0]} [-f|--foreground or -b|--background] [0~255]"
         echo; echo "[Foreground]"
         for color in {0..255}; do
-            printf "\e[${foreground};5;%sm  %3s  ${EZB_FORMAT_SET[ResetAll]}" "${color}" "${color}"
+            printf "\e[${foreground};5;%sm  %3s  ${EZ_FORMAT_SET[ResetAll]}" "${color}" "${color}"
             # Print 6 colors per line
             [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
         done
         echo; echo "[Background]"
         for color in {0..255}; do
-            printf "\e[${background};5;%sm${EZB_FORMAT_SET[ForegroundBlack]}  %3s  ${EZB_FORMAT_SET[ResetAll]}" \
+            printf "\e[${background};5;%sm${EZ_FORMAT_SET[ForegroundBlack]}  %3s  ${EZ_FORMAT_SET[ResetAll]}" \
                    "${color}" "${color}"
             # Print 6 colors per line
             [[ $(((${color} + 1) % 6)) -eq 4 ]] && echo
@@ -187,25 +186,25 @@ function ezb_256_color_format {
     fi
 }
 
-function ezb_string_format {
+function ez_string_format {
     # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "[Usage]"; echo "${FUNCNAME[0]} [Format] [String]"; echo; echo "[Available Format]"
-        local format; for format in "${!EZB_FORMAT_SET[@]}"; do
-            echo -e "    ${EZB_FORMAT_SET[${format}]}demo${EZB_FORMAT_SET[ResetAll]}    ${format}"
+        local format; for format in "${!EZ_FORMAT_SET[@]}"; do
+            echo -e "    ${EZ_FORMAT_SET[${format}]}demo${EZ_FORMAT_SET[ResetAll]}    ${format}"
         done
         echo
     else
-        echo "${EZB_FORMAT_SET[${1}]}${@:2}${EZB_FORMAT_SET[ResetAll]}"
+        echo "${EZ_FORMAT_SET[${1}]}${@:2}${EZ_FORMAT_SET[ResetAll]}"
     fi
 }
 
-function ezb_log_info { echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[INFO] ${@}"; }
+function ez_log_info { echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[INFO] ${@}"; }
 
-function ezb_log_error {
-    (>&2 echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundRed" "ERROR")] ${@}")
+function ez_log_error {
+    (>&2 echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[$(ez_string_format "ForegroundRed" "ERROR")] ${@}")
 }
 
-function ezb_log_warning {
-    echo -e "[$(ezb_now)][${EZB_LOGO}]$(ezb_log_stack 1)[$(ezb_string_format "ForegroundYellow" "WARNING")] ${@}"
+function ez_log_warning {
+    echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[$(ez_string_format "ForegroundYellow" "WARNING")] ${@}"
 }
