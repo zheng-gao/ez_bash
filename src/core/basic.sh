@@ -21,7 +21,7 @@ function ez_is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
 function ez_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ez_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
-function ez_now { date "+%F %T"; }
+function ez_now { [[ -z "${1}" ]] && date "+%F %T %Z" || TZ="${1}" date "+%F %T %Z"; }
 function ez_today { date "+%F"; }
 function ez_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
 function ez_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }

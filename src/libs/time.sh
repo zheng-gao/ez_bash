@@ -9,6 +9,13 @@ function ez_clock {
     ez_now; sleep 1; while true; do ez_clear -l 1; ez_now; sleep 1; done
 }
 
+function ez_timezones {
+    local zone_info_dir="/usr/share/zoneinfo"
+    pushd "${zone_info_dir}" > "/dev/null"
+    find . -type f | sed 's@./@@' | grep '^[[:upper:]]' | sort
+    popd > "/dev/null"
+}
+
 function ez_time_from_epoch_seconds {
     if ez_function_unregistered; then
         ez_arg_set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
