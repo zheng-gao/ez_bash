@@ -13,20 +13,15 @@ function ez_file_lines { wc -l "${1}" | awk '{print $1}'; }
 function ez_file_create_dummy {
     if ez_function_unregistered; then
         ez_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
-        ez_arg_set --short "-s" --long "--size" --required --info "Size in MB" || return 1
+        ez_arg_set --short "-u" --long "--unit" --required --default "B" --choices "B" "K" "M" "G" &&
+        ez_arg_set --short "-s" --long "--size" --required || return 1
     fi
     ez_function_usage "${@}" && return
     local path && path="$(ez_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local unit && unit="$(ez_arg_get --short "-u" --long "--unit" --arguments "${@}")" &&
     local size && size="$(ez_arg_get --short "-s" --long "--size" --arguments "${@}")" || return 1
-    local os=$(ez_os_name)
-    if [[ "${os}" = "linux" ]]; then
-        dd "if=/dev/random" "of=${path}" "bs=4k" "iflag=fullblock,count_bytes" "count=${size}M"
-        # dd "if=/dev/zero" "of=${path}" "bs=${size}M" "count=1"
-    elif [[ "${os}" = "macos" ]]; then
-        mkfile "${size}m" "${path}"
-    else
-        ez_log_error "The OS \"${os}\" is not supported"
-    fi
+    [[ "${unit}" == "B" ]] && unit=""
+    dd "if=/dev/urandom" "of=${path}" "iflag=fullblock" "bs=1${unit}" "count=${size}"
 }
 
 function ez_file_string_replace {
