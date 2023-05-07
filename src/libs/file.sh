@@ -10,7 +10,7 @@ function ez_file_read_lines { local file="${1}" line; while read -r line; do ech
 function ez_file_clear { echo -n > "${1}"; }
 function ez_file_lines { wc -l "${1}" | awk '{print $1}'; }
 
-function ez_file_create_dummy {
+function ez_file_create {
     if ez_function_unregistered; then
         ez_arg_set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
         ez_arg_set --short "-u" --long "--unit" --required --default "B" --choices "B" "K" "M" "G" &&
