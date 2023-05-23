@@ -15,6 +15,30 @@ EZ_SSH_OPTIONS=(
     "-o" "PasswordAuthentication=no"
 )
 
+function ez_ssh_oneliner {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
+        ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
+        ez_arg_set --short "-c" --long "--command" --required --info "Command to run" || return 1
+    fi
+    ez_function_usage "${@}" && return
+    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
+    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" || return 1
+    local host_list; ez_function_get_list "host_list" "${hosts}"
+    local host output; for host in "${host_list[@]}"; do
+        echo -n "${host} - "
+        if [[ -z "${key}" ]]; then
+            output="$(ssh "${EZ_SSH_OPTIONS[@]}" "${user}@${host}" "${command}" 2>&1)"
+        else
+            output="$(ssh "${EZ_SSH_OPTIONS[@]}" -i "${key}" "${user}@${host}" "${command}" 2>&1)"
+        fi
+        echo "${output//[[:cntrl:]]/|}"
+    done
+}
+
 function ez_ssh_local_script {
     if ez_function_unregistered; then
         ez_arg_set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
