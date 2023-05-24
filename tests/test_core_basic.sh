@@ -28,7 +28,7 @@ function test_ez_today {
 }
 
 function test_ez_now {
-    local expect="$(date '+%F %T')"
+    local expect="$(date '+%F %T %Z')"
     local result="$(ez_now)"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
