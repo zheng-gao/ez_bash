@@ -155,6 +155,26 @@ function ez_file_parse_ip {
     fi
 }
 
+function ez_file_parse_between_lines {
+    if ez_function_unregistered; then
+        ez_arg_set --short "-p" --long "--path" --required --info "Path to the file" &&
+        ez_arg_set --short "-s" --long "--start" --required --info "Starting line marker" &&
+        ez_arg_set --short "-e" --long "--end" --required --info "Ending line marker" &&
+        ez_arg_set --short "-g" --long "--greedy" --type "Flag" --info "Greedy mode" || return 1
+    fi
+    ez_function_usage "${@}" && return
+    local path && path="$(ez_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
+    local start && start="$(ez_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
+    local end && end="$(ez_arg_get --short "-e" --long "--end" --arguments "${@}")" &&
+    local greedy && greedy="$(ez_arg_get --short "-g" --long "--greedy" --arguments "${@}")" || return 1
+    [[ ! -f "${path}" ]] && ez_log_error "File \"${path}\" not exist" && return 1
+    if [[ "${greedy}" = "${EZ_TRUE}" ]]; then
+        sed -e "1,/${start}.*/d" -e "/${end}/,\$d" "${path}"
+    else
+        awk "/${start}/{found=1;next}/${end}/{found=0}found" "${path}"
+    fi
+}
+
 function ez_backup {
     if ez_function_unregistered; then
         ez_arg_set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
