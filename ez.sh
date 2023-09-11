@@ -13,7 +13,7 @@
 ###################################################################################################
 EZ_LOGO="EZ-Bash"
 EZ_VERSION="2.0.1"
-EZ_DEFAULT_BASH_VERSION="5"
+EZ_DEFAULT_BASH_VERSION=5
 
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
@@ -71,16 +71,6 @@ ez_dependency_check "${EZ_DEFAULT_DEPENDENCIES[@]}"
 ###################################################################################################
 # ------------------------------------------ Utilities ------------------------------------------ #
 ###################################################################################################
-function ez_self_verification {
-    if [[ -z "${EZ_BASH_HOME}" ]]; then
-        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] \e[33mEZ_BASH_HOME\e[0m is not set!" && return 1
-    elif [[ ! -d "${EZ_BASH_HOME}" ]]; then
-        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] Invalid directory \"${EZ_BASH_HOME}\"" && return 1
-    elif [[ ! "$(basename ${EZ_BASH_HOME})" = "ez_bash" ]]; then
-        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] Invalid \e[33mEZ_BASH_HOME\e[0m: ${EZ_BASH_HOME}" && return 1
-    fi
-}
-
 function ez_self_installation {
     local ez_bash_home="${1}" uninstall="${2}"
     local bash_profile="${HOME}/.bash_profile" bashrc="${HOME}/.bashrc"
@@ -133,7 +123,6 @@ function ez_self_version {
 }
 
 function ez_self_unit_test {
-    if ! ez_self_verification; then return 1; fi
     local tests_dir="${1}" test_files=("${@:2}") test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"
     [[ -z "${test_files}" ]] && test_files=($(ls -1 ${tests_dir} | grep -v 'utils.sh'))
@@ -185,11 +174,11 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     esac
 else
     # The script is being sourced
-    if ! ez_self_verification; then return 1; fi
-    bash --version | grep "version ${EZ_DEFAULT_BASH_VERSION}\." &> "/var/tmp/null" || {
-        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] \"Bash ${EZ_DEFAULT_BASH_VERSION}\" not found!"; return 1
-    }
-    rm -f "/var/tmp/null"
+    if [[ "${BASH_VERSINFO[0]}" -lt "${EZ_DEFAULT_BASH_VERSION}" ]]; then
+        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] \"Bash version less than ${EZ_DEFAULT_BASH_VERSION}\""
+        return 1
+    fi
+    [[ -z "${EZ_BASH_HOME}" ]] && export EZ_BASH_HOME="$(dirname ${BASH_SOURCE[0]})"
     # Source EZ-Bash Core
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
