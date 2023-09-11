@@ -74,17 +74,17 @@ ez_dependency_check "${EZ_DEFAULT_DEPENDENCIES[@]}"
 function ez_self_installation {
     local ez_bash_home="${1}" uninstall="${2}"
     local bash_profile="${HOME}/.bash_profile" bashrc="${HOME}/.bashrc"
-    if [[ -n "${uninstall}" ]]; then
+    if [[ -n "${uninstall}" ]]; then  # Uninstall
         if [[ -f "${bash_profile}" ]]; then
-            if grep "^export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
-                grep -v "^export EZ_BASH_HOME=" < "${bash_profile}" > "${bash_profile}.new"
+            if grep "ez.sh" "${bash_profile}" > "/dev/null"; then
+                grep -v "ez.sh" < "${bash_profile}" > "${bash_profile}.new"
                 mv "${bash_profile}.new" "${bash_profile}"
             else
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] ${EZ_LOGO} not found!" && return 1
             fi
         elif [[ -f "${bashrc}" ]]; then
-            if grep "^export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
-                grep -v "^export EZ_BASH_HOME=" < "${bashrc}" > "${bashrc}.new"
+            if grep "ez.sh" "${bashrc}" > "/dev/null"; then
+                grep -v "ez.sh" < "${bashrc}" > "${bashrc}.new"
                 mv "${bashrc}.new" "${bashrc}"
             else
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] ${EZ_LOGO} not found!" && return 1
@@ -92,19 +92,19 @@ function ez_self_installation {
         fi
         echo "[${EZ_LOGO}][INFO] Uninstallation Complete!"
         echo "[${EZ_LOGO}][INFO] Please restart all the existing terminals."
-    else
+    else  # Install
         if [[ -f "${bash_profile}" ]]; then
-            if grep "^export EZ_BASH_HOME=" "${bash_profile}" > "/dev/null"; then
+            if grep "ez.sh" "${bash_profile}" > "/dev/null"; then
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] ${EZ_LOGO} was previously installed!" && return 1
             else
-                echo -e "export EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ez.sh --all\n" >> "${bash_profile}"
+                echo -e "source ${ez_bash_home}/ez.sh --all\n" >> "${bash_profile}"
                 source "${bash_profile}"
             fi
         elif [[ -f "${bashrc}" ]]; then
-            if grep "^export EZ_BASH_HOME=" "${bashrc}" > "/dev/null"; then
+            if grep "ez.sh" "${bashrc}" > "/dev/null"; then
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] ${EZ_LOGO} was previously installed!" && return 1
             else
-                echo -e "export EZ_BASH_HOME=${ez_bash_home}; source ${ez_bash_home}/ez.sh --all\n" >> "${bashrc}"
+                echo -e "source ${ez_bash_home}/ez.sh --all\n" >> "${bashrc}"
                 source "${bashrc}"
             fi
         fi
@@ -204,7 +204,6 @@ else
 fi
 
 unset ez_self_installation
-unset ez_self_verification
 unset ez_self_unit_test
 unset ez_self_version
 
