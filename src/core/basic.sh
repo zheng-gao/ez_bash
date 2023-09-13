@@ -19,6 +19,8 @@ function ez_is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
 function ez_is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
 function ez_is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
+function ez_chr { printf $(printf "\%o" ${1}); }
+function ez_ord { printf "%d\n" "'${1}"; }
 function ez_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ez_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
 function ez_now { [[ -z "${1}" ]] && date "+%F %T %Z" || TZ="${1}" date "+%F %T %Z"; }
