@@ -52,10 +52,10 @@ function ez_os_name {
 function ez_timeout {
     local os=$(ez_os_name)
     if [[ "${os}" = "macos" ]]; then
-        if ! hash "gtimeout"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
+        if ! which "gtimeout" > "/dev/null"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
         else echo "gtimeout"; fi
     elif [[ "${os}" = "linux" ]]; then
-        if ! hash "timeout"; then ez_log_error "Not found \"timeout\", please run \"yum install timeout\""
+        if ! which "timeout" > "/dev/null"; then ez_log_error "Not found \"timeout\", please run \"yum install timeout\""
         else echo "timeout"; fi # Should be installed by default
     fi
 }

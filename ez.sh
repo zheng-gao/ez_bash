@@ -56,7 +56,7 @@ declare -g -A EZ_DEPENDENCY_SET
 function ez_dependency_check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
-            hash "${cmd}" || return 1
+            which "${cmd}" > "/dev/null" || return 1
             EZ_DEPENDENCY_SET["${cmd}"]="${EZ_TRUE}"
         fi
     done
