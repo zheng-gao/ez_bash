@@ -89,15 +89,15 @@ function ez_source_dir {
         local usage=$(ez_build_usage -o "init" -d "Source whole directory")
         usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
         usage+=$(ez_build_usage -o "add" -a "-d|--depth" -d "Directory Search Depth, default = None")
-        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Exclude Regex")
+        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Separated by comma")
         ez_print_usage "${usage}" && return 0
     fi
-    local path="." exclude="" depth=""
+    local path="." exclude=() depth=""
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1}; shift ;;
             "-d" | "--depth") shift; depth=${1}; shift ;;
-            "-e" | "--exclude") shift; exclude=${1}; shift ;;
+            "-e" | "--exclude") shift; exclude+=(${1}); shift ;;
             *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done
@@ -111,7 +111,7 @@ function ez_source_dir {
             if ! source "${sh_file}"; then ez_log_error "Failed to source \"${sh_file}\"" && return 4; fi
         done
     else
-        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v "${exclude}"); do
+        local sh_file; for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez_join "\|" "${exclude[@]}")); do
             if ! source "${sh_file}"; then ez_log_error "Failed to source \"${sh_file}\"" && return 4; fi
         done
     fi
