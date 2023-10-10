@@ -89,15 +89,16 @@ function ez_source_dir {
         local usage=$(ez_build_usage -o "init" -d "Source whole directory")
         usage+=$(ez_build_usage -o "add" -a "-p|--path" -d "Directory Path, default = \".\"")
         usage+=$(ez_build_usage -o "add" -a "-d|--depth" -d "Directory Search Depth, default = None")
-        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Separated by comma")
+        usage+=$(ez_build_usage -o "add" -a "-e|--exclude" -d "Keyword List")
         ez_print_usage "${usage}" && return 0
     fi
-    local path="." exclude=() depth=""
+    local path="." depth="" exclude=() arg_list=("-p" "--path" "-d" "--depth" "-e" "--exclude")
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1}; shift ;;
             "-d" | "--depth") shift; depth=${1}; shift ;;
-            "-e" | "--exclude") shift; exclude+=(${1}); shift ;;
+            "-e" | "--exclude")
+                shift; while [[ -n "${1}" ]] && ez_excludes "${1}" "${arg_list[@]}"; do exclude+=(${1}); shift; done ;;
             *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for more info"; return 1 ;;
         esac
     done

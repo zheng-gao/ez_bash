@@ -192,7 +192,7 @@ else
         echo -e "[${EZ_LOGO}][INFO] Imported $(ez_string_format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
     elif [[ "${1}" = "-s" ]] || [[ "${1}" = "--skip" ]]; then
         ez_source_dir --path "${EZ_BASH_HOME}/src/libs" --exclude "${@:2}" || return 1
-        echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries, excluding \"${@:2}\""
+        echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${@:2}))"
     else
         # Source the designated libraries
         for ez_library in "${@}"; do
