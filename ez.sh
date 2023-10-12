@@ -183,23 +183,23 @@ else
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/pipeable.sh" || return 1
-    # Source Other Libs
+    # Source Other Libs, echo to stderr (>&2) to unblock rsync.
     if [[ -z "${1}" ]]; then
-        echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} core"
+        >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} core"
     elif [[ "${1}" = "-a" ]] || [[ "${1}" = "--all" ]]; then
         # By default source ALL other libs
         ez_source_dir --path "${EZ_BASH_HOME}/src/libs" || return 1
-        echo -e "[${EZ_LOGO}][INFO] Imported $(ez_string_format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
+        >&2 echo -e "[${EZ_LOGO}][INFO] Imported $(ez_string_format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
     elif [[ "${1}" = "-s" ]] || [[ "${1}" = "--skip" ]]; then
         ez_source_dir --path "${EZ_BASH_HOME}/src/libs" --exclude "${@:2}" || return 1
-        echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${@:2}))"
+        >&2 echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${@:2}))"
     else
         # Source the designated libraries
         for ez_library in "${@}"; do
             ez_source_dir --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1
         done
         unset ez_library
-        echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries: ${@}"
+        >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries: ${@}"
     fi
 fi
 
