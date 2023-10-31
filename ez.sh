@@ -142,6 +142,44 @@ function ez_self_unit_test {
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
+function ez_self_source_option {
+    local all_flag="" quiet_flag="" import_libs=() skip_libs=()
+    local args=("-a" "--all" "-q" "--quiet" "-i" "--import" "-s" "--skip")
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-h" | "--help")
+                {
+                    echo "  ARGUMENTS#DESCRIPTION"
+                    echo "  -a|--all#Import all libraries"
+                    echo "  -s|--skip#Skip some libraries"
+                } | column -s "#" -t
+                echo; return
+                ;;
+            "-a" | "--all") shift; all_flag="${EZ_TRUE}" ;;
+            "-q" | "--quiet") shift; quiet_flag="${EZ_TRUE}" ;;
+            "-i" | "--import") shift;
+                while [[ -n "${1}" ]]; do ez_contains "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
+            "-s" | "--skip") shift;
+                while [[ -n "${1}" ]]; do ez_contains "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
+            *) log_error "Unknown argument identifier \"${1}\""; return 1 ;;
+        esac
+    done
+    # Source Other Libs, echo to stderr (>&2) to unblock rsync.
+    if [[ -n "${all_flag}" ]]; then
+        ez_source_dir --path "${EZ_BASH_HOME}/src/libs" || return 1
+        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][INFO] Imported $(ez_string_format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
+    elif [[ -n "${skip_libs}" ]]; then
+        ez_source_dir --path "${EZ_BASH_HOME}/src/libs" --exclude "${skip_libs[@]}" || return 1
+        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${@:2}))"
+    elif [[ -n "${import_libs}" ]]; then
+        # Source the designated libraries
+        for ez_library in "${import_libs[@]}"; do ez_source_dir --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1; done; unset ez_library
+        [[ -z "${quiet_flag}" ]] && >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries: ${@}"
+    else
+        [[ -z "${quiet_flag}" ]] && >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} core"
+    fi
+}
+
 if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     # The script is being executed
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
@@ -183,26 +221,10 @@ else
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/pipeable.sh" || return 1
-    # Source Other Libs, echo to stderr (>&2) to unblock rsync.
-    if [[ -z "${1}" ]]; then
-        >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} core"
-    elif [[ "${1}" = "-a" ]] || [[ "${1}" = "--all" ]]; then
-        # By default source ALL other libs
-        ez_source_dir --path "${EZ_BASH_HOME}/src/libs" || return 1
-        >&2 echo -e "[${EZ_LOGO}][INFO] Imported $(ez_string_format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
-    elif [[ "${1}" = "-s" ]] || [[ "${1}" = "--skip" ]]; then
-        ez_source_dir --path "${EZ_BASH_HOME}/src/libs" --exclude "${@:2}" || return 1
-        >&2 echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${@:2}))"
-    else
-        # Source the designated libraries
-        for ez_library in "${@}"; do
-            ez_source_dir --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1
-        done
-        unset ez_library
-        >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries: ${@}"
-    fi
+    ez_self_source_option "${@:1}"
 fi
 
+unset ez_self_source_option
 unset ez_self_installation
 unset ez_self_unit_test
 unset ez_self_version

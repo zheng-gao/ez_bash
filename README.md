@@ -16,9 +16,10 @@ export EZ_BASH_HOME="$(pwd)/ez_bash"
 ```
 #### 3. Import Libraries
 ```shell
-source "${EZ_BASH_HOME}/ez.sh"                    # Import core functions only
-source "${EZ_BASH_HOME}/ez.sh" "lib1" "lib2" ...  # Import libraries (including core)
-source "${EZ_BASH_HOME}/ez.sh" --all              # Import ALL libraries (including core)
+source "${EZ_BASH_HOME}/ez.sh"                             # Import core functions only
+source "${EZ_BASH_HOME}/ez.sh" --import "lib1" "lib2" ...  # Import libraries (including core)
+source "${EZ_BASH_HOME}/ez.sh" --all                       # Import ALL libraries (including core)
+source "${EZ_BASH_HOME}/ez.sh" --skip "lib1" "lib2"        # Import ALL libraries (including core) but skip some libraries
 ```
 #### 4. Show Commands
 ```shell
