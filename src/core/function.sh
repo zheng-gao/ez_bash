@@ -606,8 +606,8 @@ function ez_arg_get {
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument identifier or end of line
-                    ez_contains "${arguments[${index}]}" $(ez_function_get_short_arguments "${function}") && break
-                    ez_contains "${arguments[${index}]}" $(ez_function_get_long_arguments "${function}") && break
+                    ez_includes "${arguments[${index}]}" $(ez_function_get_short_arguments "${function}") && break
+                    ez_includes "${arguments[${index}]}" $(ez_function_get_long_arguments "${function}") && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done

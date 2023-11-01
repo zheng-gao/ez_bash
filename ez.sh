@@ -158,9 +158,9 @@ function ez_self_source_option {
             "-a" | "--all") shift; all_flag="${EZ_TRUE}" ;;
             "-q" | "--quiet") shift; quiet_flag="${EZ_TRUE}" ;;
             "-i" | "--import") shift;
-                while [[ -n "${1}" ]]; do ez_contains "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez_includes "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
             "-s" | "--skip") shift;
-                while [[ -n "${1}" ]]; do ez_contains "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez_includes "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
             *) log_error "Unknown argument identifier \"${1}\""; return 1 ;;
         esac
     done

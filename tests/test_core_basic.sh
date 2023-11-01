@@ -51,11 +51,11 @@ function test_ez_join {
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_contains {
+function test_ez_includes {
     local result
-    ez_contains "123" "abc" "123" "XYZ" && result="True" || result="False"
+    ez_includes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
-    ez_contains "xyz" "abc" "123" "XYZ" && result="True" || result="False"
+    ez_includes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "False" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -110,7 +110,7 @@ test_ez_now
 test_ez_quote
 test_ez_double_quote
 test_ez_join
-test_ez_contains
+test_ez_includes
 test_ez_excludes
 test_ez_count_items
 test_ez_split

@@ -32,7 +32,7 @@ function ez_array_size { echo "${#@}"; }
 function ez_string_size { echo "${#1}"; }
 
 # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-function ez_contains { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
+function ez_includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
 function ez_excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
