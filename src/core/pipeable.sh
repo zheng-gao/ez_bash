@@ -6,6 +6,7 @@ alias EZP_STRIP="sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//'"
 alias EZP_LSTRIP="sed 's/^[[:blank:]]*//'"
 alias EZP_RSTRIP="sed 's/[[:blank:]]*$//'"
 alias EZP_STATS="sort | uniq -c | sort -n"
+alias EZP_GET_VERSIONS="sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p'"
 
 function ezp_column {
     local data delimiter="${1}" column="${2}"

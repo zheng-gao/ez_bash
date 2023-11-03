@@ -212,7 +212,7 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     esac
 else
     # The script is being sourced
-    if [[ "${BASH_VERSINFO[0]}" -lt "${EZ_DEFAULT_BASH_VERSION}" ]]; then
+    if [[ "$(bash --version | sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p' | cut -c1-1)" -lt "${EZ_DEFAULT_BASH_VERSION}" ]]; then
         echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] \"Bash version less than ${EZ_DEFAULT_BASH_VERSION}\""
         return 1
     fi
