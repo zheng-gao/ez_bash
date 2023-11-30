@@ -38,3 +38,25 @@ function ez_version_compare {
     ez_is_true "${print}" && echo "${result}"
     ez_is_true "${result}" && return 0 || return 255
 }
+
+function ez_version_compare_and_bump_latest {
+    local l_major=$(echo "${1}" | cut -d "." -f 1); [[ "${l_major}" = "*" ]] && l_major=0 || l_major=$(echo "${l_major}" | bc)
+    local l_minor=$(echo "${1}" | cut -d "." -f 2); [[ "${l_minor}" = "*" ]] && l_minor=0 || l_minor=$(echo "${l_minor}" | bc)
+    local l_patch=$(echo "${1}" | cut -d "." -f 3); [[ "${l_patch}" = "*" ]] && l_patch=-1 || l_patch=$(echo "${l_patch}" | bc)
+    local r_major=$(echo "${2}" | cut -d "." -f 1); [[ "${r_major}" = "*" ]] && r_major=0 || r_major=$(echo "${r_major}" | bc)
+    local r_minor=$(echo "${2}" | cut -d "." -f 2); [[ "${r_minor}" = "*" ]] && r_minor=0 || r_minor=$(echo "${r_minor}" | bc)
+    local r_patch=$(echo "${2}" | cut -d "." -f 3); [[ "${r_patch}" = "*" ]] && r_patch=-1 || r_patch=$(echo "${r_patch}" | bc)
+    if [[ "${l_major}" -gt "${r_major}" ]]; then
+        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+    elif [[ "${l_major}" -lt "${r_major}" ]]; then
+        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+    elif [[ "${l_minor}" -gt "${r_minor}" ]]; then
+        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+    elif [[ "${l_minor}" -lt "${r_minor}" ]]; then
+        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+    elif [[ "${l_patch}" -gt "${r_patch}" ]]; then
+        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+    else
+        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+    fi
+}
