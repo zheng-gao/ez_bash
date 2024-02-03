@@ -20,7 +20,7 @@ function ez_api {
     local x_headers && ez_function_get_list "x_headers" "$(ez_arg_get --short "-x" --long "--extra-headers" --arguments "${@}")" &&
     local params && ez_function_get_list "params" "$(ez_arg_get --short "-p" --long "--params" --arguments "${@}")" &&
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" || return 1
-    local params_str="$(ez_join '&' ${params[@]})"
+    local params_str="?$(ez_join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     [[ -n "${port}" ]] && domain="${domain}:${port}"
