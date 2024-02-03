@@ -143,9 +143,8 @@ function ez_test_list_arg_default {
         ez_arg_set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
     fi
     [[ -n "${@}" ]] && ez_function_usage "${@}" && return
-    local list_arg && list_arg="$(ez_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
-    local list; ez_function_get_list "list" "${list_arg}"
-    for item in "${list[@]}"; do echo "${item}"; done
+    local list_arg && ez_function_get_list "list_arg" "$(ez_arg_get -s "-l" -l "--list" -a "${@}")" || return 1
+    for item in "${list_arg[@]}"; do echo "${item}"; done
 }
 
 > ez_test_list_arg_default --help
