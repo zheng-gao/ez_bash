@@ -28,7 +28,7 @@ function ez_api {
     if [[ "${method}" = "GET" ]]; then
         curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} https://${domain}${endpoint}${params_str}"
     else
-        curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} -X ${method} https://${domain}${endpoint}${params_str} -d ${data}"
+        curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} -X ${method} https://${domain}${endpoint}${params_str} -d '${data}'"
     fi
     bash -c "${curl_str}"  # eval "${curl_str}"
 }
