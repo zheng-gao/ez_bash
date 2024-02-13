@@ -1,11 +1,11 @@
 function ez_api {
     if ez_function_unregistered; then
-        ez_arg_set --short "-X" --long "--method" --required --default "GET" --choices "GET" "PUT" "POST" &&
-        ez_arg_set --short "-a" --long "--auth" --info "Username:Password" &&
         ez_arg_set --short "-D" --long "--domain" --required  &&
         ez_arg_set --short "-P" --long "--port" &&
-        ez_arg_set --short "-e" --long "--endpoint" --required --info "Url after domain and port with no parameters" &&
-        ez_arg_set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --required --info "HTTP headers" &&
+        ez_arg_set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" &&
+        ez_arg_set --short "-a" --long "--auth" --info "Username:Password" &&
+        ez_arg_set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
+        ez_arg_set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --info "HTTP headers" &&
         ez_arg_set --short "-x" --long "--extra-headers" --type "List" --info "Extra HTTP Headers" &&
         ez_arg_set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
         ez_arg_set --short "-d" --long "--data" --info "PUT/POST payload" || return 1
@@ -24,11 +24,8 @@ function ez_api {
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     [[ -n "${port}" ]] && domain="${domain}:${port}"
-    local curl_str=""
-    if [[ "${method}" = "GET" ]]; then
-        curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} https://${domain}${endpoint}${params_str}"
-    else
-        curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} -X ${method} https://${domain}${endpoint}${params_str} -d '${data}'"
-    fi
+    local curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} https://${domain}${endpoint}${params_str}"
+    [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
+    [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
     bash -c "${curl_str}"  # eval "${curl_str}"
 }
