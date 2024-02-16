@@ -194,7 +194,19 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
         exit 0
     fi
     case "${1}" in
-        "-t" | "--test") ez_self_unit_test "$(dirname ${0})/tests" "${@:2}";;
+        "-c" | "--check")
+            if which "shellcheck" > "/dev/null"; then
+                find "$(dirname ${0})/src" -type f -name "*.sh" -exec shellcheck {} \;
+            else
+                echo "Run following commands to install shellcheck:"
+                if [[ "$(uname -s)" = "Darwin" ]]; then
+                    echo "    brew install shellcheck"
+                else
+                    echo "    apt install shellcheck"
+                    echo "    yum install shellcheck"
+                fi
+            fi ;;
+        "-t" | "--test") ez_self_unit_test "$(dirname ${0})/tests" "${@:2}" ;;
         "-i" | "--install")
             if [[ "$(dirname ${0})" = "." ]]; then
                 ez_self_installation "$(pwd)"
