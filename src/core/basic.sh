@@ -77,14 +77,10 @@ function ez_count_items {
 }
 
 function ez_log_stack {
-    local ignore_top_x="${1}" i=$((${#FUNCNAME[@]} - 1)) stack
-    if [[ -n "${ignore_top_x}" ]]; then
-        for ((; i > ignore_top_x; i--)); do stack+="[${FUNCNAME[${i}]}]"; done
-    else
-        # i > 0 to ignore self "ez_log_stack"
-        for ((; i > 0; i--)); do stack+="[${FUNCNAME[$i]}]"; done
-    fi
-    [[ "${stack}" != "[]" ]] && echo "${stack}"
+    local ignore_top_x="${1}" i="$((${#FUNCNAME[@]} - 1))" stack="" first=0
+    [[ -z "${ignore_top_x}" ]] && ignore_top_x=0  # i > 0 to ignore self "ez_log_stack"
+    for ((; i > ignore_top_x; i--)); do [ "${first}" -ne 0 ] && stack+="." || first=1; stack+="${FUNCNAME[${i}]}"; done
+    [[ -n "${stack}" ]] && echo "[${stack}]"
 }
 
 function ez_split {
@@ -233,12 +229,12 @@ function ez_string_format {
     fi
 }
 
-function ez_log_info { echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[INFO] ${@}"; }
+function ez_log_info { echo -e "[$(ez_now)][${EZ_LOGO}][INFO]$(ez_log_stack 1) ${@}"; }
 
 function ez_log_error {
-    (>&2 echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[$(ez_string_format "ForegroundRed" "ERROR")] ${@}")
+    (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundRed" "ERROR")]$(ez_log_stack 1) ${@}")
 }
 
 function ez_log_warning {
-    echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack 1)[$(ez_string_format "ForegroundYellow" "WARNING")] ${@}"
+    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundYellow" "WARNING")]$(ez_log_stack 1) ${@}"
 }

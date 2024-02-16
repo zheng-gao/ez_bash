@@ -157,11 +157,11 @@ function ez_log {
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         if [[ "$(ez_lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[$(ez_string_format ForegroundRed ${logger})] ${message[@]}")
+            (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format ForegroundRed ${logger})]$(ez_log_stack ${stack}) ${message[@]}")
         elif [[ "$(ez_lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[$(ez_string_format ForegroundYellow ${logger})] ${message[@]}"
+            echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format ForegroundYellow ${logger})]$(ez_log_stack ${stack}) ${message[@]}"
         else
-            echo -e "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[${logger}] ${message[@]}"
+            echo -e "[$(ez_now)][${EZ_LOGO}][${logger}]$(ez_log_stack ${stack}) ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
@@ -170,7 +170,7 @@ function ez_log {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ez_now)][${EZ_LOGO}]$(ez_log_stack ${stack})[${logger}] ${message[@]}" >> "${file}"
+        echo "[$(ez_now)][${EZ_LOGO}][${logger}]$(ez_log_stack ${stack}) ${message[@]}" >> "${file}"
     fi
 }
 
