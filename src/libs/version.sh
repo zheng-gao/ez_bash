@@ -1,4 +1,31 @@
+function ez_version_extract {
+    local digit="$(echo ${1} | cut -d '.' -f ${2})"
+    [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | sed "s/^\([0-9]*\).*/\1/" | bc  # Trim off the trailing charaters
+}
+
 function ez_version_compare {
+    local valid_comparators=("<" ">" "<=" ">=" "=") result
+    [[ -z "${1}" ]] && ez_log_error "Invalid left version '${1}'" && return 255
+    [[ -z "${3}" ]] && ez_log_error "Invalid right version '${3}'" && return 255
+    ez_contains "${2}" "${valid_comparators[@]}" || { ez_log_error "Invalid comparator '${2}'" && return 255; }
+    local l_major="$(ez_version_extract ${1} 1)" r_major="$(ez_version_extract ${3} 1)"
+    local l_minor="$(ez_version_extract ${1} 2)" r_minor="$(ez_version_extract ${3} 2)"
+    local l_patch="$(ez_version_extract ${1} 3)" r_patch="$(ez_version_extract ${3} 3)"
+    if [ "${l_major}" -gt "${r_major}" ]; then result=1
+    elif [ "${l_major}" -lt "${r_major}" ]; then result=-1
+    elif [ "${l_minor}" -gt "${r_minor}" ]; then result=1
+    elif [ "${l_minor}" -lt "${r_minor}" ]; then result=-1
+    elif [ "${l_patch}" -gt "${r_patch}" ]; then result=1
+    elif [ "${l_patch}" -lt "${r_patch}" ]; then result=-1
+    else result=0; fi
+    if [[ "${2}" = "<" ]]; then [ "${result}" -eq -1 ] && return 0 || return 1
+    elif [[ "${2}" = ">" ]]; then [ "${result}" -eq 1 ] && return 0 || return 1
+    elif [[ "${2}" = "<=" ]]; then [ "${result}" -le 0 ] && return 0 || return 1
+    elif [[ "${2}" = ">=" ]]; then [ "${result}" -ge 0 ] && return 0 || return 1
+    else [ "${result}" -eq 0 ] && return 0 || return 1; fi
+}
+
+function ez_version_compare_2 {
     if ez_function_unregistered; then
         ez_arg_set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
                     --info "Must quote operation \">\" and \">=\"" &&
