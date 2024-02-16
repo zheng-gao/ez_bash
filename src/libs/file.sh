@@ -100,13 +100,13 @@ function ez_file_descriptor_count {
     ez_function_usage "${@}" && return
     local pid && pid="$(ez_arg_get --short "-p" --long "--process-id" --arguments "${@}")" &&
     local name && name="$(ez_arg_get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
-    local fd_count=0; local os=$(ez_os_name)
+    local fd_count=0
     if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez_log_error "Cannot use --pid and --name together" && return 1
     elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez_log_error "Must provide --pid or --name" && return 1
     elif [[ -z "${pid}" ]]; then
-        if [[ "${os}" = "linux" ]]; then
+        if [[ "$(uname -s)" = "Linux" ]]; then
             for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
-        elif [[ "${os}" = "macos" ]]; then
+        else
             ez_log_error "\"--name\" only works on linux" && return 1
         fi
     else

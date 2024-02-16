@@ -24,7 +24,6 @@ function ez_chr { printf $(printf "\%o" ${1}); }
 function ez_ord { printf "%d\n" "'${1}"; }
 function ez_lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
 function ez_upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
-function ez_now { [[ -z "${1}" ]] && date "+%F %T %Z" || TZ="${1}" date "+%F %T %Z"; }
 function ez_today { date "+%F"; }
 function ez_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
 function ez_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
@@ -42,31 +41,27 @@ function ez_join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && 
 # IFS can only take 1 character
 # function ez_join { local IFS="${1}"; shift; echo "${*}"; } 
 
-function ez_os_name {
-    case "$(uname -s)" in
-        "Darwin") echo "macos" && return 0 ;;
-        "Linux") echo "linux" && return 0 ;;
-        *) echo "unknown" && return 1 ;;
-    esac
+function ez_now {
+    local f="+%F %T"
+    [[ "$(uname -s)" = "Darwin" ]] && f+=" %Z" || f+=".%3N %Z"  # macos date not support milliseconds, brew install coreutils, use gdate
+    [[ -z "${1}" ]] && date "${f}" || TZ="${1}" date "${f}"
 }
 
 function ez_timeout {
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then
+    if [[ "$(uname -s)" = "Darwin" ]]; then
         if ! which "gtimeout" > "/dev/null"; then ez_log_error "Not found \"gtimeout\", please run \"brew install coreutils\""
         else echo "gtimeout"; fi
-    elif [[ "${os}" = "linux" ]]; then
+    else  # Linux
         if ! which "timeout" > "/dev/null"; then ez_log_error "Not found \"timeout\", please run \"yum install timeout\""
         else echo "timeout"; fi # Should be installed by default
     fi
 }
 
 function ez_md5 {
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then
+    if [[ "$(uname -s)" = "Darwin" ]]; then
         if ! hash "md5"; then ez_log_error "Not found \"md5\", please run \"brew install md5\""
         else echo "md5 -q"; fi
-    elif [[ "${os}" = "linux" ]]; then
+    else  # Linux
         if ! hash "md5sum"; then ez_log_error "Not found \"md5sum\", please run \"yum install md5sum\""
         else echo "md5sum"; fi
     fi

@@ -19,9 +19,8 @@ function ez_web {
     local port && port="$(ez_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
     local index && index="$(ez_arg_get --short "-i" --long "--index" --arguments "${@}")" &&
     local background && background="$(ez_arg_get --short "-b" --long "--background" --arguments "${@}")" || return 1
-    local os_name=$(ez_os_name)
     local response_html='<!doctype html><html><body><h1>A webpage served with netcat</h1></body></html>'
-    if [[ "${os_name}" == "linux" ]]; then
+    if [[ "$(uname -s)" = "Linux" ]]; then
         if [[ -f "${index}" ]]; then
             if ez_is_false "${background}"; then
                 nc -vkl "${host}" "${port}" -c "echo -e 'HTTP/1.1 200 OK\r\n'; cat ${index}"

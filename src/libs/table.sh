@@ -50,10 +50,9 @@ function ez_table_print {
             table="${table}$(printf "%s#+" $(ez_string_repeat --string "#+" --count "${number_of_columns}"))"
         fi
     done
-    if [[ "$(ez_os_name)" == "macos" ]]; then
+    if [[ "$(uname -s)" = "Darwin" ]]; then
         echo -e "${table}" | column -s "#" -t | awk '/^\+/{gsub(" ", "-", $0)}1'
-    elif [[ "$(ez_os_name)" == "linux" ]]; then
-        # linux print table with 2 spaces in front of each line
+    else  # Linux print table with 2 spaces in front of each line
         echo -e "${table}" | column -s "#" -t | sed "s/^  //" | awk '/^\+/{gsub(" ", "-", $0)}1'
     fi    
 }

@@ -24,11 +24,7 @@ function ez_time_from_epoch_seconds {
     [[ -n "${@}" ]] && ez_function_usage "${@}" && return
     local epoch && epoch="$(ez_arg_get --short "-e" --long "--epoch" --arguments "${@}")" &&
     local format && format="$(ez_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then date -r "${epoch}" "${format}"
-    elif [[ "${os}" = "linux" ]]; then date "${format}" -d "@${epoch}"
-    else ez_log_error "Unsupported ${os}" && return 2
-    fi
+    [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "${format}" || date "${format}" -d "@${epoch}"
 }
 
 function ez_time_to_epoch_seconds {
@@ -39,11 +35,7 @@ function ez_time_to_epoch_seconds {
     ez_function_usage "${@}" && return
     local timestamp && timestamp="$(ez_arg_get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ez_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    local os=$(ez_os_name)
-    if [[ "${os}" = "macos" ]]; then date -j -f "${format}" "${timestamp}" "+%s"
-    elif [[ "${os}" = "linux" ]]; then date -d "${timestamp}" "+%s"
-    else ez_log_error "Unsupported ${os}" && return 2
-    fi
+    [[ "$(uname -s)" = "Darwin" ]] && date -j -f "${format}" "${timestamp}" "+%s" || date -d "${timestamp}" "+%s"
 }
 
 function ez_time_offset {
