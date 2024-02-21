@@ -13,7 +13,7 @@
 ###################################################################################################
 EZ_LOGO="EZ-Bash"
 EZ_VERSION="2.0.1"
-EZ_DEFAULT_BASH_VERSION=5
+EZ_REQUIRED_MIN_BASH_VERSION=5
 
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
@@ -224,10 +224,13 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     esac
 else
     # The script is being sourced
-    if [[ "$(bash --version | sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p' | cut -c1-1)" -lt "${EZ_DEFAULT_BASH_VERSION}" ]]; then
-        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] \"Bash version less than ${EZ_DEFAULT_BASH_VERSION}\""
+    local_current_bash_version="$(bash --version | sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p' | cut -c1-1)"
+    if [[ "${local_current_bash_version}" -lt "${EZ_REQUIRED_MIN_BASH_VERSION}" ]]; then
+        echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] Current Bash Version \"${local_current_bash_version}\", Required Min Bash Version: \"${EZ_REQUIRED_MIN_BASH_VERSION}\""
+        unset local_current_bash_version
         return 1
     fi
+    unset local_current_bash_version
     [[ -z "${EZ_BASH_HOME}" ]] && export EZ_BASH_HOME="$(dirname ${BASH_SOURCE[0]})"
     # Source EZ-Bash Core
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
