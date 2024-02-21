@@ -26,10 +26,10 @@ function ez_api {
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     [[ -n "${port}" ]] && domain="${domain}:${port}"
-    local curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} https://${domain}${endpoint}${params_str}"
+    local curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} \"https://${domain}${endpoint}${params_str}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
     [[ -n "${output}" ]] && curl_str+=" -o '${output}'"
-    # echo "${curl_str}"
+    # >&2 echo "${curl_str}"
     bash -c "${curl_str}"  # eval "${curl_str}"
 }
