@@ -173,7 +173,7 @@ function ez_self_source_option {
         [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO}, skipping libraries $(ez_string_format 'ForegroundYellow' $(ez_join ', ' ${skip_libs[@]}))"
     elif [[ -n "${import_libs}" ]]; then
         # Source the designated libraries
-        for ez_library in "${import_libs[@]}"; do ez_source_dir --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1; done; unset ez_library
+        local ez_library; for ez_library in "${import_libs[@]}"; do ez_source_dir --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1; done
         [[ -z "${quiet_flag}" ]] && >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} libraries: ${@}"
     else
         [[ -z "${quiet_flag}" ]] && >&2 echo "[${EZ_LOGO}][INFO] Imported ${EZ_LOGO} core"
