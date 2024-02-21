@@ -7,6 +7,12 @@ EZ_ALL="All"
 EZ_ANY="Any"
 EZ_NONE="None"
 
+EZ_LOG_ERROR="ERROR"
+EZ_LOG_WARNING="WARNING"
+EZ_LOG_INFO="INFO"
+EZ_LOG_DEBUG="DEBUG"
+EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez_set_log_level" to override it
+
 ###################################################################################################
 # ------------------------------------- EZB Basic Functions ------------------------------------- #
 ###################################################################################################
@@ -229,12 +235,34 @@ function ez_string_format {
     fi
 }
 
-function ez_log_info { echo -e "[$(ez_now)][${EZ_LOGO}][INFO]$(ez_log_stack 1) ${@}"; }
-
+function ez_set_log_level {
+    export EZ_LOG_LEVEL="${1}"
+}
+function ez_log_level_enum {
+    case "${1}" in
+        "${EZ_LOG_ERROR}") echo 4 ;;
+        "${EZ_LOG_WARNING}") echo 3 ;;
+        "${EZ_LOG_INFO}") echo 2 ;;
+        "${EZ_LOG_DEBUG}") echo 1 ;;
+        *) echo 0 ;;
+    esac    
+}
 function ez_log_error {
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_ERROR})" ]] && return
     (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundRed" "ERROR")]$(ez_log_stack 1) ${@}")
 }
-
 function ez_log_warning {
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_WARNING})" ]] && return
     echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundYellow" "WARNING")]$(ez_log_stack 1) ${@}"
 }
+function ez_log_info {
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_INFO})" ]] && return
+    echo -e "[$(ez_now)][${EZ_LOGO}][INFO]$(ez_log_stack 1) ${@}"
+}
+function ez_log_debug {
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_DEBUG})" ]] && return
+    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundBlue" "DEBUG")]$(ez_log_stack 1) ${@}"
+}
+
+
+
