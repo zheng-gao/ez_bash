@@ -11,6 +11,7 @@ function ez_api {
         ez_arg_set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --info "HTTP headers" &&
         ez_arg_set --short "-x" --long "--extra-headers" --type "List" --info "Extra HTTP Headers" &&
         ez_arg_set --short "-d" --long "--data" --info "PUT/POST payload" &&
+        ez_arg_set --short "-T" --long "--upload-file" --info "File Path" &&
         ez_arg_set --short "-o" --long "--output" --info "Output Path" || return 1
     fi
     ez_function_usage "${@}" && return
@@ -25,6 +26,7 @@ function ez_api {
     local x_headers && ez_function_get_list "x_headers" "$(ez_arg_get --short "-x" --long "--extra-headers" --arguments "${@}")" &&
     local params && ez_function_get_list "params" "$(ez_arg_get --short "-p" --long "--params" --arguments "${@}")" &&
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
+    local upload_file && upload_file="$(ez_arg_get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez_arg_get --short "-o" --long "--output" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez_join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
@@ -36,6 +38,7 @@ function ez_api {
     local curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
+    [[ -n "${upload_file}" ]] && curl_str+=" -T '${upload_file}'"
     [[ -n "${output}" ]] && curl_str+=" -o '${output}'"
     [[ "${head}" = "True" ]] && curl_str+=" -I"
     # >&2 echo "${curl_str}"
