@@ -1,6 +1,6 @@
 function ez_version_extract {
-    local digit="$(echo ${1} | cut -d '.' -f ${2})"
-    [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | sed "s/^\([0-9]*\).*/\1/" | bc  # Trim off the trailing charaters
+    local digit="$(echo ${1} | cut -d '.' -f ${2} | sed "s/^\([0-9]*\).*/\1/")"  # Trim off the trailing charaters
+    [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | bc
 }
 
 function ez_version_compare {
