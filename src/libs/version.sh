@@ -1,5 +1,7 @@
-function ez_version_extract {
-    local digit="$(echo ${1} | cut -d '.' -f ${2} | sed "s/^\([0-9]*\).*/\1/")"  # Trim off the trailing charaters
+function ez_version_extract_digit {
+    local digit="$(echo ${1} | cut -d '.' -f ${2})"
+    [[ "${3}" = "KeepWildCard" ]] && [[ "${digit}" = "*" ]] && echo "${digit}" && return
+    digit="$(sed "s/^\([0-9]*\).*/\1/" <<< "${digit}")" # Trim off the trailing charaters
     [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | bc
 }
 
@@ -8,9 +10,9 @@ function ez_version_compare {
     [[ -z "${1}" ]] && ez_log_error "Invalid left version '${1}'" && return 255
     [[ -z "${3}" ]] && ez_log_error "Invalid right version '${3}'" && return 255
     ez_contains "${2}" "${valid_comparators[@]}" || { ez_log_error "Invalid comparator '${2}'" && return 255; }
-    local l_major="$(ez_version_extract ${1} 1)" r_major="$(ez_version_extract ${3} 1)"
-    local l_minor="$(ez_version_extract ${1} 2)" r_minor="$(ez_version_extract ${3} 2)"
-    local l_patch="$(ez_version_extract ${1} 3)" r_patch="$(ez_version_extract ${3} 3)"
+    local l_major="$(ez_version_extract_digit ${1} 1)" r_major="$(ez_version_extract_digit ${3} 1)"
+    local l_minor="$(ez_version_extract_digit ${1} 2)" r_minor="$(ez_version_extract_digit ${3} 2)"
+    local l_patch="$(ez_version_extract_digit ${1} 3)" r_patch="$(ez_version_extract_digit ${3} 3)"
     if [ "${l_major}" -gt "${r_major}" ]; then result=1
     elif [ "${l_major}" -lt "${r_major}" ]; then result=-1
     elif [ "${l_minor}" -gt "${r_minor}" ]; then result=1
