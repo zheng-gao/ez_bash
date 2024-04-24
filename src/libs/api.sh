@@ -3,6 +3,7 @@ function ez_api {
         ez_arg_set --short "-u" --long "--url" --info "The full url overrides domain, port, endpoint, params"  &&
         ez_arg_set --short "-D" --long "--domain" &&
         ez_arg_set --short "-P" --long "--port" &&
+        ez_arg_set --short "-k" --long "--insecure" --type "Flag" --info "Ignore Cert" &&
         ez_arg_set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
         ez_arg_set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
         ez_arg_set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" &&
@@ -13,7 +14,7 @@ function ez_api {
         ez_arg_set --short "-d" --long "--data" --info "PUT/POST payload" &&
         ez_arg_set --short "-T" --long "--upload-file" --info "File Path" &&
         ez_arg_set --short "-o" --long "--output" --info "Output Path" &&
-        ez_arg_set --short "-dr" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
+        ez_arg_set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
     fi
     ez_function_usage "${@}" && return
     local url && url="$(ez_arg_get --short "-u" --long "--url" --arguments "${@}")" &&
@@ -21,6 +22,7 @@ function ez_api {
     local auth && auth="$(ez_arg_get --short "-a" --long "--auth" --arguments "${@}")" &&
     local domain && domain="$(ez_arg_get --short "-D" --long "--domain" --arguments "${@}")" &&
     local port && port="$(ez_arg_get --short "-P" --long "--port" --arguments "${@}")" &&
+    local insecure && insecure="$(ez_arg_get --short "-k" --long "--insecure" --arguments "${@}")" &&
     local endpoint && endpoint="$(ez_arg_get --short "-e" --long "--endpoint" --arguments "${@}")" &&
     local head && head="$(ez_arg_get --short "-I" --long "--head" --arguments "${@}")" &&
     local headers && ez_function_get_list "headers" "$(ez_arg_get --short "-H" --long "--headers" --arguments "${@}")" &&
@@ -29,7 +31,7 @@ function ez_api {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
     local upload_file && upload_file="$(ez_arg_get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez_arg_get --short "-o" --long "--output" --arguments "${@}")" &&
-    local dryrun && dryrun="$(ez_arg_get --short "-dr" --long "--dry-run" --arguments "${@}")" || return 1
+    local dryrun && dryrun="$(ez_arg_get --short "-t" --long "--dry-run" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez_join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
@@ -43,6 +45,7 @@ function ez_api {
     [[ -n "${upload_file}" ]] && curl_str+=" -T '${upload_file}'"
     [[ -n "${output}" ]] && curl_str+=" -o '${output}'"
     [[ "${head}" = "True" ]] && curl_str+=" -I"
+    [[ "${insecure}" = "True" ]] && curl_str+=" -k"
     if [[ "${dryrun}" = "True" ]]; then
         >&2 echo "${curl_str}"
     else
