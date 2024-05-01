@@ -248,20 +248,20 @@ function ez_log_level_enum {
     esac    
 }
 function ez_log_error {
-    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_ERROR})" ]] && return
-    (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundRed" "ERROR")]$(ez_log_stack 1) ${@}")
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_ERROR})" ]] && return 0; local color="ForegroundRed"
+    (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "${color}" "ERROR")]$(ez_log_stack 1) $(ez_string_format "${color}" "${@}")")
 }
 function ez_log_warning {
-    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_WARNING})" ]] && return
-    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundYellow" "WARNING")]$(ez_log_stack 1) ${@}"
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_WARNING})" ]] && return 0; local color="ForegroundYellow"
+    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "${color}" "WARNING")]$(ez_log_stack 1) $(ez_string_format "${color}" "${@}")"
 }
 function ez_log_info {
-    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_INFO})" ]] && return
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_INFO})" ]] && return 0
     echo -e "[$(ez_now)][${EZ_LOGO}][INFO]$(ez_log_stack 1) ${@}"
 }
 function ez_log_debug {
-    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_DEBUG})" ]] && return
-    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "ForegroundBlue" "DEBUG")]$(ez_log_stack 1) ${@}"
+    [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="ForegroundLightGray"
+    echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "${color}" "DEBUG")]$(ez_log_stack 1) $(ez_string_format "${color}" "${@}")"
 }
 
 
