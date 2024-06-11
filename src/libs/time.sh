@@ -29,13 +29,17 @@ function ez_time_from_epoch_seconds {
 
 function ez_time_to_epoch_seconds {
     if ez_function_unregistered; then
-        ez_arg_set --short "-t" --long "--timestamp" --required --info "Timestamp" &&
-        ez_arg_set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
+        ez_arg_set --short "-t" --long "--timestamp" --info "Timestamp, default: now" &&
+        ez_arg_set --short "-f" --long "--format" --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
-    ez_function_usage "${@}" && return
+    [[ -n "${@}" ]] && ez_function_usage "${@}" && return
     local timestamp && timestamp="$(ez_arg_get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ez_arg_get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    [[ "$(uname -s)" = "Darwin" ]] && date -j -f "${format}" "${timestamp}" "+%s" || date -d "${timestamp}" "+%s"
+    if [[ -n "${timestamp}" ]]; then
+        [[ "$(uname -s)" = "Darwin" ]] && date -j -f "${format}" "${timestamp}" "+%s" || date -d "${timestamp}" "+%s"
+    else
+        [[ "$(uname -s)" = "Darwin" ]] && date -j "+%s" || date "+%s"
+    fi
 }
 
 function ez_time_offset {
