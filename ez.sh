@@ -236,7 +236,7 @@ else
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/pipeable.sh" || return 1
-    ez_self_source_option "${@:1}"
+    ez_self_source_option "${@:1}" || return 1
 fi
 
 unset ez_self_source_option
