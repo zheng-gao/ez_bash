@@ -19,7 +19,6 @@ EZ_REQUIRED_MIN_BASH_VERSION=5
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
 EZ_DEFAULT_DEPENDENCIES=(
-    "alias"
     "basename"
     "bash"
     "column"
@@ -44,6 +43,7 @@ EZ_DEFAULT_DEPENDENCIES=(
     "shopt"
     "sort"
     "source"
+    "tac"
     "test"
     "tr"
     "true"
@@ -56,7 +56,11 @@ declare -g -A EZ_DEPENDENCY_SET
 function ez_dependency_check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
-            which "${cmd}" > "/dev/null" || { echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] Command \"${cmd}\"" not found!"; return 1; }
+            if ! which "${cmd}" > "/dev/null"; then
+                local function_stack="$(for i in "${FUNCNAME[@]}"; do echo "${i}"; done | tac | tr '\n' '.')"
+                echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m][${function_stack:0:-1}] Command \"${cmd}\" not found!"
+                return 1
+            fi
             EZ_DEPENDENCY_SET["${cmd}"]="${EZ_TRUE}"
         fi
     done
