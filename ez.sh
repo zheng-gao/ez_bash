@@ -23,7 +23,6 @@ EZ_DEFAULT_DEPENDENCIES=(
     "bash"
     "column"
     "date"
-    "declare"
     "dirname"
     "echo"
     "false"
@@ -31,24 +30,15 @@ EZ_DEFAULT_DEPENDENCIES=(
     "ls"
     "mkdir"
     "mv"
-    "popd"
     "printf"
-    "pushd"
     "pwd"
-    "read"
     "rm"
     "sed"
-    "set"
-    "shift"
-    "shopt"
     "sort"
-    "source"
-    "tac"
     "test"
     "tr"
     "true"
     "uname"
-    "unset"
 )
 
 unset EZ_DEPENDENCY_SET
@@ -57,7 +47,7 @@ function ez_dependency_check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
             if ! which "${cmd}" > "/dev/null"; then
-                local function_stack="$(for i in "${FUNCNAME[@]}"; do echo "${i}"; done | tac | tr '\n' '.')"
+                local function_stack="$(for ((i="${#FUNCNAME[@]}"-1; i>=0; i--)); do echo "${FUNCNAME[${i}]}"; done | tr '\n' '.')"
                 echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m][${function_stack:0:-1}] Command \"${cmd}\" not found!"
                 return 1
             fi
