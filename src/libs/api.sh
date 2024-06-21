@@ -33,7 +33,7 @@ function ez_api {
     local upload_file && upload_file="$(ez_arg_get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez_arg_get --short "-o" --long "--output" --arguments "${@}")" &&
     local verbose && verbose="$(ez_arg_get --short "-v" --long "--verbose" --arguments "${@}")" &&
-    local dryrun && dryrun="$(ez_arg_get --short "-t" --long "--dry-run" --arguments "${@}")" return 1
+    local dryrun && dryrun="$(ez_arg_get --short "-t" --long "--dry-run" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez_join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
