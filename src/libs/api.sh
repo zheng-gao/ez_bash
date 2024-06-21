@@ -14,8 +14,8 @@ function ez_api {
         ez_arg_set --short "-d" --long "--data" --info "PUT/POST payload" &&
         ez_arg_set --short "-T" --long "--upload-file" --info "File Path" &&
         ez_arg_set --short "-o" --long "--output" --info "Output Path" &&
-        ez_arg_set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" &&
-        ez_arg_set --short "-v" --long "--verbose" --type "Flag" --info "curl -v" || return 1
+        ez_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
+        ez_arg_set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
     fi
     ez_function_usage "${@}" && return
     local url && url="$(ez_arg_get --short "-u" --long "--url" --arguments "${@}")" &&
@@ -32,8 +32,8 @@ function ez_api {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
     local upload_file && upload_file="$(ez_arg_get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez_arg_get --short "-o" --long "--output" --arguments "${@}")" &&
-    local dryrun && dryrun="$(ez_arg_get --short "-t" --long "--dry-run" --arguments "${@}")" &&
-    local verbose && verbose="$(ez_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
+    local verbose && verbose="$(ez_arg_get --short "-v" --long "--verbose" --arguments "${@}")" &&
+    local dryrun && dryrun="$(ez_arg_get --short "-t" --long "--dry-run" --arguments "${@}")" return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez_join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
