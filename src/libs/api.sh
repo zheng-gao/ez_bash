@@ -41,7 +41,7 @@ function ez_api {
         [[ -n "${port}" ]] && domain="${domain}:${port}"
         url="https://${domain}${endpoint}${params_str}"
     fi
-    local curl_str="curl -s ${auth_op[@]} ${headers_opt[@]} \"${url}\""
+    local curl_str="curl -sL ${auth_op[@]} ${headers_opt[@]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
     [[ -n "${upload_file}" ]] && curl_str+=" -T '${upload_file}'"
