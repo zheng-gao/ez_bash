@@ -6,7 +6,7 @@ function ez_api {
         ez_arg_set --short "-k" --long "--insecure" --type "Flag" --info "Ignore Cert" &&
         ez_arg_set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
         ez_arg_set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
-        ez_arg_set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" "PATCH" &&
+        ez_arg_set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" "PATCH" "DELETE" "OPTION" "HEAD" &&
         ez_arg_set --short "-a" --long "--auth" --info "Username:Password" &&
         ez_arg_set --short "-I" --long "--head" --type "Flag" --info "Show Headers Only" &&
         ez_arg_set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --info "HTTP headers" &&
