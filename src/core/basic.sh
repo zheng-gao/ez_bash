@@ -235,6 +235,7 @@ function ez_string_format {
     fi
 }
 
+######################################## Logging ##################################################
 function ez_set_log_level {
     export EZ_LOG_LEVEL="${1}"
 }
@@ -262,6 +263,62 @@ function ez_log_info {
 function ez_log_debug {
     [[ "$(ez_log_level_enum ${EZ_LOG_LEVEL})" -gt "$(ez_log_level_enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="ForegroundLightGray"
     echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format "${color}" "DEBUG")]$(ez_log_stack 1) $(ez_string_format "${color}" "${@}")"
+}
+
+#################################### Function Helper ##############################################
+function ez.function.usage {
+    local argument_list=() type_list=() default_list=() choices_list=() info_list=() indent="    " description=""
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-D" | "--description") shift; description="${1}"; shift ;;
+            "-a" | "--argument") shift; argument_list+=("${1}"); shift ;;
+            "-t" | "--type") shift; type_list+=("${1}"); shift ;;
+            "-d" | "--default") shift; default_list+=("${1}"); shift ;;
+            "-c" | "--choices") shift; choices_list+=("${1}"); shift ;;
+            "-i" | "--info") shift; info_list+=("${1}"); shift ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+        esac
+    done
+    echo; echo "${indent}[FUNCTION]    ${FUNCNAME[1]}"; [[ -n "${description}" ]] && echo "${indent}[DESCRIPTION] ${description}"; echo
+    {
+        echo -e "${indent}[ARGUMENTS]#[TYPE]#[DEFAULT]#[CHOICES]#[DESCRIPTION]"  # column delimiter: #
+        local i; for ((i = 0; i < ${#argument_list[@]}; ++i)); do
+            echo -e "${indent}${argument_list[${i}]}#${type_list[${i}]}#${default_list[${i}]}#${choices_list[${i}]}#${info_list[${i}]}"
+        done
+    } | sed "s/##/# #/g" | sed "s/##/# #/g" | column -s "#" -t; echo; return  # "###" --sed--> "# ##" --sed--> "# # #" 
+}
+
+function ez.source {
+    local path="." depth="" exclude=() arg_list=("-p" "--path" "-d" "--depth" "-e" "--exclude") sh_file=""
+    [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Source a file or a directory recursively" \
+        -a "-p|--path" -t "String" -d "${path}" -c "" -i "Path to source" \
+        -a "-d|--depth" -t "String" -d "${depth}" -c "" -i "Directory search depth, none for infinity" \
+        -a "-e|--exclude" -t "List" -d "[$(ez_join ", " "${exclude[@]}")]" -c "" -i "Keywords to exclude" && return 0
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-p" | "--path") shift; path=${1}; shift ;;
+            "-d" | "--depth") shift; depth=${1}; shift ;;
+            "-e" | "--exclude") shift; while [[ -n "${1}" ]] && ez_excludes "${1}" "${arg_list[@]}"; do exclude+=(${1}); shift; done ;;
+            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+        esac
+    done
+    [[ -z "${path}" ]] && ez_log_error "Invalid value \"${path}\" for \"-p|--path\"" && return 1
+    path="${path%/}" # Remove a trailing slash if there is one
+    if [[ -d "${path}" ]]; then
+        [[ ! -r "${path}" ]] && ez_log_error "Cannot read directory \"${path}\"" && return 1
+        [[ -n "${depth}" ]] && depth="-depth ${depth}"
+        if [[ -z "${exclude}" ]]; then
+            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth}); do
+                source "${sh_file}" || { ez_log_error "Failed to source \"${sh_file}\""; return 1; }
+            done
+        else
+            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez_join "\|" "${exclude[@]}")); do
+                source "${sh_file}" || { ez_log_error "Failed to source \"${sh_file}\""; return 1; }
+            done
+        fi
+    else
+        source "${path}" || { ez_log_error "Failed to source \"${path}\""; return 1; }
+    fi
 }
 
 
