@@ -85,7 +85,7 @@ function ez_count_items {
 function ez_log_stack {
     local ignore_top_x="${1}" i="$((${#FUNCNAME[@]} - 1))" stack="" first=0
     [[ -z "${ignore_top_x}" ]] && ignore_top_x=0  # i > 0 to ignore self "ez_log_stack"
-    for ((; i > ignore_top_x; i--)); do [ "${first}" -ne 0 ] && stack+="." || first=1; stack+="${FUNCNAME[${i}]}"; done
+    for ((; i > ignore_top_x; i--)); do [ "${first}" -ne 0 ] && stack+="/" || first=1; stack+="${FUNCNAME[${i}]}"; done
     [[ -n "${stack}" ]] && echo "[${stack}]"
 }
 
