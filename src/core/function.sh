@@ -145,10 +145,10 @@ function ez_function_print_help {
     done
     [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
     [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez_log_error "Function \"${function}\" NOT registered" && return 2
-    local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}"
-    echo; echo "[Function Name] \"${function}\""; echo
+    local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}" indent="    "
+    echo; echo "${indent}[Function Name] \"${function}\""; echo
     {
-        echo $(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")
+        echo "${indent}$(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
         local short; for short in $(ez_function_get_short_arguments "${function}"); do
             key="${function}${delimiter}${short}"
@@ -161,7 +161,7 @@ function ez_function_print_help {
             default="${EZ_S_ARG_TO_DEFAULT_MAP["${key}"]}"
             [[ -z "${default}" ]] && default="${EZ_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_NONE}"
-            echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")
+            echo "${indent}$(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
         done
         local long; for long in $(ez_function_get_long_arguments "${function}"); do
             key="${function}${delimiter}${long}"
@@ -176,7 +176,7 @@ function ez_function_print_help {
             info="${EZ_L_ARG_TO_INFO_MAP["${key}"]}"; [[ -z "${info}" ]] && info="${EZ_NONE}"
             if [[ -z "${short}" ]]; then
                 short="${EZ_NONE}"
-                echo $(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")
+                echo "${indent}$(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
             fi
         done
     } | column -t -s "${delimiter}"; echo
