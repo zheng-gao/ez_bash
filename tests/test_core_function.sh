@@ -66,10 +66,14 @@ function test_flag {
     ez_expect_result "flag_arg: False" "$(registered_function -r '' | grep 'flag_arg')" || ((++TEST_FAILURE))
 }
 
+###################################################################################################
+# ------------------------------------------ Run Test ------------------------------------------- #
+###################################################################################################
 test_string_required
 test_string_exclude
 test_string_choices
 test_string_default
+
 test_list_default
 test_flag
 

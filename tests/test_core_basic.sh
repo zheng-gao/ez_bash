@@ -103,18 +103,24 @@ function test_ez.array.delete_index {
     done
 }
 
-test_ez.string.lower
-test_ez.string.upper
-test_ez.time.today
-test_ez.time.now
+###################################################################################################
+# ------------------------------------------ Run Test ------------------------------------------- #
+###################################################################################################
 test_ez.array.quote
 test_ez.array.double_quote
-test_ez.string.join
 test_ez.array.includes
 test_ez.array.excludes
+test_ez.array.delete_item
+
 test_ez.string.count_items
 test_ez.string.split
-test_ez.array.delete_item
+test_ez.string.join
+test_ez.string.lower
+test_ez.string.upper
+
+test_ez.time.today
+test_ez.time.now
+
 
 exit "${TEST_FAILURE}"
 
