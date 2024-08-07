@@ -19,6 +19,8 @@ EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez.log.level.set" to override it
 ###################################################################################################
 function ez.self.variables { set | grep "^EZ_" --color; }
 function ez.self.functions { set | grep "^ez_" | cut -d " " -f 1 | grep "^ez_" --color; }
+function ez.state.true { return 0; }
+function ez.state.false { return 1; }
 function ez.environment.path { echo "${PATH}" | tr ":" "\n"; }
 
 function ez_is_true { [[ "${1}" = "${EZ_TRUE}" ]] && return 0 || return 1; }
