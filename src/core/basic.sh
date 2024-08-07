@@ -18,7 +18,6 @@ EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez.log.level.set" to override it
 ###################################################################################################
 function ez.self.variables { set | grep "^EZ_" --color; }
 function ez.self.functions { set | grep "^ez_" | cut -d " " -f 1 | grep "^ez_" --color; }
-
 function ez.environment.path { echo "${PATH}" | tr ":" "\n"; }
 
 ########################################## Time ###################################################
@@ -39,6 +38,11 @@ function ez.string.format { # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
     fi
     echo "${EZ_FORMAT_SET[${1}]}${@:2}${EZ_FORMAT_SET[ResetAll]}"
 }
+function ez.string.count_items {  # "@@" "@@123@@@xyz@@@@" -> 5
+    local delimiter="${1}" string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
+    while [[ "${k}" -lt "${#string}" ]]; do if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi; done
+    echo "$((++count))"
+}
 function ez.string.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
     local -n __ez_split_arg_reference="${1}"
     local delimiter="${2}" string="${@:3}" item="" k=0
@@ -52,6 +56,7 @@ function ez.string.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${
         [[ "${k}" -ge "${#string}" ]] && __ez_split_arg_reference+=("${item}")
     done
 }
+
 ########################################## Array ##################################################
 function ez.array.size { echo "${#@}"; }
 function ez.array.delete_item() {
@@ -70,6 +75,8 @@ function ez.array.delete_index() {
     for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && __ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
     return "${status}"
 }
+function ez.array.quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
+function ez.array.double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
 
 
 
@@ -84,16 +91,6 @@ function ez_is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
 function ez_is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
 
-
-
-
-
-function ez_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
-function ez_double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
-
-
-
-
 # ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
 function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
 function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
@@ -104,14 +101,6 @@ function ez.join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && 
 # IFS can only take 1 character
 # function ez.join { local IFS="${1}"; shift; echo "${*}"; } 
 
-function ez_count_items {
-    local delimiter="${1}" string="${@:2}" k=0 count=0
-    [[ -z "${string}" ]] && echo "${count}" && return
-    while [[ "${k}" -lt "${#string}" ]]; do
-        if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi
-    done
-    echo "$((++count))"
-}
 
 
 

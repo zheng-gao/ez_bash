@@ -26,17 +26,17 @@ function ez_table_print {
         if [[ "${row_delimiter}" = "\n" ]]; then
             local line; for line in ${file_content[@]}; do rows+=("${line}"); ((++number_of_rows)); done
         else
-            number_of_rows=$(ez_count_items "${row_delimiter}" "${file_content}")
+            number_of_rows=$(ez.string.count_items "${row_delimiter}" "${file_content}")
             IFS="${row_delimiter}" read -ra rows <<< "${file_content}"
         fi
     else
         [[ -z "${data}" ]] && return 1
         [[ -z "${row_delimiter}" ]] && row_delimiter=";"
-        number_of_rows=$(ez_count_items "${row_delimiter}" "${data}")
+        number_of_rows=$(ez.string.count_items "${row_delimiter}" "${data}")
         IFS="${row_delimiter}" read -ra rows <<< "${data}"
     fi
     local row=0; for ((; row < "${number_of_rows}"; ++row)); do
-        local number_of_columns=$(ez_count_items "${col_delimiter}" "${rows[${row}]}")
+        local number_of_columns=$(ez.string.count_items "${col_delimiter}" "${rows[${row}]}")
         # Add Line Delimiter
         if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" $(ez_string_repeat --string "#+" --count "${number_of_columns}")); fi
         # Add Header Or Body

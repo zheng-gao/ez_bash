@@ -33,15 +33,15 @@ function test_ez.time.now {
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_quote {
+function test_ez.array.quote {
     local expect="'abc' '123' ''' '  '"
-    local result="$(ez_quote "abc" "123" "'" "  ")"
+    local result="$(ez.array.quote "abc" "123" "'" "  ")"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_double_quote {
+function test_ez.array.double_quote {
     local expect="\"abc\" \"123\" \"\"\" \"  \""
-    local result="$(ez_double_quote "abc" "123" "\"" "  ")"
+    local result="$(ez.array.double_quote "abc" "123" "\"" "  ")"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -67,9 +67,9 @@ function test_ez.excludes {
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_count_items {
+function test_ez.string.count_items {
     local expect=5
-    local result="$(ez_count_items "@@" "@@123@@@xyz@@@@")"
+    local result="$(ez.string.count_items "@@" "@@123@@@xyz@@@@")"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -107,12 +107,12 @@ test_ez.string.lower
 test_ez.string.upper
 test_ez.time.today
 test_ez.time.now
-test_ez_quote
-test_ez_double_quote
+test_ez.array.quote
+test_ez.array.double_quote
 test_ez.join
 test_ez.includes
 test_ez.excludes
-test_ez_count_items
+test_ez.string.count_items
 test_ez.string.split
 test_ez.array.delete_item
 

@@ -103,7 +103,7 @@ function ez_ssh_local_function {
     local func && func="$(ez_arg_get --short "-f" --long "--function" --arguments "${@}")" &&
     local args && args="$(ez_arg_get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
     local arg_list; ez_function_get_list "arg_list" "${args}"
-    local args_str="$(ez_double_quote "${arg_list[@]}")"
+    local args_str="$(ez.array.double_quote "${arg_list[@]}")"
     local script="${EZ_DIR_SCRIPTS}/${func}.sh"
     declare -f "${func}" > "${script}"
     echo "${func} ${args_str}" >> "${script}"
