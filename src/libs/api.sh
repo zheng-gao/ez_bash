@@ -16,7 +16,7 @@ function ez.api {
         ez.argument.set --short "-o" --long "--output" --info "Output Path" &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
         ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-X" --long "--method" --arguments "${@}")" &&
     local auth && auth="$(ez.argument.get --short "-a" --long "--auth" --arguments "${@}")" &&

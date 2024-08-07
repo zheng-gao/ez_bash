@@ -62,8 +62,10 @@ unset EZ_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZ_S_ARG_TO_EXCLUD
 function ez.function.show_registered { local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done; }
 # ez.function.is_unregistered  Should only be called by another function. If not, give the function name in 1st argument
 function ez.function.is_unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
-function ez.function.help { [[ "${1}" = "--run-with-no-argument" ]] && [[ -z "${2}" ]] && return 1; ez.function.arguments.check_help_keyword "${@}" && ez.function.arguments.print -f "${FUNCNAME[1]}" && return 0 || return 1; }  # By default it will print the "help" when no argument is given
-function ez.function.arguments.check_help_keyword { [[ -z "${1}" ]] && return 0; ez.array.includes "${EZ_FUNC_HELP}" "${@}"; }  # Print help info if no argument given
+function ez.function.help {  # By default it will print the "help" when no argument is given
+    [[ "${@}" = "--run-with-no-argument" ]] && return 0  # No help info and run function if no argument given
+    if [[ -z "${@}" ]] || ez.array.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
+}
 function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_list { local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.string.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"; }

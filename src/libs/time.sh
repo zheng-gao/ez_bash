@@ -21,7 +21,7 @@ function ez.time.from_epoch_seconds {
         ez.argument.set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
         ez.argument.set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
     local epoch && epoch="$(ez.argument.get --short "-e" --long "--epoch" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
     [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "${format}" || date "${format}" -d "@${epoch}"
@@ -32,7 +32,7 @@ function ez.time.to_epoch_seconds {
         ez.argument.set --short "-t" --long "--timestamp" --info "Timestamp, default: now" &&
         ez.argument.set --short "-f" --long "--format" --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
     local timestamp && timestamp="$(ez.argument.get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
     if [[ -n "${timestamp}" ]]; then
@@ -49,7 +49,7 @@ function ez.time.offset {
         ez.argument.set --short "-u" --long "--unit" --required --default "seconds" --choices "seconds" "minutes" "hours" "days" "weeks" --info "Offset Unit" &&
         ez.argument.set --short "-o" --long "--offset" --required --default "0" --info "Offset Value" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local timestamp && timestamp="$(ez.argument.get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" &&
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
@@ -73,7 +73,7 @@ function ez.time.seconds_to_readable {
         ez.argument.set --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
         ez.argument.set --short "-f" --long "--format" --required --default "Short" --choices "${output_formats[@]}" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local seconds && seconds="$(ez.argument.get --short "-s" --long "--seconds" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local output=""
@@ -97,7 +97,7 @@ function ez.time.elapsed.epoch {
         ez.argument.set --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
         ez.argument.set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" || return 1
     ez.time.seconds_to_readable --seconds "$((end - start))"
@@ -109,7 +109,7 @@ function ez.time.elapsed {
         ez.argument.set --short "-e" --long "--end" --required --info "End Timestamp" &&
         ez.argument.set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1

@@ -15,7 +15,7 @@ function registered_function {
         ez.argument.set --short "-b" --long "--buy-arg" --exclude "order" &&
         ez.argument.set --short "-s" --long "--sell-arg" --exclude "order" || return 1
     fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
     local required_arg && required_arg="$(ez.argument.get --short "-r" --long "--required-arg" --arguments "${@}")" &&
     local default_arg && default_arg="$(ez.argument.get --short "-d" --long "--default-arg" --arguments "${@}")" &&
     local choices_arg && choices_arg="$(ez.argument.get --short "-c" --long "--choices-arg" --arguments "${@}")" &&

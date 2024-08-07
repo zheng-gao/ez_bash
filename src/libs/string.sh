@@ -20,8 +20,7 @@ function ez.string.repeat {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" || return 1
     [[ "${count}" -lt 0 ]] && ez.log.error "Invalid Count \"${count}\"" && return 1
@@ -35,8 +34,7 @@ function ez.string.trim {
         ez.argument.set --short "-p" --long "--pattern" --required --default "${EZ_CHAR_SPACE}" --info "Substring Pattern" &&
         ez.argument.set --short "-c" --long "--count" --info "Occurrence of the pattern" &&
         ez.argument.set --short "-k" --long "--key" --required --default "Any" --choices "${valid_keys[@]}" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local pattern && pattern="$(ez.argument.get --short "-p" --long "--pattern" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
@@ -61,8 +59,7 @@ function ez.string.cut {
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be cut" &&
         ez.argument.set --short "-l" --long "--length" --info "Length to be cut" &&
         ez.argument.set --short "-k" --long "--key" --required --default "Left" --choices "${valid_keys[@]}" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local length && length="$(ez.argument.get --short "-l" --long "--length" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" || return 1
@@ -80,8 +77,7 @@ function ez.string.check {
         ez.argument.set --short "-p" --long "--pattern" --required --info "Substring Pattern" &&
         ez.argument.set --short "-k" --long "--key" --required --default "Contains" --choices "${valid_keys[@]}" &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print result" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local pattern && pattern="$(ez.argument.get --short "-p" --long "--pattern" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
@@ -105,8 +101,7 @@ function ez.string.banner {
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The number of the strings in the line spliter" &&
         ez.argument.set --short "-m" --long "--message" --default "${EZ_LOGO}" --info "Message to print in the banner" &&
         ez.argument.set --short "-l" --long "--log-prefix" --type "Flag" --info "Print EZ-BASH log prefix" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
     local message && message="$(ez.argument.get --short "-m" --long "--message" --arguments "${@}")" &&

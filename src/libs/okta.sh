@@ -13,8 +13,7 @@ function ez.okta.pagination {
         ez.argument.set --short "-t" --long "--token" --default "${OKTA_API_TOKEN}" --required --info "API Token" &&
         ez.argument.set --short "-l" --long "--limit" --default "100" --required --info "Page Limit" &&
         ez.argument.set --short "-m" --long "--max-pages" --default "10" --required --info "Max Number of Pages" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local domain && domain="$(ez.argument.get --short "-d" --long "--domain" --arguments "${@}")" &&
     local endpoint && endpoint="$(ez.argument.get --short "-e" --long "--endpoint" --arguments "${@}")" &&
     local token && token="$(ez.argument.get --short "-t" --long "--token" --arguments "${@}")" &&

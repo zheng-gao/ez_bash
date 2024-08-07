@@ -33,8 +33,7 @@ function ez.math.average {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 --info "Number of digits after the dot" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_average_data_list; ez.function.arguments.get_list "ez_math_average_data_list" "${data}"
@@ -45,8 +44,7 @@ function ez.math.variance {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_variance_data_list; ez.function.arguments.get_list "ez_math_variance_data_list" "${data}"
@@ -59,8 +57,7 @@ function ez.math.std_deviation {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_std_deviation_data_list; ez.function.arguments.get_list "ez_math_std_deviation_data_list" "${data}"
@@ -71,8 +68,7 @@ function ez.math.calculate {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-e" --long "--expression" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local expression && expression="$(ez.argument.get --short "-e" --long "--expression" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local result=$(bc -l <<< "scale=${scale}; ${expression}")  # bc scale does not work for mode %
@@ -84,8 +80,7 @@ function ez.math.decimal.to_base_x {
         ez.argument.set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
         ez.argument.set --short "-p" --long "--padding" --default "2" --info "Total length for padding if not fill" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local decimal && decimal="$(ez.argument.get --short "-d" --long "--decimal" --arguments "${@}")" &&
     local base && base="$(ez.argument.get --short "-b" --long "--base" --arguments "${@}")" &&
     local padding && padding="$(ez.argument.get --short "-p" --long "--padding" --arguments "${@}")" || return 1
@@ -99,8 +94,7 @@ function ez.math.decimal.from_base_x {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-v" --long "--value" --required --info "Base X value" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local value && value="$(ez.argument.get --short "-v" --long "--value" --arguments "${@}")" &&
     local base && base="$(ez.argument.get --short "-b" --long "--base" --arguments "${@}")" || return 1
     if [[ "${base}" -eq "16" ]]; then
@@ -120,8 +114,7 @@ function ez.math.percentile {
         ez.argument.set --short "-p" --long "--percentile" --required --default 50 &&
         ez.argument.set --short "-m" --long "--method" --required --default "Linear" --choices "Linear" "Lower" "Higher" "Midpoint" "Nearest" &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local percentile && percentile="$(ez.argument.get --short "-p" --long "--percentile" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-m" --long "--method" --arguments "${@}")" &&
@@ -163,8 +156,7 @@ function ez.random.int {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-l" --long "--lower-bound" --required --default 0 --info "Inclusive Lower Bound" &&
         ez.argument.set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local lower_bound && lower_bound="$(ez.argument.get --short "-l" --long "--lower-bound" --arguments "${@}")" &&
     local upper_bound && upper_bound="$(ez.argument.get --short "-u" --long "--upper-bound" --arguments "${@}")" || return 1
     [ "${lower_bound}" -gt "${upper_bound}" ] && return 2

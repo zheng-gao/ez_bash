@@ -35,7 +35,7 @@ function ez.clear {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
     fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
     local lines && lines="$(ez.argument.get --short "-l" --long "--lines" --arguments "${@}")" || return 1
     if [[ "${lines}" -gt 0 ]]; then
         local i=0; for ((; i < "${lines}"; ++i)); do tput "cuu1" && tput "el"; done # cursor up one line and clean
@@ -49,7 +49,7 @@ function ez.terminal.set_title {
         ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" \
                     --info "Terminal Title" || return 1
     fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
     local title && title="$(ez.argument.get --short "-t" --long "--title" --arguments "${@}")" || return 1
     if [[ "${title}" == "hostname" ]]; then title=$(hostname); fi
     echo -n -e "\033]0;${title}\007"
@@ -63,7 +63,7 @@ function ez.sleep {
         ez.argument.set --short "-n" --long "--interval" --required --default 1 \
                     --info "Output refresh frequency in seconds, 0 for no output" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
     local value && value="$(ez.argument.get --short "-v" --long "--value" --arguments "${@}")" &&
     local interval && interval="$(ez.argument.get --short "-n" --long "--interval" --arguments "${@}")" || return 1
@@ -108,7 +108,7 @@ function ez.progress.print {
         ez.argument.set --short "-d1" --long "--delete-1" --required --default "1" --info "Delete lines on step 1" &&
         ez.argument.set --short "-dx" --long "--delete-x" --required --default "1" --info "Delete lines on other steps" &&
         ez.argument.set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local filler_symbol && filler_symbol="$(ez.argument.get --short "-f" --long "--filler" --arguments "${@}")" &&
     local blank_symbol && blank_symbol="$(ez.argument.get --short "-b" --long "--blank" --arguments "${@}")" &&
     local total_steps && total_steps="$(ez.argument.get --short "-t" --long "--total" --arguments "${@}")" &&

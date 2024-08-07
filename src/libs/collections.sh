@@ -7,7 +7,7 @@ function ez.collections.set.operation {
         ez.argument.set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." &&
         ez.argument.set --short "-R" --long "--right-from-file" --info "File Path"
         ez.argument.set --short "-s" --long "--summary" --type "Flag" --info "Show summary at the end" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" &&
     local left && ez.function.arguments.get_list "left" "$(ez.argument.get --short "-l" --long "--left" --arguments "${@}")" &&
     local right && ez.function.arguments.get_list "right" "$(ez.argument.get --short "-r" --long "--right" --arguments "${@}")" &&
@@ -52,7 +52,7 @@ function ez.collections.set.contains {
         ez.argument.set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
         ez.argument.set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local superset && ez.function.arguments.get_list "superset" "$(ez.argument.get --short "-sp" --long "--superset" --arguments "${@}")" &&
     local subset && ez.function.arguments.get_list "subset" "$(ez.argument.get --short "-sb" --long "--subset" --arguments "${@}")" &&
     local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" || return 1

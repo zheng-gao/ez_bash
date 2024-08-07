@@ -11,7 +11,7 @@ function ez.sort {
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-n" --long "--number" --type "Flag" &&
         ez.argument.set --short "-r" --long "--reverse" --type "Flag" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local number && number="$(ez.argument.get --short "-n" --long "--number" --arguments "${@}")" &&
     local reverse && reverse="$(ez.argument.get --short "-r" --long "--reverse" --arguments "${@}")" || return 1

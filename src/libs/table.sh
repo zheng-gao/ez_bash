@@ -12,7 +12,7 @@ function ez.table.print {
         ez.argument.set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&
         ez.argument.set --short "-d" --long "--data" --exclude "1" --info "The input data if file is not provided" && 
         ez.argument.set --short "-f" --long "--file" --exclude "1" --info "The input file path" || return 1
-    fi; ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" || return 0
     local col_delimiter && col_delimiter="$(ez.argument.get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&
     local row_delimiter && row_delimiter="$(ez.argument.get --short "-rd" --long "--row-delimiter" --arguments "${@}")" &&
     local file && file="$(ez.argument.get --short "-f" --long "--file" --arguments "${@}")" &&

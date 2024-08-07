@@ -66,7 +66,7 @@ ez.dependencies.check "${EZ_DEFAULT_DEPENDENCIES[@]}"
 ###################################################################################################
 # ------------------------------------------ Utilities ------------------------------------------ #
 ###################################################################################################
-function ez_self_installation {
+function ez.self.install {
     local ez_bash_home="${1}" uninstall="${2}"
     local bash_profile="${HOME}/.bash_profile" bashrc="${HOME}/.bashrc"
     if [[ -n "${uninstall}" ]]; then  # Uninstall
@@ -108,7 +108,7 @@ function ez_self_installation {
     fi
 }
 
-function ez_self_version {
+function ez.self.version {
     echo
     echo "[${EZ_LOGO}]"
     echo "    Author : Zheng Gao"
@@ -117,7 +117,7 @@ function ez_self_version {
     echo
 }
 
-function ez_self_unit_test {
+function ez.self.test {
     local tests_dir="${1}" test_files=("${@:2}") test_file test_result test_summary has_error test_error
     local spliter="--------------------------------------------------------------------------------"
     [[ -z "${test_files}" ]] && test_files=($(ls -1 ${tests_dir} | grep -v 'utils.sh'))
@@ -137,7 +137,7 @@ function ez_self_unit_test {
 ###################################################################################################
 # ---------------------------------------- Main Function ---------------------------------------- #
 ###################################################################################################
-function ez_self_source_option {
+function ez.self.source {
     local all_flag="" quiet_flag="" import_libs=() skip_libs=()
     local args=("-a" "--all" "-q" "--quiet" "-i" "--import" "-s" "--skip")
     while [[ -n "${1}" ]]; do
@@ -201,20 +201,20 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
                     echo "    yum install shellcheck"
                 fi
             fi ;;
-        "-t" | "--test") ez_self_unit_test "$(dirname ${0})/tests" "${@:2}" ;;
+        "-t" | "--test") ez.self.test "$(dirname ${0})/tests" "${@:2}" ;;
         "-i" | "--install")
             if [[ "$(dirname ${0})" = "." ]]; then
-                ez_self_installation "$(pwd)"
+                ez.self.install "$(pwd)"
             else
-                ez_self_installation "$(pwd)/$(dirname ${0})"
+                ez.self.install "$(pwd)/$(dirname ${0})"
             fi ;;
         "-u" | "--uninstall")
             if [[ "$(dirname ${0})" = "." ]]; then
-                ez_self_installation "$(pwd)" "uninstall"
+                ez.self.install "$(pwd)" "uninstall"
             else
-                ez_self_installation "$(pwd)/$(dirname ${0})" "uninstall"
+                ez.self.install "$(pwd)/$(dirname ${0})" "uninstall"
             fi ;;
-        "-v" | "--version") ez_self_version ;;
+        "-v" | "--version") ez.self.version ;;
         *) echo -e "[${EZ_LOGO}][\e[31mERROR\e[0m] Unknown argument identifier \"${1}\"" && exit 1 ;;
     esac
 else
@@ -231,12 +231,12 @@ else
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/pipeable.sh" || return 1
-    ez_self_source_option "${@:1}" || return 1
+    ez.self.source "${@:1}" || return 1
 fi
 
-unset ez_self_source_option
-unset ez_self_installation
-unset ez_self_unit_test
-unset ez_self_version
+unset ez.self.source
+unset ez.self.install
+unset ez.self.test
+unset ez.self.version
 
 

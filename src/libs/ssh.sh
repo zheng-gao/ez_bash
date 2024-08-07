@@ -42,7 +42,7 @@ function ez.ssh.oneliner {
         ez.argument.set --short "-k" --long "--key" --info "The path to the ssh private key" &&
         ez.argument.set --short "-c" --long "--command" --required --info "Command to run" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
@@ -67,7 +67,7 @@ function ez.ssh.local_script {
         ez.argument.set --short "-k" --long "--key" --info "The path to the ssh private key" &&
         ez.argument.set --short "-s" --long "--script" --required --info "The local script path" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
     local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
@@ -95,7 +95,7 @@ function ez.ssh.local_function {
         ez.argument.set --short "-f" --long "--function" --required --info "The local function name" &&
         ez.argument.set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
     local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
@@ -121,7 +121,7 @@ function ez.ssh.mssh_cmd {
         ez.argument.set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
         ez.argument.set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
@@ -195,7 +195,7 @@ function ez.ssh.sudo_cmd {
         ez.argument.set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
                     --info "Use \"\\\$${EZ_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local host && host="$(ez.argument.get --short "-h" --long "--host" --arguments "${@}")" &&
     local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
@@ -252,7 +252,7 @@ function ez.ssh.mssh_sudo_cmd {
         ez.argument.set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
                     --info "Use \"\\\$${EZ_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
-    ez.function.help "${@}" && return
+    ez.function.help "${@}" || return 0
     local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
     local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
