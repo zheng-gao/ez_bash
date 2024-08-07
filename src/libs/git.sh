@@ -157,7 +157,7 @@ function ez.git.history.remove_file {
     git --git-dir "${repo_path}" "filter-branch" --force --prune-empty --index-filter "git --git-dir ${repo_path} rm --cached --ignore-unmatch ${file_path}" --tag-name-filter cat -- --all
 }
 
-function ez_git_find_large_blobs() {
+function ez.git.history.large_blobs() {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
         ez.argument.set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1

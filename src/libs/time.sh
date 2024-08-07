@@ -5,18 +5,18 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_clock {
-    ez.time.now; sleep 1; while true; do ez_clear -l 1; ez.time.now; sleep 1; done
+function ez.time.clock {
+    ez.time.now; sleep 1; while true; do ez.clear -l 1; ez.time.now; sleep 1; done
 }
 
-function ez_timezones {
+function ez.time.zones {
     local zone_info_dir="/usr/share/zoneinfo"
     pushd "${zone_info_dir}" > "/dev/null"
     find . -type f | sed 's@./@@' | grep '^[[:upper:]]' | sort
     popd > "/dev/null"
 }
 
-function ez_time_from_epoch_seconds {
+function ez.time.from_epoch_seconds {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
         ez.argument.set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
@@ -27,7 +27,7 @@ function ez_time_from_epoch_seconds {
     [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "${format}" || date "${format}" -d "@${epoch}"
 }
 
-function ez_time_to_epoch_seconds {
+function ez.time.to_epoch_seconds {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-t" --long "--timestamp" --info "Timestamp, default: now" &&
         ez.argument.set --short "-f" --long "--format" --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
@@ -42,7 +42,7 @@ function ez_time_to_epoch_seconds {
     fi
 }
 
-function ez_time_offset {
+function ez.time.offset {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-t" --long "--timestamp" --required --info "Base Timestamp" &&
         ez.argument.set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" &&
@@ -54,7 +54,7 @@ function ez_time_offset {
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" &&
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
     local offset && offset="$(ez.argument.get --short "-o" --long "--offset" --arguments "${@}")" || return 1
-    local unit_value=0 epoch_seconds=$(ez_time_to_epoch_seconds --timestamp "${timestamp}" --format "${format}")
+    local unit_value=0 epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${timestamp}" --format "${format}")
     case "${unit}" in
         "seconds") unit_value=1 ;;
         "minutes") unit_value=60 ;;
@@ -64,10 +64,10 @@ function ez_time_offset {
                 *) unit_value=0 ;;
     esac
     ((epoch_seconds += unit_value * offset))
-    ez_time_from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
+    ez.time.from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
 }
 
-function ez_time_seconds_to_readable {
+function ez.time.seconds_to_readable {
     if ez.function.is_unregistered; then
         local output_formats=("Short" "Long")
         ez.argument.set --short "-s" --long "--seconds" --required --default "0" --info "Input Seconds" &&
@@ -92,7 +92,7 @@ function ez_time_seconds_to_readable {
     echo "${output}"
 }
 
-function ez_time_elapsed_epoch {
+function ez.time.elapsed.epoch {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-s" --long "--start" --required --info "Start Time Epoch Seconds" &&
         ez.argument.set --short "-e" --long "--end" --required --info "End Time Epoch Seconds" || return 1
@@ -100,10 +100,10 @@ function ez_time_elapsed_epoch {
     ez.function.help "${@}" && return
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" || return 1
-    ez_time_seconds_to_readable --seconds "$((end - start))"
+    ez.time.seconds_to_readable --seconds "$((end - start))"
 }
 
-function ez_time_elapsed {
+function ez.time.elapsed {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-s" --long "--start" --required --info "Start Timestamp" &&
         ez.argument.set --short "-e" --long "--end" --required --info "End Timestamp" &&
@@ -113,9 +113,9 @@ function ez_time_elapsed {
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    local start_epoch_seconds=$(ez_time_to_epoch_seconds --timestamp "${start}" --format "${format}")
-    local end_epoch_seconds=$(ez_time_to_epoch_seconds --timestamp "${end}" --format "${format}")
-    ez_time_seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))"
+    local start_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${start}" --format "${format}")
+    local end_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${end}" --format "${format}")
+    ez.time.seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))"
 }
 
 

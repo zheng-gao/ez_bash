@@ -8,7 +8,7 @@ alias EZP_RSTRIP="sed 's/[[:blank:]]*$//'"
 alias EZP_STATS="sort | uniq -c | sort -n"
 alias EZP_GET_VERSIONS="sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p'"
 
-function ezp_column {
+function ez.pipe.column {
     local data delimiter="${1}" column="${2}"
     [[ -z "${delimiter}" ]] && delimiter=" "
     [[ -z "${column}" ]] && column=0

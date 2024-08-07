@@ -6,7 +6,7 @@ ez.dependencies.check "tput" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_draw_line {
+function ez.draw.line {
     local line_size="${1}" line_item="${2}"
     [[ -z "${line_item}" ]] && line_item="-"
     local item_size="${#line_item}" size
@@ -15,27 +15,25 @@ function ez_draw_line {
     [[ "${remainder_size}" -gt 0 ]] && echo -n "${line_item::${remainder_size}}"
 }
 
-function ez_draw_full_line {
+function ez.draw.full_line {
     local item="${1}" line_size="$(tput 'cols')"
-    ez_draw_line "${line_size}" "${item}"
-    echo
+    ez.draw.line "${line_size}" "${item}"; echo
 }
 
-function ez_draw_banner {
+function ez.draw.banner {
     local title=" ${1} " line_item="${2}"
     local title_size="${#title}" terminal_size="$(tput 'cols')"
     local left_wing_size="$(( (terminal_size - title_size) / 2 ))"
     local right_wing_size="$(( terminal_size - title_size - left_wing_size ))"
-    ez_draw_line "${left_wing_size}" "${line_item}"
+    ez.draw.line "${left_wing_size}" "${line_item}"
     echo -n "${title}"
-    ez_draw_line "${right_wing_size}" "${line_item}"
+    ez.draw.line "${right_wing_size}" "${line_item}"
     echo
 }
 
-function ez_clear {
+function ez.clear {
     if ez.function.is_unregistered; then
-        ez.argument.set --short "-l" --long "--lines" --required --default "0" \
-                    --info "Lines to clean, non-positve clear console" || return 1
+        ez.argument.set --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
     fi
     [[ -n "${@}" ]] && ez.function.help "${@}" && return
     local lines && lines="$(ez.argument.get --short "-l" --long "--lines" --arguments "${@}")" || return 1
@@ -46,7 +44,7 @@ function ez_clear {
     fi
 }
 
-function ez_terminal_set_title {
+function ez.terminal.set_title {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" \
                     --info "Terminal Title" || return 1
@@ -57,7 +55,7 @@ function ez_terminal_set_title {
     echo -n -e "\033]0;${title}\007"
 }
 
-function ez_sleep {
+function ez.sleep {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-u" --long "--unit" --required --default "Second" \
                     --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name" &&
@@ -79,28 +77,28 @@ function ez_sleep {
     esac
     if [[ "${interval}" -eq 0 ]]; then sleep "${timeout_in_seconds}" && return; fi
     local wait_seconds=0
-    local timeout_string=$(ez_time_seconds_to_readable -s "${timeout_in_seconds}" -f "Mini")
-    local wait_seconds_string=$(ez_time_seconds_to_readable -s "${wait_seconds}" -f "Mini")
+    local timeout_string=$(ez.time.seconds_to_readable -s "${timeout_in_seconds}" -f "Mini")
+    local wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
     ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
     while [[ "${wait_seconds}" -lt "${timeout_in_seconds}" ]]; do
         local seconds_left=$((timeout_in_seconds - wait_seconds))
         if [[ "${seconds_left}" -ge "${interval}" ]]; then
             ((wait_seconds += "${interval}"))
             sleep "${interval}"
-            ez_clear --lines 1
-            wait_seconds_string=$(ez_time_seconds_to_readable -s "${wait_seconds}" -f "Mini")
+            ez.clear --lines 1
+            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
             ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         else
             wait_seconds="${timeout_in_seconds}"
             sleep "${seconds_left}"
-            ez_clear --lines 1
-            wait_seconds_string=$(ez_time_seconds_to_readable -s "${wait_seconds}" -f "Mini")
+            ez.clear --lines 1
+            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
             ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         fi
     done
 }
 
-function ez_print_progress {
+function ez.progress.print {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
         ez.argument.set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
@@ -110,8 +108,7 @@ function ez_print_progress {
         ez.argument.set --short "-d1" --long "--delete-1" --required --default "1" --info "Delete lines on step 1" &&
         ez.argument.set --short "-dx" --long "--delete-x" --required --default "1" --info "Delete lines on other steps" &&
         ez.argument.set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local filler_symbol && filler_symbol="$(ez.argument.get --short "-f" --long "--filler" --arguments "${@}")" &&
     local blank_symbol && blank_symbol="$(ez.argument.get --short "-b" --long "--blank" --arguments "${@}")" &&
     local total_steps && total_steps="$(ez.argument.get --short "-t" --long "--total" --arguments "${@}")" &&
@@ -159,28 +156,28 @@ function ez_print_progress {
     local i=0; for ((; i < "${filler_count}"; ++i)); do progress_bar_string+="${filler_symbol}"; done
     local i=0; for ((; i < "${blank_count}"; ++i)); do progress_bar_string+="${blank_symbol}"; done
     if [[ "${current_step}" -eq 0 ]]; then
-        [[ "${delete_0}" -gt 0 ]] && ez_clear --lines "${delete_0}"
+        [[ "${delete_0}" -gt 0 ]] && ez.clear --lines "${delete_0}"
     elif [[ "${current_step}" -eq 1 ]]; then
-        [[ "${delete_1}" -gt 0 ]] && ez_clear --lines "${delete_1}"
+        [[ "${delete_1}" -gt 0 ]] && ez.clear --lines "${delete_1}"
     else
-        [[ "${delete_x}" -gt 0 ]] && ez_clear --lines "${delete_x}"
+        [[ "${delete_x}" -gt 0 ]] && ez.clear --lines "${delete_x}"
     fi
     echo "${percentage_string}[${progress_bar_string}]"
     # [Demo]
     # list=("I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)")
-    # o=""; i=0; for d in ${list[@]}; do o+="${d} "; ((++i)); ez_print_progress -p -c $i -t ${#list[@]} -d1 0 -dx 2; echo $o; done
-    # ez_print_list_with_progress_bar "I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)"
+    # o=""; i=0; for d in ${list[@]}; do o+="${d} "; ((++i)); ez.progress.print -p -c $i -t ${#list[@]} -d1 0 -dx 2; echo $o; done
+    # ez.array.print_with_progress_bar "I" "think" "this" "is" "a" "great" "script" "to" "demo" "progress" "bar" "!" ":)"
 }
 
-function ez_print_list_with_progress_bar {
+function ez.array.print_with_progress_bar {
     local out i=0 data; for data in ${@}; do
         out+="${data} "; ((++i))
-        ez_print_progress -p -c "${i}" -t "${#}" -d1 0 -dx 2
+        ez.progress.print -p -c "${i}" -t "${#}" -d1 0 -dx 2
         echo "${out}"
     done
 }
 
-function ez_watch {
+function ez.watch {
     local sleep_seconds="${1}" function_name="${2}"
     while true; do
         clear

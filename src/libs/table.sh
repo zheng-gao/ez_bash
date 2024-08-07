@@ -37,7 +37,7 @@ function ez.table.print {
     local row=0; for ((; row < "${number_of_rows}"; ++row)); do
         local number_of_columns=$(ez.string.count_items "${col_delimiter}" "${rows[${row}]}")
         # Add Line Delimiter
-        if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" $(ez_string_repeat --string "#+" --count "${number_of_columns}")); fi
+        if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" $(ez.string.repeat --string "#+" --count "${number_of_columns}")); fi
         # Add Header Or Body
         table="${table}\n"
         local column=1; for ((; column <= "${number_of_columns}"; ++column)); do
@@ -46,7 +46,7 @@ function ez.table.print {
         table="${table}#|\n"
         # Add Line Delimiter
         if [[ "${row}" -eq 0 ]] || [[ "$((row+1))" -eq "${number_of_rows}" ]]; then
-            table="${table}$(printf "%s#+" $(ez_string_repeat --string "#+" --count "${number_of_columns}"))"
+            table="${table}$(printf "%s#+" $(ez.string.repeat --string "#+" --count "${number_of_columns}"))"
         fi
     done
     if [[ "$(uname -s)" = "Darwin" ]]; then

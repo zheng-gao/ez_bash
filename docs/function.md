@@ -123,7 +123,7 @@ function ez_test_password_arg {
     fi
     [[ -n "${@}" ]] && ez.function.help "${@}" && return
     local password && password=$(ez.argument.get -s "-p" -l "--password" -a "${@}") || return 1
-    echo "$(ez_string_repeat --string "*" --count ${#password})"
+    echo "$(ez.string.repeat --string "*" --count ${#password})"
     echo "password = \"${password}\""
 }
 

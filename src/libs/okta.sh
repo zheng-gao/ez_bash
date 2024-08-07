@@ -6,7 +6,7 @@ ez.dependencies.check "curl" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_okta_pagination {
+function ez.okta.pagination {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--domain" --required --info "Domain Name" &&
         ez.argument.set --short "-e" --long "--endpoint" --required --info "API Endpoint" &&

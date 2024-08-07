@@ -6,17 +6,17 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_string_replace {
+function ez.string.replace {
     local string="${1}" pattern="${2}" replacement="${3}"
     echo "${string//${pattern}/${replacement}}"
 }
 
-function ez_string_count_substring {
+function ez.string.count_substring {
     local input_string="${1}" substring="${2}"
     echo "${input_string}" | grep -o "${substring}" | wc -l | bc
 }
 
-function ez_string_repeat {
+function ez.string.repeat {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
@@ -28,7 +28,7 @@ function ez_string_repeat {
     local line index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
 }
 
-function ez_string_trim {
+function ez.string.trim {
     if ez.function.is_unregistered; then
         local valid_keys=("Left" "Right" "Both" "Any")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be trimmed" &&
@@ -55,7 +55,7 @@ function ez_string_trim {
     fi
 }
 
-function ez_string_cut {
+function ez.string.cut {
     if ez.function.is_unregistered; then
         local valid_keys=("Left" "Right" "Both")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be cut" &&
@@ -73,7 +73,7 @@ function ez_string_cut {
     esac
 }
 
-function ez_string_check {
+function ez.string.check {
     if ez.function.is_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be checked" &&
@@ -98,7 +98,7 @@ function ez_string_check {
     fi
 }
 
-function ez_banner {
+function ez.string.banner {
     if ez.function.is_unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&
@@ -111,7 +111,7 @@ function ez_banner {
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
     local message && message="$(ez.argument.get --short "-m" --long "--message" --arguments "${@}")" &&
     local log_prefix && log_prefix="$(ez.argument.get --short "-l" --long "--log-prefix" --arguments "${@}")" || return 1
-    local line_spliter=$(ez_string_repeat --string "${string}" --count ${count})
+    local line_spliter=$(ez.string.repeat --string "${string}" --count ${count})
     if ez.is_true "${log_prefix}"; then ez.log.info "${line_spliter}"; ez.log.info "${message}"; ez.log.info "${line_spliter}"
     else echo "${line_spliter}"; echo "${message}"; echo "${line_spliter}"; fi
 }
