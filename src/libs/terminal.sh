@@ -1,7 +1,7 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ez_dependency_check "tput" || return 1
+ez.dependencies.check "tput" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -129,7 +129,7 @@ function ez_print_progress {
     local terminal_length="$(tput cols)"
     local percentage_string=""
     local integer_part=0
-    if ez_is_true "${show_percentage}"; then
+    if ez.is_true "${show_percentage}"; then
         local percentage="$((${current_step} * 10000 / ${total_steps}))"
         percentage_string="[  0.00%]"
         local decimal_part=0

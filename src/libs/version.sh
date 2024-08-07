@@ -1,18 +1,18 @@
-function ez_version_extract_digit {
+function ez.version.extract_digit {
     local digit="$(echo ${1} | cut -d '.' -f ${2})"
     [[ "${3}" = "KeepWildCard" ]] && [[ "${digit}" = "*" ]] && echo "${digit}" && return
     digit="$(sed "s/^\([0-9]*\).*/\1/" <<< "${digit}")" # Trim off the trailing charaters
     [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | bc
 }
 
-function ez_version_compare {
+function ez.version.compare {
     local valid_comparators=("<" ">" "<=" ">=" "=") result
     [[ -z "${1}" ]] && ez.log.error "Invalid left version '${1}'" && return 255
     [[ -z "${3}" ]] && ez.log.error "Invalid right version '${3}'" && return 255
     ez_contains "${2}" "${valid_comparators[@]}" || { ez.log.error "Invalid comparator '${2}'" && return 255; }
-    local l_major="$(ez_version_extract_digit ${1} 1)" r_major="$(ez_version_extract_digit ${3} 1)"
-    local l_minor="$(ez_version_extract_digit ${1} 2)" r_minor="$(ez_version_extract_digit ${3} 2)"
-    local l_patch="$(ez_version_extract_digit ${1} 3)" r_patch="$(ez_version_extract_digit ${3} 3)"
+    local l_major="$(ez.version.extract_digit ${1} 1)" r_major="$(ez.version.extract_digit ${3} 1)"
+    local l_minor="$(ez.version.extract_digit ${1} 2)" r_minor="$(ez.version.extract_digit ${3} 2)"
+    local l_patch="$(ez.version.extract_digit ${1} 3)" r_patch="$(ez.version.extract_digit ${3} 3)"
     if [ "${l_major}" -gt "${r_major}" ]; then result=1
     elif [ "${l_major}" -lt "${r_major}" ]; then result=-1
     elif [ "${l_minor}" -gt "${r_minor}" ]; then result=1
@@ -27,7 +27,7 @@ function ez_version_compare {
     else [ "${result}" -eq 0 ] && return 0 || return 1; fi
 }
 
-function ez_version_compare_2 {
+function ez.version.compare_2 {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
                     --info "Must quote operation \">\" and \">=\"" &&
@@ -46,7 +46,7 @@ function ez_version_compare_2 {
     local print && print="$(ez.argument.get --short '-p' --long "--print" --arguments "${@}")" || return 1
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
-    if ez_is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
+    if ez.is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
     	ez.log.error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi
     local state=0; local i=0; while [[ "${i}" -lt "${left_length}" ]] && [[ "${i}" -lt "${right_length}" ]]; do
@@ -64,11 +64,11 @@ function ez_version_compare_2 {
     else
         [[ "${operation}" =~ "=" ]] && result="${EZ_TRUE}" || result="${EZ_FALSE}"
     fi
-    ez_is_true "${print}" && echo "${result}"
-    ez_is_true "${result}" && return 0 || return 255
+    ez.is_true "${print}" && echo "${result}"
+    ez.is_true "${result}" && return 0 || return 255
 }
 
-function ez_version_compare_and_bump_latest {
+function ez.version.compare_and_bump_latest {
     local l_major=$(echo "${1}" | cut -d "." -f 1); [[ "${l_major}" = "*" ]] && l_major=0 || l_major=$(echo "${l_major}" | bc)
     local l_minor=$(echo "${1}" | cut -d "." -f 2); [[ "${l_minor}" = "*" ]] && l_minor=0 || l_minor=$(echo "${l_minor}" | bc)
     local l_patch=$(echo "${1}" | cut -d "." -f 3); [[ "${l_patch}" = "*" ]] && l_patch=-1 || l_patch=$(echo "${l_patch}" | bc)

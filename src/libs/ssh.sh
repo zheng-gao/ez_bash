@@ -1,7 +1,7 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ez_dependency_check "ssh" "expect" || return 1
+ez.dependencies.check "ssh" "expect" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -156,7 +156,7 @@ function ez_mssh_cmd {
             [[ -z "${results[Failure]}" ]] && results["Failure"]="${host}" || results["Failure"]+=",${host}"
             is_successful=${EZ_FALSE}; ((++failure_count))
         fi
-        if ez_is_true "${print_failure}" || ez_is_true "${is_successful}"; then
+        if ez.is_true "${print_failure}" || ez.is_true "${is_successful}"; then
             md5_string=$($(ez_md5) "${output}" | cut -f 1)
             [[ -z "${results[${md5_string}]}" ]] && results["${md5_string}"]="${host}" || results["${md5_string}"]+=",${host}"
         fi
@@ -171,7 +171,7 @@ function ez_mssh_cmd {
             cat "${data_dir}/${host}"; echo
         fi
     done
-    if ez_is_true "${stats}"; then
+    if ez.is_true "${stats}"; then
         ez_banner -m "Statistics"
         echo "Timeout (${timeout_count}): ${results["Timeout"]}"
         echo "Failure (${failure_count}): ${results["Failure"]}"
@@ -227,14 +227,14 @@ EOF
     local start_line=$(grep -n "${start_banner}" ${data_file} | tail -1 | cut -d ":" -f 1)
     local end_line=$(grep -n "echo ${status_banner}" ${data_file} | tail -1 | cut -d ":" -f 1)
     start_line=$((start_line+=2)); end_line=$((end_line-=1))
-    ez_is_true "${console}" && sed -n "${start_line},${end_line}p" "${data_file}"
+    ez.is_true "${console}" && sed -n "${start_line},${end_line}p" "${data_file}"
     [[ -n "${output}" ]] && sed -n "${start_line},${end_line}p" "${data_file}" > "${output}"
     local status_string=$(grep "${status_banner}" "${data_file}" | grep -v "echo") # get the $?
     if [[ "${status_string}" != "${status_banner}0${status_banner}"* ]]; then
-        ez_is_true "${status}" && ez.log.error "Remote command failed, please check \"${data_file}\" for details"
+        ez.is_true "${status}" && ez.log.error "Remote command failed, please check \"${data_file}\" for details"
         return 1
     else
-        ez_is_true "${status}" && ez.log.info "Remote command complete!"
+        ez.is_true "${status}" && ez.log.info "Remote command complete!"
         rm -f "${data_file}"
         return 0
     fi
@@ -280,7 +280,7 @@ function ez_mssh_sudo_cmd {
             [[ -z "${results[Failure]}" ]] && results["Failure"]="${host}" || results["Failure"]+=",${host}"
             ((++failure_count))
         fi
-        if ez_is_true "${print_failure}" || [[ "${exit_code}" -eq 0 ]]; then
+        if ez.is_true "${print_failure}" || [[ "${exit_code}" -eq 0 ]]; then
             md5_string=$($(ez_md5) "${output}" | cut -f 1)
             [[ -z "${results[${md5_string}]}" ]] && results["${md5_string}"]="${host}" || results["${md5_string}"]+=",${host}"
         fi
@@ -295,7 +295,7 @@ function ez_mssh_sudo_cmd {
             cat "${data_dir}/${host}"; echo
         fi
     done
-    if ez_is_true "${stats}"; then
+    if ez.is_true "${stats}"; then
         ez_banner -m "Statistics"
         echo "Failure (${failure_count}): ${results["Failure"]}"
         echo "Success (${success_count}): ${results["Success"]}"; echo

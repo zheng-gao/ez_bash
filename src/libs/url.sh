@@ -1,4 +1,5 @@
-function ez_url_encode {
+function ez.url.decode { : "${*//+/ }"; echo -e "${_//%/\\x}"; }  # : is a builtin to expand arguments 
+function ez.url.encode {
     local url_string="${@}"
     local i=0; for ((; i < ${#url_string}; i++)); do
         local character=${url_string:i:1}
@@ -9,6 +10,3 @@ function ez_url_encode {
     done
     echo
 }
-
-# : is a builtin to expand arguments 
-function ez_url_decode { : "${*//+/ }"; echo -e "${_//%/\\x}"; }

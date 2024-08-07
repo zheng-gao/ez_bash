@@ -17,11 +17,11 @@ function ez.sort {
     local reverse && reverse="$(ez.argument.get --short "-r" --long "--reverse" --arguments "${@}")" || return 1
     local ez_sort_data_list; ez.function.arguments.get_list "ez_sort_data_list" "${data}"
     if [[ "${#ez_sort_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi; local item
-    if ez_is_true "${number}" && ez_is_true "${reverse}"; then
+    if ez.is_true "${number}" && ez.is_true "${reverse}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -n -r
-    elif ez_is_true "${number}"; then
+    elif ez.is_true "${number}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -n
-    elif ez_is_true "${reverse}"; then
+    elif ez.is_true "${reverse}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -r
     else
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort

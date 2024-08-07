@@ -23,11 +23,11 @@ function ez.state.true { return 0; }
 function ez.state.false { return 1; }
 function ez.environment.path { echo "${PATH}" | tr ":" "\n"; }
 
-function ez_is_true { [[ "${1}" = "${EZ_TRUE}" ]] && return 0 || return 1; }
-function ez_is_false { [[ "${1}" = "${EZ_FALSE}" ]] && return 0 || return 1; }
-function ez_is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
-function ez_is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
-function ez_is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
+function ez.is_true { [[ "${1}" = "${EZ_TRUE}" ]] && return 0 || return 1; }
+function ez.is_false { [[ "${1}" = "${EZ_FALSE}" ]] && return 0 || return 1; }
+function ez.is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
+function ez.is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
+function ez.is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
 ########################################## Time ###################################################
 function ez.time.today { date "+%F"; }
@@ -75,17 +75,13 @@ function ez.array.size { echo "${#@}"; }
 function ez.array.delete_item() {  # ${1} = array reference, ${2} = item
     local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=("${ez_array_delete_item_arg_reference[@]}") item status=1;
     ez_array_delete_item_arg_reference=() 
-    for item in "${tmp_array[@]}"; do
-        [[ "${item}" != "${2}" ]] && ez_array_delete_item_arg_reference+=("${item}") || status=0
-    done
+    for item in "${tmp_array[@]}"; do [[ "${item}" != "${2}" ]] && ez_array_delete_item_arg_reference+=("${item}") || status=0; done
     return "${status}"
 }
 function ez.array.delete_index() {  # ${1} = array reference, ${2} = index
     local -n ez_array_delete_index_arg_reference="${1}"; local tmp_array=("${ez_array_delete_index_arg_reference[@]}") i=0 status=1
     ez_array_delete_index_arg_reference=() 
-    for ((; i < "${#tmp_array[@]}"; ++i)); do
-        [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0
-    done
+    for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
     return "${status}"
 }
 function ez.array.quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
@@ -96,9 +92,7 @@ function ez.array.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]
 function ez.array.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 ######################################## Logging ##################################################
-function ez.log.level.set {
-    export EZ_LOG_LEVEL="${1}"
-}
+function ez.log.level.set { export EZ_LOG_LEVEL="${1}"; }
 function ez.log.level.enum {
     case "${1}" in
         "${EZ_LOG_ERROR}") echo 4 ;;

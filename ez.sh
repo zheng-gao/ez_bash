@@ -44,7 +44,7 @@ EZ_DEFAULT_DEPENDENCIES=(
 
 unset EZ_DEPENDENCY_SET
 declare -g -A EZ_DEPENDENCY_SET
-function ez_dependency_check {
+function ez.dependencies.check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
             if ! which "${cmd}" > "/dev/null"; then
@@ -57,11 +57,11 @@ function ez_dependency_check {
     done
 }
 
-function ez_show_checked_dependencies {
+function ez.dependencies.show {
     local dependency; for dependency in "${!EZ_DEPENDENCY_SET[@]}"; do echo "${dependency}"; done
 }
 
-ez_dependency_check "${EZ_DEFAULT_DEPENDENCIES[@]}"
+ez.dependencies.check "${EZ_DEFAULT_DEPENDENCIES[@]}"
 
 ###################################################################################################
 # ------------------------------------------ Utilities ------------------------------------------ #

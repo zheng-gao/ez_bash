@@ -1,7 +1,7 @@
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
 ###################################################################################################
-ez_dependency_check "lsof" "awk" || return 1
+ez.dependencies.check "lsof" "awk" || return 1
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
@@ -20,10 +20,10 @@ function ez.file.create {
     dd "if=/dev/urandom" "of=${path}" "iflag=fullblock" "bs=1${unit}" "count=${size}"
 }
 
-function ez_file_lines { wc -l "${1}" | awk '{print $1}'; }
-function ez_file_read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
+function ez.file.lines { wc -l "${1}" | awk '{print $1}'; }
+function ez.file.read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
 
-function ez_file_string_replace {
+function ez.file.string_replace {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--search" --required --info "String to be replaced" &&
@@ -41,7 +41,7 @@ function ez_file_string_replace {
     fi
 }
 
-function ez_file_delete_lines {
+function ez.file.delete_lines {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
@@ -58,7 +58,7 @@ function ez_file_delete_lines {
     fi
 }
 
-function ez_file_get_lines {
+function ez.file.get_lines {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
@@ -88,7 +88,7 @@ function ez_file_get_lines {
     fi
 }
 
-function ez_file_descriptor_count {
+function ez.file.descriptor_count {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--process-id" --info "Process ID" &&
         ez.argument.set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
@@ -111,7 +111,7 @@ function ez_file_descriptor_count {
     echo "${fd_count}"
 }
 
-function ez_file_parse_value {
+function ez.file.parse_value {
     #  File Content:
     #  ...key="value"...
     if ez.function.is_unregistered; then
@@ -127,7 +127,7 @@ function ez_file_parse_value {
     fi
 }
 
-function ez_file_parse_ip {
+function ez.file.parse_ip {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
@@ -148,7 +148,7 @@ function ez_file_parse_ip {
     fi
 }
 
-function ez_file_parse_between_lines {
+function ez.file.parse_between_lines {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--start" --required --info "Starting line marker" &&
@@ -167,7 +167,7 @@ function ez_file_parse_between_lines {
     fi
 }
 
-function ez_backup {
+function ez.backup {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
         ez.argument.set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||

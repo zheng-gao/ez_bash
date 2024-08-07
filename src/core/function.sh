@@ -80,7 +80,7 @@ function ez.function.arguments.print {
     [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
     [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez.log.error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}" indent="    "
-    echo; echo "${indent}[Function Name] \"${function}\""; echo
+    echo; echo "${indent}[Function Name] ${function}"; echo
     {
         echo "${indent}$(ez.string.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
@@ -397,7 +397,7 @@ function ez.argument.get {
             fi
         done
         # Required but not found and no default
-        if [[ -z "${argument_default}" ]] && ez_is_true "${argument_required}"; then
+        if [[ -z "${argument_default}" ]] && ez.is_true "${argument_required}"; then
             if [[ "${argument_type}" = "Password" ]]; then
                 local ask_for_password=""
                 if [[ -n "${long}" ]]; then
@@ -447,7 +447,7 @@ function ez.argument.get {
             fi
         done
         # Required but not found and no default
-        if [[ -z "${argument_default}" ]] && ez_is_true "${argument_required}"; then
+        if [[ -z "${argument_default}" ]] && ez.is_true "${argument_required}"; then
             [[ -n "${short}" ]] && ez.log.error "Argument \"${short}\" is required" && return 6
             [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
         fi

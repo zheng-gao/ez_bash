@@ -39,7 +39,7 @@ function ez.collections.set.operation {
         for item in "${!right_set[@]}"; do [[ ! ${left_set["${item}"]+_} ]] && result_set["${item}"]=0; done
     fi
     { for item in "${!result_set[@]}"; do echo "${item}"; done; } | sort
-    if ez_is_true "${summary}"; then
+    if ez.is_true "${summary}"; then
         echo "------ Summary ------"
         echo "  Left Size: ${#left_set[@]}"
         echo " Right Size: ${#right_set[@]}"
@@ -61,8 +61,8 @@ function ez.collections.set.contains {
     for item in "${subset[@]}"; do sb_set["${item}"]=0; done
     for item in "${!sb_set[@]}"; do
         if [[ ! ${sp_set["${item}"]+_} ]]; then
-            ez_is_true "${verbose}" && echo "${EZ_FALSE}"; return 1
+            ez.is_true "${verbose}" && echo "${EZ_FALSE}"; return 1
         fi
     done
-    ez_is_true "${verbose}" && echo "${EZ_TRUE}"; return 0
+    ez.is_true "${verbose}" && echo "${EZ_TRUE}"; return 0
 }
