@@ -23,4 +23,4 @@ function ezp_column {
     fi
 }
 
-function ez_show_pipeables { alias | grep "EZ_" --color; }
+function ez.show_pipeables { alias | grep "EZ_" --color; }

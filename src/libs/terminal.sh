@@ -33,12 +33,12 @@ function ez_draw_banner {
 }
 
 function ez_clear {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-l" --long "--lines" --required --default "0" \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-l" --long "--lines" --required --default "0" \
                     --info "Lines to clean, non-positve clear console" || return 1
     fi
-    [[ -n "${@}" ]] && ez_function_usage "${@}" && return
-    local lines && lines="$(ez_arg_get --short "-l" --long "--lines" --arguments "${@}")" || return 1
+    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    local lines && lines="$(ez.argument.get --short "-l" --long "--lines" --arguments "${@}")" || return 1
     if [[ "${lines}" -gt 0 ]]; then
         local i=0; for ((; i < "${lines}"; ++i)); do tput "cuu1" && tput "el"; done # cursor up one line and clean
     else
@@ -47,28 +47,28 @@ function ez_clear {
 }
 
 function ez_terminal_set_title {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-t" --long "--title" --type "String" --required --default "hostname" \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" \
                     --info "Terminal Title" || return 1
     fi
-    [[ -n "${@}" ]] && ez_function_usage "${@}" && return
-    local title && title="$(ez_arg_get --short "-t" --long "--title" --arguments "${@}")" || return 1
+    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    local title && title="$(ez.argument.get --short "-t" --long "--title" --arguments "${@}")" || return 1
     if [[ "${title}" == "hostname" ]]; then title=$(hostname); fi
     echo -n -e "\033]0;${title}\007"
 }
 
 function ez_sleep {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-u" --long "--unit" --required --default "Second" \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-u" --long "--unit" --required --default "Second" \
                     --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name" &&
-        ez_arg_set --short "-v" --long "--value" --required --info "Number of units to sleep" &&
-        ez_arg_set --short "-n" --long "--interval" --required --default 1 \
+        ez.argument.set --short "-v" --long "--value" --required --info "Number of units to sleep" &&
+        ez.argument.set --short "-n" --long "--interval" --required --default 1 \
                     --info "Output refresh frequency in seconds, 0 for no output" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local unit && unit="$(ez_arg_get --short "-u" --long "--unit" --arguments "${@}")" &&
-    local value && value="$(ez_arg_get --short "-v" --long "--value" --arguments "${@}")" &&
-    local interval && interval="$(ez_arg_get --short "-n" --long "--interval" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
+    local value && value="$(ez.argument.get --short "-v" --long "--value" --arguments "${@}")" &&
+    local interval && interval="$(ez.argument.get --short "-n" --long "--interval" --arguments "${@}")" || return 1
     if [[ "${interval}" -lt 0 ]]; then interval=1; fi
     local timeout_in_seconds=0
     case "${unit}" in
@@ -101,25 +101,25 @@ function ez_sleep {
 }
 
 function ez_print_progress {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
-        ez_arg_set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
-        ez_arg_set --short "-t" --long "--total" --required --info "Total Steps" &&
-        ez_arg_set --short "-c" --long "--current" --required --default "0" --info "Current Step" &&
-        ez_arg_set --short "-d0" --long "--delete-0" --required --default "0" --info "Delete lines on step 0" &&
-        ez_arg_set --short "-d1" --long "--delete-1" --required --default "1" --info "Delete lines on step 1" &&
-        ez_arg_set --short "-dx" --long "--delete-x" --required --default "1" --info "Delete lines on other steps" &&
-        ez_arg_set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
+        ez.argument.set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
+        ez.argument.set --short "-t" --long "--total" --required --info "Total Steps" &&
+        ez.argument.set --short "-c" --long "--current" --required --default "0" --info "Current Step" &&
+        ez.argument.set --short "-d0" --long "--delete-0" --required --default "0" --info "Delete lines on step 0" &&
+        ez.argument.set --short "-d1" --long "--delete-1" --required --default "1" --info "Delete lines on step 1" &&
+        ez.argument.set --short "-dx" --long "--delete-x" --required --default "1" --info "Delete lines on other steps" &&
+        ez.argument.set --short "-p" --long "--percentage" --type "Flag" --info "Show Percentage" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local filler_symbol && filler_symbol="$(ez_arg_get --short "-f" --long "--filler" --arguments "${@}")" &&
-    local blank_symbol && blank_symbol="$(ez_arg_get --short "-b" --long "--blank" --arguments "${@}")" &&
-    local total_steps && total_steps="$(ez_arg_get --short "-t" --long "--total" --arguments "${@}")" &&
-    local current_step && current_step="$(ez_arg_get --short "-c" --long "--current" --arguments "${@}")" &&
-    local show_percentage && show_percentage="$(ez_arg_get --short "-p" --long "--percentage" --arguments "${@}")" &&
-    local delete_0 && delete_0="$(ez_arg_get --short "-d0" --long "--delete-0" --arguments "${@}")" &&
-    local delete_1 && delete_1="$(ez_arg_get --short "-d1" --long "--delete-1" --arguments "${@}")" &&
-    local delete_x && delete_x="$(ez_arg_get --short "-dx" --long "--delete-x" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local filler_symbol && filler_symbol="$(ez.argument.get --short "-f" --long "--filler" --arguments "${@}")" &&
+    local blank_symbol && blank_symbol="$(ez.argument.get --short "-b" --long "--blank" --arguments "${@}")" &&
+    local total_steps && total_steps="$(ez.argument.get --short "-t" --long "--total" --arguments "${@}")" &&
+    local current_step && current_step="$(ez.argument.get --short "-c" --long "--current" --arguments "${@}")" &&
+    local show_percentage && show_percentage="$(ez.argument.get --short "-p" --long "--percentage" --arguments "${@}")" &&
+    local delete_0 && delete_0="$(ez.argument.get --short "-d0" --long "--delete-0" --arguments "${@}")" &&
+    local delete_1 && delete_1="$(ez.argument.get --short "-d1" --long "--delete-1" --arguments "${@}")" &&
+    local delete_x && delete_x="$(ez.argument.get --short "-dx" --long "--delete-x" --arguments "${@}")" || return 1
     [[ "${delete_0}" -lt 0 ]] && ez.log.error "Invalid value \"${delete_0}\" for \"-d0|--delete-0\"" && return 1
     [[ "${delete_1}" -lt 0 ]] && ez.log.error "Invalid value \"${delete_1}\" for \"-d1|--delete-1\"" && return 1
     [[ "${delete_x}" -lt 0 ]] && ez.log.error "Invalid value \"${delete_x}\" for \"-dx|--delete-x\"" && return 1

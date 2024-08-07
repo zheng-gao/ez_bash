@@ -8,17 +8,17 @@ ez_dependency_check "nc" || return 1
 ###################################################################################################
 
 function ez_web {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--host" --required --default "localhost" --info "Hostname or IP" &&
-        ez_arg_set --short "-p" --long "--port" --required --default "5555" &&
-        ez_arg_set --short "-i" --long "--index" --info "Path to the index.html" &&
-        ez_arg_set --short "-b" --long "--background" --type "Flag" --info "Run server on background" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-h" --long "--host" --required --default "localhost" --info "Hostname or IP" &&
+        ez.argument.set --short "-p" --long "--port" --required --default "5555" &&
+        ez.argument.set --short "-i" --long "--index" --info "Path to the index.html" &&
+        ez.argument.set --short "-b" --long "--background" --type "Flag" --info "Run server on background" || return 1
     fi
-    [[ -n "${@}" ]] && ez_function_usage "${@}" && return
-    local host && host="$(ez_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
-    local port && port="$(ez_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
-    local index && index="$(ez_arg_get --short "-i" --long "--index" --arguments "${@}")" &&
-    local background && background="$(ez_arg_get --short "-b" --long "--background" --arguments "${@}")" || return 1
+    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    local host && host="$(ez.argument.get --short "-h" --long "--host" --arguments "${@}")" &&
+    local port && port="$(ez.argument.get --short "-p" --long "--port" --arguments "${@}")" &&
+    local index && index="$(ez.argument.get --short "-i" --long "--index" --arguments "${@}")" &&
+    local background && background="$(ez.argument.get --short "-b" --long "--background" --arguments "${@}")" || return 1
     local response_html='<!doctype html><html><body><h1>A webpage served with netcat</h1></body></html>'
     if [[ "$(uname -s)" = "Linux" ]]; then
         if [[ -f "${index}" ]]; then

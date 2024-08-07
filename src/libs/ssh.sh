@@ -36,18 +36,18 @@ function ez_timeout {
 }
 
 function ez_ssh_oneliner {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
-        ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
-        ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
-        ez_arg_set --short "-c" --long "--command" --required --info "Command to run" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
+        ez.argument.set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ez.argument.set --short "-k" --long "--key" --info "The path to the ssh private key" &&
+        ez.argument.set --short "-c" --long "--command" --required --info "Command to run" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
-    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" || return 1
-    local host_list; ez_function_get_list "host_list" "${hosts}"
+    ez.function.help "${@}" && return
+    local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
+    local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" || return 1
+    local host_list; ez.function.arguments.get_list "host_list" "${hosts}"
     local host output; for host in "${host_list[@]}"; do
         echo -n "${host} - "
         if [[ -z "${key}" ]]; then
@@ -60,20 +60,20 @@ function ez_ssh_oneliner {
 }
 
 function ez_ssh_local_script {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
-        ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
-        ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
-        ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
-        ez_arg_set --short "-s" --long "--script" --required --info "The local script path" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
+        ez.argument.set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
+        ez.argument.set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ez.argument.set --short "-k" --long "--key" --info "The path to the ssh private key" &&
+        ez.argument.set --short "-s" --long "--script" --required --info "The local script path" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
-    local script && script="$(ez_arg_get --short "-s" --long "--script" --arguments "${@}")" || return 1
-    local host_list; ez_function_get_list "host_list" "${hosts}"
+    ez.function.help "${@}" && return
+    local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
+    local script && script="$(ez.argument.get --short "-s" --long "--script" --arguments "${@}")" || return 1
+    local host_list; ez.function.arguments.get_list "host_list" "${hosts}"
     (( timeout += EZ_SSH_CONNECT_TIMEOUT ))
     local host; for host in "${host_list[@]}"; do
         echo "[${host}]"
@@ -87,22 +87,22 @@ function ez_ssh_local_script {
 }
 
 function ez_ssh_local_function {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
-        ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
-        ez_arg_set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
-        ez_arg_set --short "-k" --long "--key" --info "The path to the ssh private key" &&
-        ez_arg_set --short "-f" --long "--function" --required --info "The local function name" &&
-        ez_arg_set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-t" --long "--timeout" --required --default 600 --info "SSH session timeout seconds" &&
+        ez.argument.set --short "-h" --long "--hosts" --required --type "List" --info "The remote host name" &&
+        ez.argument.set --short "-u" --long "--user" --required --default "${USER}" --info "The login user" &&
+        ez.argument.set --short "-k" --long "--key" --info "The path to the ssh private key" &&
+        ez.argument.set --short "-f" --long "--function" --required --info "The local function name" &&
+        ez.argument.set --short "-a" --long "--arguments" --type "List" --info "The argument list of the function" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local key && key="$(ez_arg_get --short "-k" --long "--key" --arguments "${@}")" &&
-    local func && func="$(ez_arg_get --short "-f" --long "--function" --arguments "${@}")" &&
-    local args && args="$(ez_arg_get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
-    local arg_list; ez_function_get_list "arg_list" "${args}"
+    ez.function.help "${@}" && return
+    local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
+    local func && func="$(ez.argument.get --short "-f" --long "--function" --arguments "${@}")" &&
+    local args && args="$(ez.argument.get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
+    local arg_list; ez.function.arguments.get_list "arg_list" "${args}"
     local args_str="$(ez.array.double_quote "${arg_list[@]}")"
     local script="${EZ_DIR_SCRIPTS}/${func}.sh"
     declare -f "${func}" > "${script}"
@@ -111,25 +111,25 @@ function ez_ssh_local_function {
 }
 
 function ez_mssh_cmd {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
-        ez_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
-        ez_arg_set --short "-u" --long "--user" --info "SSH user" &&
-        ez_arg_set --short "-p" --long "--port" --default "22" --info "SSH port" &&
-        ez_arg_set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
-        ez_arg_set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
-        ez_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
-        ez_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
+        ez.argument.set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
+        ez.argument.set --short "-u" --long "--user" --info "SSH user" &&
+        ez.argument.set --short "-p" --long "--port" --default "22" --info "SSH port" &&
+        ez.argument.set --short "-i" --long "--private-key" --info "Path to the SSH private key" &&
+        ez.argument.set --short "-t" --long "--timeout" --default "120" --info "The timeout seconds for each host" &&
+        ez.argument.set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
+        ez.argument.set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local port && port="$(ez_arg_get --short "-p" --long "--port" --arguments "${@}")" &&
-    local private_key && private_key="$(ez_arg_get --short "-i" --long "--private-key" --arguments "${@}")" &&
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local stats && stats="$(ez_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
-    local print_failure && print_failure="$(ez_arg_get --short "-f" --long "--failure" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local port && port="$(ez.argument.get --short "-p" --long "--port" --arguments "${@}")" &&
+    local private_key && private_key="$(ez.argument.get --short "-i" --long "--private-key" --arguments "${@}")" &&
+    local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local stats && stats="$(ez.argument.get --short "-s" --long "--stats" --arguments "${@}")" &&
+    local print_failure && print_failure="$(ez.argument.get --short "-f" --long "--failure" --arguments "${@}")" || return 1
     declare -A results
     local timeout_count=0; results["Timeout"]=""
     local success_count=0; results["Success"]=""
@@ -183,28 +183,28 @@ function ez_mssh_cmd {
 # SSH and switch to root using the password, Save output in $save_to
 # timeout=-1 means no timeout, if you give wrong "prompt", it will hang forever
 function ez_ssh_sudo_cmd {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--host" --required --info "The host to run the command on" &&
-        ez_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
-        ez_arg_set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
-        ez_arg_set --short "-p" --long "--password" --info "The root password" &&
-        ez_arg_set --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
-        ez_arg_set --short "-s" --long "--status" --type "Flag" --info "Print status" &&
-        ez_arg_set --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
-        ez_arg_set --short "-o" --long "--output" --info "File path for output" &&
-        ez_arg_set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-h" --long "--host" --required --info "The host to run the command on" &&
+        ez.argument.set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
+        ez.argument.set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
+        ez.argument.set --short "-p" --long "--password" --info "The root password" &&
+        ez.argument.set --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
+        ez.argument.set --short "-s" --long "--status" --type "Flag" --info "Print status" &&
+        ez.argument.set --short "-C" --long "--console" --type "Flag" --info "Print output to console" &&
+        ez.argument.set --short "-o" --long "--output" --info "File path for output" &&
+        ez.argument.set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
                     --info "Use \"\\\$${EZ_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local host && host="$(ez_arg_get --short "-h" --long "--host" --arguments "${@}")" &&
-    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local password && password="$(ez_arg_get --short "-p" --long "--password" --arguments "${@}")" &&
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local status && status="$(ez_arg_get --short "-s" --long "--status" --arguments "${@}")" &&
-    local console && console="$(ez_arg_get --short "-C" --long "--console" --arguments "${@}")" &&
-    local output && output="$(ez_arg_get --short "-o" --long "--output" --arguments "${@}")" &&
-    local prompt && prompt="$(ez_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local host && host="$(ez.argument.get --short "-h" --long "--host" --arguments "${@}")" &&
+    local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local password && password="$(ez.argument.get --short "-p" --long "--password" --arguments "${@}")" &&
+    local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local status && status="$(ez.argument.get --short "-s" --long "--status" --arguments "${@}")" &&
+    local console && console="$(ez.argument.get --short "-C" --long "--console" --arguments "${@}")" &&
+    local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
+    local prompt && prompt="$(ez.argument.get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     local data_file="${EZ_DIR_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
     [[ "${user}" = "root" ]] && user=""; [[ "${user}" = "${USER}" ]] && user="-"
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
@@ -241,26 +241,26 @@ EOF
 }
 
 function ez_mssh_sudo_cmd {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
-        ez_arg_set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
-        ez_arg_set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
-        ez_arg_set --short "-p" --long "--password" --info "The root password" &&
-        ez_arg_set --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
-        ez_arg_set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
-        ez_arg_set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
-        ez_arg_set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-h" --long "--hosts" --required --info "Separated by comma" &&
+        ez.argument.set --short "-c" --long "--command" --required --info "Must be quoted otherwise it only take the 1st word" &&
+        ez.argument.set --short "-u" --long "--user" --required --default "root" --info "Switch to a user" &&
+        ez.argument.set --short "-p" --long "--password" --info "The root password" &&
+        ez.argument.set --short "-t" --long "--timeout" --default "10" --info "Connection timeout seconds, negative value means no timeout" &&
+        ez.argument.set --short "-s" --long "--stats" --type "Flag" --info "Print the stats" &&
+        ez.argument.set --short "-f" --long "--failure" --type "Flag" --info "Print the output of the failed cases" &&
+        ez.argument.set --short "-P" --long "--prompt" --required --default "${EZ_CHAR_SHARP}-${EZ_CHAR_SPACE}" \
                     --info "Use \"\\\$${EZ_CHAR_SPACE}\" for \"app\" user" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local hosts && hosts="$(ez_arg_get --short "-h" --long "--hosts" --arguments "${@}")" &&
-    local command && command="$(ez_arg_get --short "-c" --long "--command" --arguments "${@}")" &&
-    local user && user="$(ez_arg_get --short "-u" --long "--user" --arguments "${@}")" &&
-    local password && password="$(ez_arg_get --short "-p" --long "--password" --arguments "${@}")" &&
-    local timeout && timeout="$(ez_arg_get --short "-t" --long "--timeout" --arguments "${@}")" &&
-    local stats && stats="$(ez_arg_get --short "-s" --long "--stats" --arguments "${@}")" &&
-    local print_failure && print_failure="$(ez_arg_get --short "-f" --long "--failure" --arguments "${@}")" &&
-    local prompt && prompt="$(ez_arg_get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local hosts && hosts="$(ez.argument.get --short "-h" --long "--hosts" --arguments "${@}")" &&
+    local command && command="$(ez.argument.get --short "-c" --long "--command" --arguments "${@}")" &&
+    local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
+    local password && password="$(ez.argument.get --short "-p" --long "--password" --arguments "${@}")" &&
+    local timeout && timeout="$(ez.argument.get --short "-t" --long "--timeout" --arguments "${@}")" &&
+    local stats && stats="$(ez.argument.get --short "-s" --long "--stats" --arguments "${@}")" &&
+    local print_failure && print_failure="$(ez.argument.get --short "-f" --long "--failure" --arguments "${@}")" &&
+    local prompt && prompt="$(ez.argument.get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
     declare -A results
     local timeout_count=0; results["Timeout"]=""

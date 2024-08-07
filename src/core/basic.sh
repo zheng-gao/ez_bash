@@ -49,20 +49,20 @@ function ez.string.format { # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
 }
 function ez.string.count_items {  # "@@" "@@123@@@xyz@@@@" -> 5
     local delimiter="${1}" string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
-    while [[ "${k}" -lt "${#string}" ]]; do if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi; done
+    while [[ "${k}" -lt "${#string}" ]]; do
+        if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi
+    done
     echo "$((++count))"
 }
 function ez.string.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
-    local -n __ez_split_arg_reference="${1}"
-    local delimiter="${2}" string="${@:3}" item="" k=0
-    __ez_split_arg_reference=()
+    local -n ez_string_split_arg_reference="${1}"; local delimiter="${2}" string="${@:3}" item="" k=0; ez_string_split_arg_reference=()
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then
-            __ez_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
+            ez_string_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
         else
             item+="${string:${k}:1}"; ((++k))
         fi
-        [[ "${k}" -ge "${#string}" ]] && __ez_split_arg_reference+=("${item}")
+        [[ "${k}" -ge "${#string}" ]] && ez_string_split_arg_reference+=("${item}")
     done
 }
 
@@ -73,20 +73,20 @@ function ez.string.join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}"
 
 ########################################## Array ##################################################
 function ez.array.size { echo "${#@}"; }
-function ez.array.delete_item() {
-    # ${1} = array reference, ${2} = item
-    local -n __ez_array_delete_item_arg_reference="${1}"
-    local tmp_array=("${__ez_array_delete_item_arg_reference[@]}") item status=1
-    __ez_array_delete_item_arg_reference=() 
-    for item in "${tmp_array[@]}"; do [[ "${item}" != "${2}" ]] && __ez_array_delete_item_arg_reference+=("${item}") || status=0; done
+function ez.array.delete_item() {  # ${1} = array reference, ${2} = item
+    local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=("${ez_array_delete_item_arg_reference[@]}") item status=1;
+    ez_array_delete_item_arg_reference=() 
+    for item in "${tmp_array[@]}"; do
+        [[ "${item}" != "${2}" ]] && ez_array_delete_item_arg_reference+=("${item}") || status=0
+    done
     return "${status}"
 }
-function ez.array.delete_index() {
-    # ${1} = array reference, ${2} = index
-    local -n __ez_array_delete_index_arg_reference="${1}"
-    local tmp_array=("${__ez_array_delete_index_arg_reference[@]}") i=0 status=1
-    __ez_array_delete_index_arg_reference=() 
-    for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && __ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
+function ez.array.delete_index() {  # ${1} = array reference, ${2} = index
+    local -n ez_array_delete_index_arg_reference="${1}"; local tmp_array=("${ez_array_delete_index_arg_reference[@]}") i=0 status=1
+    ez_array_delete_index_arg_reference=() 
+    for ((; i < "${#tmp_array[@]}"; ++i)); do
+        [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0
+    done
     return "${status}"
 }
 function ez.array.quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }

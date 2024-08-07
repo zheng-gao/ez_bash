@@ -7,17 +7,17 @@ ez_dependency_check "awk" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez_table_print {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
-        ez_arg_set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&
-        ez_arg_set --short "-d" --long "--data" --exclude "1" --info "The input data if file is not provided" && 
-        ez_arg_set --short "-f" --long "--file" --exclude "1" --info "The input file path" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
+        ez.argument.set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&
+        ez.argument.set --short "-d" --long "--data" --exclude "1" --info "The input data if file is not provided" && 
+        ez.argument.set --short "-f" --long "--file" --exclude "1" --info "The input file path" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local col_delimiter && col_delimiter="$(ez_arg_get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&
-    local row_delimiter && row_delimiter="$(ez_arg_get --short "-rd" --long "--row-delimiter" --arguments "${@}")" &&
-    local file && file="$(ez_arg_get --short "-f" --long "--file" --arguments "${@}")" &&
-    local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local col_delimiter && col_delimiter="$(ez.argument.get --short "-cd" --long "--col-delimiter" --arguments "${@}")" &&
+    local row_delimiter && row_delimiter="$(ez.argument.get --short "-rd" --long "--row-delimiter" --arguments "${@}")" &&
+    local file && file="$(ez.argument.get --short "-f" --long "--file" --arguments "${@}")" &&
+    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" || return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
         [[ ! -f "${file}" ]] && ez.log.error "File \"${file}\" not found" && return 1

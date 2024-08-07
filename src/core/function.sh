@@ -22,7 +22,7 @@ declare -gA EZ_ARG_TYPE_SET=(
     ["Flag"]="${EZ_TRUE}"
     ["Password"]="${EZ_TRUE}"
 )
-declare -gA ARG_SET_OF_ez_arg_set=(
+declare -gA ARG_SET_OF_EZ_ARGUMENT_SET=(
     ["-f"]="1" ["--function"]="1"
     ["-t"]="1" ["--type"]="1"
     ["-s"]="1" ["--short"]="1"
@@ -59,39 +59,15 @@ unset EZ_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZ_S_ARG_TO_EXCLUD
 ###################################################################################################
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
-function ez.function.show_registered {
-    local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done
-}
-
-###################################################################################################
-# ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
-###################################################################################################
-function ez_function_get_short_arguments {
-    sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"
-}
-
-function ez_function_get_long_arguments {
-    sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"
-}
-
-function ez_function_get_list {
-    local -n ez_function_get_list_arg_reference="${1}"
-    ez.string.split "ez_function_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
-}
-
-function ez_function_unregistered {
-    # Should only be called by another function. If not, give the function name in 1st argument
-    if [[ -z "${1}" ]]; then [[ -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}" ]] && return 0
-    else [[ -z "${EZ_FUNC_SET[${1}]}" ]] && return 0; fi
-    return 1
-}
-
-function ez_function_check_help_keyword {
-    [[ -z "${1}" ]] && return 0 # Print help info if no argument given
-    ez.array.excludes "${EZ_FUNC_HELP}" "${@}" && return 1 || return 0
-}
-
-function ez_function_print_help {
+function ez.function.show_registered { local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done; }
+# ez.function.is_unregistered  Should only be called by another function. If not, give the function name in 1st argument
+function ez.function.is_unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
+function ez.function.help { [[ "${1}" = "--run-with-no-argument" ]] && [[ -z "${2}" ]] && return 1; ez.function.arguments.check_help_keyword "${@}" && ez.function.arguments.print -f "${FUNCNAME[1]}" && return 0 || return 1; }  # By default it will print the "help" when no argument is given
+function ez.function.arguments.check_help_keyword { [[ -z "${1}" ]] && return 0; ez.array.includes "${EZ_FUNC_HELP}" "${@}"; }  # Print help info if no argument given
+function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
+function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
+function ez.function.arguments.get_list { local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.string.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"; }
+function ez.function.arguments.print {
     local function="${FUNCNAME[1]}"
     [[ "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Print the help info of the target function" \
         -a "-f|--function" -t "String" -d "${function}" -c "" -i "The name of the target function" && return 0
@@ -108,7 +84,7 @@ function ez_function_print_help {
     {
         echo "${indent}$(ez.string.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
-        local short; for short in $(ez_function_get_short_arguments "${function}"); do
+        local short; for short in $(ez.function.arguments.get_short "${function}"); do
             key="${function}${delimiter}${short}"
             long="${EZ_S_ARG_TO_L_ARG_MAP[${key}]}"; [[ -z "${long}" ]] && long="${EZ_NONE}"
             type="${EZ_S_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_NONE}"
@@ -121,7 +97,7 @@ function ez_function_print_help {
             info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_NONE}"
             echo "${indent}$(ez.string.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
         done
-        local long; for long in $(ez_function_get_long_arguments "${function}"); do
+        local long; for long in $(ez.function.arguments.get_long "${function}"); do
             key="${function}${delimiter}${long}"
             short="${EZ_L_ARG_TO_S_ARG_MAP[${key}]}"
             type="${EZ_L_ARG_TO_TYPE_MAP[${key}]}"; [[ -z "${type}" ]] && type="${EZ_NONE}"
@@ -140,13 +116,34 @@ function ez_function_print_help {
     } | column -t -s "${delimiter}"; echo
 }
 
-function ez_function_usage {
-    # By default it will print the "help" when no argument is given
-    [[ "${1}" = "--run-with-no-argument" ]] && [[ -z "${2}" ]] && return 1
-    ez_function_check_help_keyword "${@}" && ez_function_print_help -f "${FUNCNAME[1]}" && return 0 || return 1
+###################################################################################################
+# ------------------------------- EZ-Bash Function Argument Parser ------------------------------ #
+###################################################################################################
+function ez.argument.exclude_check {
+    local function="${1}" arg_name="${2}" exclude="${3}" arguments=("${@:4}") key x_arg
+    declare -A exclude_set
+    for x_arg in $(ez.function.arguments.get_short "${function}"); do
+        if [[ "${x_arg}" != "${arg_name}" ]]; then
+            key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
+            [[ "${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
+        fi
+    done
+    for x_arg in $(ez.function.arguments.get_long "${function}"); do
+        if [[ "${x_arg}" != "${arg_name}" ]]; then
+            key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
+            [[ "${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
+        fi
+    done
+    for x_arg in "${arguments[@]}"; do
+        if [[ -n "${x_arg}" ]] && [[ "${x_arg}" != "${arg_name}" ]] && [[ -n "${exclude_set[${x_arg}]}" ]]; then
+            ez.log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive in group: ${exclude}"
+            return 1
+        fi
+    done
+    return 0
 }
 
-function ez_arg_set {
+function ez.argument.set {
     local function="${FUNCNAME[1]}" short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_FALSE}" default=() choices=()
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Register Function Argument" \
         -a "-f|--function" -t "String" -d "${function}" -c "" -i "Target Function Name" \
@@ -167,8 +164,8 @@ function ez_arg_set {
             "-e" | "--exclude") shift; exclude=${1}; shift ;;
             "-i" | "--info") shift; info=${1}; shift ;;
             "-r" | "--required") shift; required="${EZ_TRUE}" ;;
-            "-d" | "--default") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_ez_arg_set["${1}"]}" ]] && break; default+=("${1}"); shift; done ;;
-            "-c" | "--choices") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_ez_arg_set["${1}"]}" ]] && break; choices+=("${1}"); shift; done ;;
+            "-d" | "--default") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_EZ_ARGUMENT_SET["${1}"]}" ]] && break; default+=("${1}"); shift; done ;;
+            "-c" | "--choices") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_EZ_ARGUMENT_SET["${1}"]}" ]] && break; choices+=("${1}"); shift; done ;;
             *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
@@ -217,7 +214,7 @@ function ez_arg_set {
             unset EZ_S_ARG_TO_CHOICES_MAP["${key}"]
             unset EZ_S_ARG_SET["${key}"]
             local new_short_list_string=""
-            local existing_short; for existing_short in $(ez_function_get_short_arguments "${function}"); do
+            local existing_short; for existing_short in $(ez.function.arguments.get_short "${function}"); do
                 if [[ "${short_old}" != "${existing_short}" ]]; then
                     if [[ -z "${new_short_list_string}" ]]; then new_short_list_string="${existing_short}"
                     else new_short_list_string+="${delimiter}${existing_short}"; fi
@@ -252,7 +249,7 @@ function ez_arg_set {
             unset EZ_L_ARG_TO_CHOICES_MAP["${key}"]
             unset EZ_L_ARG_SET["${key}"]
             local new_long_list_string=""
-            local existing_long; for existing_long in $(ez_function_get_long_arguments "${function}"); do
+            local existing_long; for existing_long in $(ez.function.arguments.get_long "${function}"); do
                 if [[ "${long_old}" != "${existing_long}" ]]; then
                     if [[ -z "${new_short_list_string}" ]]; then new_long_list_string="${existing_long}"
                     else new_long_list_string+="${delimiter}${existing_long}"; fi
@@ -263,31 +260,7 @@ function ez_arg_set {
     fi
 }
 
-function ez_arg_exclude_check {
-    local function="${1}" arg_name="${2}" exclude="${3}" arguments=("${@:4}") key x_arg
-    declare -A exclude_set
-    for x_arg in $(ez_function_get_short_arguments "${function}"); do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZ_S_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
-        fi
-    done
-    for x_arg in $(ez_function_get_long_arguments "${function}"); do
-        if [[ "${x_arg}" != "${arg_name}" ]]; then
-            key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${x_arg}"
-            [[ "${EZ_L_ARG_TO_EXCLUDE_MAP[${key}]}" = "${exclude}" ]] && exclude_set["${x_arg}"]="${EZ_TRUE}"
-        fi
-    done
-    for x_arg in "${arguments[@]}"; do
-        if [[ -n "${x_arg}" ]] && [[ "${x_arg}" != "${arg_name}" ]] && [[ -n "${exclude_set[${x_arg}]}" ]]; then
-            ez.log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive in group: ${exclude}"
-            return 1
-        fi
-    done
-    return 0
-}
-
-function ez_arg_get {
+function ez.argument.get {
     # Must Run Inside Other Functions
     local function="${FUNCNAME[1]}" short long arguments=()
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Get argument value from argument list" \
@@ -386,7 +359,7 @@ function ez_arg_get {
         local item; for item in "${arguments[@]}"; do
             if [[ "${item}" = "${short}" ]] || [[ "${item}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ez_arg_exclude_check "${function}" "${item}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ez.argument.exclude_check "${function}" "${item}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 echo "${EZ_TRUE}"; return 0
             fi
@@ -397,7 +370,7 @@ function ez_arg_get {
             local argument_name="${arguments[${i}]}" argument_value="${arguments[$((i+1))]}"
             if [[ "${argument_name}" = "${short}" ]] || [[ "${argument_name}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ez_arg_exclude_check "${function}" "${argument_name}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ez.argument.exclude_check "${function}" "${argument_name}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 if [[ -n "${argument_choices}" ]]; then
                     declare -A choice_set
@@ -458,14 +431,14 @@ function ez_arg_get {
         local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
             if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
-                    ez_arg_exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
+                    ez.argument.exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
                 local output=""; local count=0
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument identifier or end of line
-                    ez.array.includes "${arguments[${index}]}" $(ez_function_get_short_arguments "${function}") && break
-                    ez.array.includes "${arguments[${index}]}" $(ez_function_get_long_arguments "${function}") && break
+                    ez.array.includes "${arguments[${index}]}" $(ez.function.arguments.get_short "${function}") && break
+                    ez.array.includes "${arguments[${index}]}" $(ez.function.arguments.get_long "${function}") && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done

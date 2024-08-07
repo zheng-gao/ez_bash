@@ -6,23 +6,23 @@ source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
 source "${EZ_BASH_HOME}/src/core/function.sh" || exit 1
 
 function registered_function {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-r" --long "--required-arg" --required &&
-        ez_arg_set --short "-d" --long "--default-arg" --default "A default string" &&
-        ez_arg_set --short "-c" --long "--choices-arg" --choices "Choice 1" "Choice 2" "Choice 3" &&
-        ez_arg_set --short "-f" --long "--flag-arg" --type "Flag" &&
-        ez_arg_set --short "-l" --long "--list-arg" --type "List" --default "Def 1" "Def 2" "Def 3" &&
-        ez_arg_set --short "-b" --long "--buy-arg" --exclude "order" &&
-        ez_arg_set --short "-s" --long "--sell-arg" --exclude "order" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-r" --long "--required-arg" --required &&
+        ez.argument.set --short "-d" --long "--default-arg" --default "A default string" &&
+        ez.argument.set --short "-c" --long "--choices-arg" --choices "Choice 1" "Choice 2" "Choice 3" &&
+        ez.argument.set --short "-f" --long "--flag-arg" --type "Flag" &&
+        ez.argument.set --short "-l" --long "--list-arg" --type "List" --default "Def 1" "Def 2" "Def 3" &&
+        ez.argument.set --short "-b" --long "--buy-arg" --exclude "order" &&
+        ez.argument.set --short "-s" --long "--sell-arg" --exclude "order" || return 1
     fi
-    [[ -n "${@}" ]] && ez_function_usage "${@}" && return
-    local required_arg && required_arg="$(ez_arg_get --short "-r" --long "--required-arg" --arguments "${@}")" &&
-    local default_arg && default_arg="$(ez_arg_get --short "-d" --long "--default-arg" --arguments "${@}")" &&
-    local choices_arg && choices_arg="$(ez_arg_get --short "-c" --long "--choices-arg" --arguments "${@}")" &&
-    local flag_arg && flag_arg="$(ez_arg_get --short "-f" --long "--flag-arg" --arguments "${@}")" &&
-    local list_arg && list_arg="$(ez_arg_get --short "-l" --long "--list-arg" --arguments "${@}")" &&
-    local buy_arg && buy_arg="$(ez_arg_get --short "-b" --long "--buy-arg" --arguments "${@}")" &&
-    local sell_arg && sell_arg="$(ez_arg_get --short "-s" --long "--sell-arg" --arguments "${@}")" || return 1
+    [[ -n "${@}" ]] && ez.function.help "${@}" && return
+    local required_arg && required_arg="$(ez.argument.get --short "-r" --long "--required-arg" --arguments "${@}")" &&
+    local default_arg && default_arg="$(ez.argument.get --short "-d" --long "--default-arg" --arguments "${@}")" &&
+    local choices_arg && choices_arg="$(ez.argument.get --short "-c" --long "--choices-arg" --arguments "${@}")" &&
+    local flag_arg && flag_arg="$(ez.argument.get --short "-f" --long "--flag-arg" --arguments "${@}")" &&
+    local list_arg && list_arg="$(ez.argument.get --short "-l" --long "--list-arg" --arguments "${@}")" &&
+    local buy_arg && buy_arg="$(ez.argument.get --short "-b" --long "--buy-arg" --arguments "${@}")" &&
+    local sell_arg && sell_arg="$(ez.argument.get --short "-s" --long "--sell-arg" --arguments "${@}")" || return 1
     echo "default_arg: ${default_arg}"
     echo "flag_arg: ${flag_arg}"
     echo "list_arg: ${list_arg}"

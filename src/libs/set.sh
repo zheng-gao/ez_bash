@@ -1,20 +1,20 @@
 function ez_set_operation {
-    if ez_function_unregistered; then
+    if ez.function.is_unregistered; then
         local valid_operation=("Intersection" "Union" "LeftOnly" "RightOnly")
-        ez_arg_set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
-        ez_arg_set --short "-l" --long "--left" --type "List" --info "Left Set: Item_l1 Item_l2 ..." &&
-        ez_arg_set --short "-L" --long "--left-from-file" --info "File Path" &&
-        ez_arg_set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." &&
-        ez_arg_set --short "-R" --long "--right-from-file" --info "File Path"
-        ez_arg_set --short "-s" --long "--summary" --type "Flag" --info "Show summary at the end" || return 1
+        ez.argument.set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
+        ez.argument.set --short "-l" --long "--left" --type "List" --info "Left Set: Item_l1 Item_l2 ..." &&
+        ez.argument.set --short "-L" --long "--left-from-file" --info "File Path" &&
+        ez.argument.set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." &&
+        ez.argument.set --short "-R" --long "--right-from-file" --info "File Path"
+        ez.argument.set --short "-s" --long "--summary" --type "Flag" --info "Show summary at the end" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
-    local left && ez_function_get_list "left" "$(ez_arg_get --short "-l" --long "--left" --arguments "${@}")" &&
-    local right && ez_function_get_list "right" "$(ez_arg_get --short "-r" --long "--right" --arguments "${@}")" &&
-    local left_path && left_path="$(ez_arg_get --short "-L" --long "--left-from-file" --arguments "${@}")" &&
-    local right_path && right_path="$(ez_arg_get --short "-R" --long "--right-from-file" --arguments "${@}")" &&
-    local summary && summary="$(ez_arg_get --short "-s" --long "--summary" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" &&
+    local left && ez.function.arguments.get_list "left" "$(ez.argument.get --short "-l" --long "--left" --arguments "${@}")" &&
+    local right && ez.function.arguments.get_list "right" "$(ez.argument.get --short "-r" --long "--right" --arguments "${@}")" &&
+    local left_path && left_path="$(ez.argument.get --short "-L" --long "--left-from-file" --arguments "${@}")" &&
+    local right_path && right_path="$(ez.argument.get --short "-R" --long "--right-from-file" --arguments "${@}")" &&
+    local summary && summary="$(ez.argument.get --short "-s" --long "--summary" --arguments "${@}")" || return 1
     declare -A left_set
     declare -A right_set
     declare -A result_set
@@ -49,15 +49,15 @@ function ez_set_operation {
 }
 
 function ez_set_contains {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
-        ez_arg_set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
-        ez_arg_set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
+        ez.argument.set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
+        ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local superset && ez_function_get_list "superset" "$(ez_arg_get --short "-sp" --long "--superset" --arguments "${@}")" &&
-    local subset && ez_function_get_list "subset" "$(ez_arg_get --short "-sb" --long "--subset" --arguments "${@}")" &&
-    local verbose && verbose="$(ez_arg_get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local superset && ez.function.arguments.get_list "superset" "$(ez.argument.get --short "-sp" --long "--superset" --arguments "${@}")" &&
+    local subset && ez.function.arguments.get_list "subset" "$(ez.argument.get --short "-sb" --long "--subset" --arguments "${@}")" &&
+    local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
     declare -A sp_set; declare -A sb_set; local item
     for item in "${superset[@]}"; do sp_set["${item}"]=0; done
     for item in "${subset[@]}"; do sb_set["${item}"]=0; done

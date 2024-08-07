@@ -1,6 +1,6 @@
-### ez_calculate
+### ez.calculate
 ```shell
-$ ez_calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
+$ ez.calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
 4.000
 ```
 

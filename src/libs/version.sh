@@ -28,22 +28,22 @@ function ez_version_compare {
 }
 
 function ez_version_compare_2 {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
                     --info "Must quote operation \">\" and \">=\"" &&
-        ez_arg_set --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
-        ez_arg_set --short "-l" --long "--left-version" --required --info "The version on left side" &&
-        ez_arg_set --short "-r" --long "--right-version" --required --info "The version on right side" &&
-        ez_arg_set --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" &&
-        ez_arg_set --short "-p" --long "--print" --type "Flag" --info "Print boolean result" || return 1
+        ez.argument.set --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
+        ez.argument.set --short "-l" --long "--left-version" --required --info "The version on left side" &&
+        ez.argument.set --short "-r" --long "--right-version" --required --info "The version on right side" &&
+        ez.argument.set --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" &&
+        ez.argument.set --short "-p" --long "--print" --type "Flag" --info "Print boolean result" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" &&
-    local delimiter && delimiter="$(ez_arg_get --short "-d" --long "--delimiter" --arguments "${@}")" &&
-    local left_version && left_version="$(ez_arg_get --short "-l" --long "--left-version" --arguments "${@}")" &&
-    local right_version && right_version="$(ez_arg_get --short "-r" --long "--right-version" --arguments "${@}")" &&
-    local check_length && check_length="$(ez_arg_get --short '-c' --long "--check-length" --arguments "${@}")" &&
-    local print && print="$(ez_arg_get --short '-p' --long "--print" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" &&
+    local delimiter && delimiter="$(ez.argument.get --short "-d" --long "--delimiter" --arguments "${@}")" &&
+    local left_version && left_version="$(ez.argument.get --short "-l" --long "--left-version" --arguments "${@}")" &&
+    local right_version && right_version="$(ez.argument.get --short "-r" --long "--right-version" --arguments "${@}")" &&
+    local check_length && check_length="$(ez.argument.get --short '-c' --long "--check-length" --arguments "${@}")" &&
+    local print && print="$(ez.argument.get --short '-p' --long "--print" --arguments "${@}")" || return 1
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
     if ez_is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then

@@ -54,13 +54,13 @@ function ez_git_flow {
 }
 
 function ez_git_push_in_batches {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
-        ez_arg_set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
+        ez.argument.set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local batch_size && batch_size="$(ez_arg_get --short "-b" --long "--batch-size" --arguments "${@}")" &&
-    local remote && remote="$(ez_arg_get --short "-r" --long "--remote" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local batch_size && batch_size="$(ez.argument.get --short "-b" --long "--batch-size" --arguments "${@}")" &&
+    local remote && remote="$(ez.argument.get --short "-r" --long "--remote" --arguments "${@}")" || return 1
     local branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
     local number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
     local git_command=""
@@ -97,14 +97,14 @@ function ez_git_push_in_batches {
 }
 
 function ez_git_commit_stats {
-    if ez_function_unregistered; then
+    if ez.function.is_unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
-        ez_arg_set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
-        ez_arg_set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
+        ez.argument.set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
+        ez.argument.set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local time_format && time_format="$(ez_arg_get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local repo_path && repo_path="$(ez.argument.get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local time_format && time_format="$(ez.argument.get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
     [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
@@ -114,14 +114,14 @@ function ez_git_commit_stats {
 
 
 function ez_git_file_stats {
-    if ez_function_unregistered; then
+    if ez.function.is_unregistered; then
         local valid_operations=("${EZ_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
-        ez_arg_set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
-        ez_arg_set --short "-o" --long "--operation" --default "${EZ_ALL}" --choices "${valid_operations[@]}" || return 1
+        ez.argument.set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
+        ez.argument.set --short "-o" --long "--operation" --default "${EZ_ALL}" --choices "${valid_operations[@]}" || return 1
     fi
-    ez_function_usage --run-with-no-argument "${@}" && return
-    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
+    ez.function.help --run-with-no-argument "${@}" && return
+    local repo_path && repo_path="$(ez.argument.get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git --git-dir "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
@@ -148,13 +148,13 @@ function ez_git_file_stats {
 }
 
 function ez_git_remove_file_from_history {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
-        ez_arg_set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ez.argument.set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local file_path && file_path="$(ez_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local repo_path && repo_path="$(ez.argument.get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local file_path && file_path="$(ez.argument.get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
     ez.log.info "Removing ${file_path}"
@@ -162,13 +162,13 @@ function ez_git_remove_file_from_history {
 }
 
 function ez_git_find_large_blobs() {
-    if ez_function_unregistered; then
-        ez_arg_set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
-        ez_arg_set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
+        ez.argument.set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
     fi
-    ez_function_usage "${@}" && return
-    local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
-    local min_bytes && min_bytes="$(ez_arg_get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
+    ez.function.help "${@}" && return
+    local repo_path && repo_path="$(ez.argument.get --short "-r" --long "--repo-path" --arguments "${@}")" &&
+    local min_bytes && min_bytes="$(ez.argument.get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
     [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
     local line first_line=true
