@@ -7,9 +7,9 @@ function ez_version_extract_digit {
 
 function ez_version_compare {
     local valid_comparators=("<" ">" "<=" ">=" "=") result
-    [[ -z "${1}" ]] && ez_log_error "Invalid left version '${1}'" && return 255
-    [[ -z "${3}" ]] && ez_log_error "Invalid right version '${3}'" && return 255
-    ez_contains "${2}" "${valid_comparators[@]}" || { ez_log_error "Invalid comparator '${2}'" && return 255; }
+    [[ -z "${1}" ]] && ez.log.error "Invalid left version '${1}'" && return 255
+    [[ -z "${3}" ]] && ez.log.error "Invalid right version '${3}'" && return 255
+    ez_contains "${2}" "${valid_comparators[@]}" || { ez.log.error "Invalid comparator '${2}'" && return 255; }
     local l_major="$(ez_version_extract_digit ${1} 1)" r_major="$(ez_version_extract_digit ${3} 1)"
     local l_minor="$(ez_version_extract_digit ${1} 2)" r_minor="$(ez_version_extract_digit ${3} 2)"
     local l_patch="$(ez_version_extract_digit ${1} 3)" r_patch="$(ez_version_extract_digit ${3} 3)"
@@ -47,7 +47,7 @@ function ez_version_compare_2 {
     local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
     local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
     if ez_is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
-    	ez_log_error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
+    	ez.log.error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi
     local state=0; local i=0; while [[ "${i}" -lt "${left_length}" ]] && [[ "${i}" -lt "${right_length}" ]]; do
         ((state = ${left_version_list[${i}]} - ${right_version_list[${i}]})); [[ "${state}" -ne 0 ]] && break; ((++i))

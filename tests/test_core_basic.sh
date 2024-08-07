@@ -9,27 +9,27 @@ source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
 ###################################################################################################
 TEST_FAILURE=0
 
-function test_ez_lower {
+function test_ez.string.lower {
     local expect='aa1bb2cc(%@#&!$+-*/=.?"^{}|~)'
-    local result="$(ez_lower 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
+    local result="$(ez.string.lower 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_upper {
+function test_ez.string.upper {
     local expect='AA1BB2CC(%@#&!$+-*/=.?"^{}|~)'
-    local result="$(ez_upper 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
+    local result="$(ez.string.upper 'aA1Bb2cC(%@#&!$+-*/=.?"^{}|~)')"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_today {
+function test_ez.time.today {
     local expect="$(date '+%F')"
-    local result="$(ez_today)"
+    local result="$(ez.time.today)"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_now {
+function test_ez.time.now {
     local expect="$(date '+%F %T %Z')"
-    local result="$(ez_now)"
+    local result="$(ez.time.now)"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -45,25 +45,25 @@ function test_ez_double_quote {
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_join {
+function test_ez.join {
     local expect="abc-,123-,-,XYZ"
-    local result="$(ez_join "-," "abc" "123" "" "XYZ")"
+    local result="$(ez.join "-," "abc" "123" "" "XYZ")"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_includes {
+function test_ez.includes {
     local result
-    ez_includes "123" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.includes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
-    ez_includes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.includes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "False" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_excludes {
+function test_ez.excludes {
     local result
-    ez_excludes "123" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.excludes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "False" "${result}" || ((++TEST_FAILURE))
-    ez_excludes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.excludes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -73,48 +73,48 @@ function test_ez_count_items {
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez_split {
+function test_ez.string.split {
     local expect=("abc" "123" "" "XYZ" ".") result
-    ez_split "result" "," "abc,123,,XYZ,."
+    ez.string.split "result" "," "abc,123,,XYZ,."
     local i; for ((i=0; i<${#expect[@]}; ++i)); do
         ez_expect_result "${expect[${i}]}" "${result[${i}]}" || ((++TEST_FAILURE))
     done
 }
 
-function test_ez_array_delete_item {
+function test_ez.array.delete_item {
     local array=("one" "two" "three" "four" "five")
     local expect=("two" "four")
-    ez_array_delete_item array "three"
-    ez_array_delete_item array "five"
-    ez_array_delete_item array "one"
+    ez.array.delete_item array "three"
+    ez.array.delete_item array "five"
+    ez.array.delete_item array "one"
     local i; for ((i=0; i<${#expect[@]}; ++i)); do
         ez_expect_result "${expect[${i}]}" "${array[${i}]}" || ((++TEST_FAILURE))
     done
 }
 
-function test_ez_array_delete_index {
+function test_ez.array.delete_index {
     local array=("one" "two" "three" "four" "five")
     local expect=("two" "four")
-    ez_array_delete_item array 2
-    ez_array_delete_item array -1
-    ez_array_delete_item array 0
+    ez.array.delete_item array 2
+    ez.array.delete_item array -1
+    ez.array.delete_item array 0
     local i; for ((i=0; i<${#expect[@]}; ++i)); do
         ez_expect_result "${expect[${i}]}" "${array[${i}]}" || ((++TEST_FAILURE))
     done
 }
 
-test_ez_lower
-test_ez_upper
-test_ez_today
-test_ez_now
+test_ez.string.lower
+test_ez.string.upper
+test_ez.time.today
+test_ez.time.now
 test_ez_quote
 test_ez_double_quote
-test_ez_join
-test_ez_includes
-test_ez_excludes
+test_ez.join
+test_ez.includes
+test_ez.excludes
 test_ez_count_items
-test_ez_split
-test_ez_array_delete_item
+test_ez.string.split
+test_ez.array.delete_item
 
 exit "${TEST_FAILURE}"
 

@@ -24,8 +24,8 @@ source "${EZ_BASH_HOME}/ez.sh" --skip "lib1" "lib2"        # Import ALL librarie
 #### 4. Show Commands
 ```shell
 ez_show_pipeables
-ez_show_variables
-ez_show_functions
+ez.self.variables
+ez.self.functions
 ```
 
 # Contents

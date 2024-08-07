@@ -15,6 +15,26 @@ EZ_SSH_OPTIONS=(
     "-o" "PasswordAuthentication=no"
 )
 
+function ez_md5 {
+    if [[ "$(uname -s)" = "Darwin" ]]; then
+        if ! hash "md5"; then ez.log.error "Not found \"md5\", please run \"brew install md5\""
+        else echo "md5 -q"; fi
+    else  # Linux
+        if ! hash "md5sum"; then ez.log.error "Not found \"md5sum\", please run \"yum install md5sum\""
+        else echo "md5sum"; fi
+    fi
+}
+
+function ez_timeout {
+    if [[ "$(uname -s)" = "Darwin" ]]; then
+        if ! which "gtimeout" > "/dev/null"; then ez.log.error "Not found \"gtimeout\", please run \"brew install coreutils\""
+        else echo "gtimeout"; fi
+    else  # Linux
+        if ! which "timeout" > "/dev/null"; then ez.log.error "Not found \"timeout\", please run \"yum install timeout\""
+        else echo "timeout"; fi # Should be installed by default
+    fi
+}
+
 function ez_ssh_oneliner {
     if ez_function_unregistered; then
         ez_arg_set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
@@ -156,7 +176,7 @@ function ez_mssh_cmd {
         echo "Timeout (${timeout_count}): ${results["Timeout"]}"
         echo "Failure (${failure_count}): ${results["Failure"]}"
         echo "Success (${success_count}): ${results["Success"]}"; echo
-        [[ "${failure_count}" -gt 0 ]] && ez_log_info "Please check \"${data_dir}\" for details"
+        [[ "${failure_count}" -gt 0 ]] && ez.log.info "Please check \"${data_dir}\" for details"
     fi
 }
 
@@ -211,10 +231,10 @@ EOF
     [[ -n "${output}" ]] && sed -n "${start_line},${end_line}p" "${data_file}" > "${output}"
     local status_string=$(grep "${status_banner}" "${data_file}" | grep -v "echo") # get the $?
     if [[ "${status_string}" != "${status_banner}0${status_banner}"* ]]; then
-        ez_is_true "${status}" && ez_log_error "Remote command failed, please check \"${data_file}\" for details"
+        ez_is_true "${status}" && ez.log.error "Remote command failed, please check \"${data_file}\" for details"
         return 1
     else
-        ez_is_true "${status}" && ez_log_info "Remote command complete!"
+        ez_is_true "${status}" && ez.log.info "Remote command complete!"
         rm -f "${data_file}"
         return 0
     fi

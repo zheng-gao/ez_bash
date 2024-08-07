@@ -59,50 +59,8 @@ unset EZ_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZ_S_ARG_TO_EXCLUD
 ###################################################################################################
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
-function ez_show_registered_functions {
+function ez.function.show_registered {
     local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done
-}
-
-function ez_log {
-    local valid_output_to=("Console" "File" "${EZ_ALL}") arg_list=("-l" "--logger" "-f" "--file" "-s" "--stack" "-m" "--message" "-o" "--output-to")
-    local logger="INFO" file="" message=() stack=1 output_to="Console"
-    [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Print log to file in \"EZ-BASH\" standard log format" \
-        -a "-l|--logger" -t "String" -d "${logger}" -c "" -i "Logger type" \
-        -a "-f|--file" -t "String" -d "${file}" -c "" -i "Path to the log file" \
-        -a "-s|--stack" -t "Integer" -d "${stack}" -c "" -i "Hide top x function from stack" \
-        -a "-m|--message" -t "List" -d "[$(ez_join ", " "${message[@]}")]" -c "" -i "The message to print" \
-        -a "-o|--output-to" -t "List" -d "Console" -c "[$(ez_join ", " "${valid_output_to[@]}")]" -i "" && return 0
-    while [[ -n "${1}" ]]; do
-        case "${1}" in
-            "-l" | "--logger") shift; logger="${1}"; shift ;;
-            "-f" | "--file") shift; file="${1}"; shift ;;
-            "-o" | "--output-to") shift; output_to="${1}"; shift ;;
-            "-s" | "--stack") shift; stack="${1}"; shift ;;
-            "-m" | "--message") shift; while [[ -n "${1}" ]] && ez_excludes "${1}" "${arg_list[@]}"; do message+=(${1}); shift; done ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
-        esac
-    done
-    if ez_excludes "${output_to}" "${valid_output_to[@]}"; then
-        ez_log_error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez_join ', ' ${valid_output_to[@]})]"
-        return 2
-    fi
-    if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
-        if [[ "$(ez_lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format ForegroundRed ${logger})]$(ez_log_stack ${stack}) ${message[@]}")
-        elif [[ "$(ez_lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ez_now)][${EZ_LOGO}][$(ez_string_format ForegroundYellow ${logger})]$(ez_log_stack ${stack}) ${message[@]}"
-        else
-            echo -e "[$(ez_now)][${EZ_LOGO}][${logger}]$(ez_log_stack ${stack}) ${message[@]}"
-        fi
-    fi
-    if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
-        [[ -z "${file}" ]] && file="${EZ_DEFAULT_LOG}"
-        # Make sure the log_file exists and you have the write permission
-        [[ ! -e "${file}" ]] && touch "${file}"
-        [[ ! -f "${file}" ]] && ez_log_error "Log File \"${file}\" not exist" && return 3
-        [[ ! -w "${file}" ]] && ez_log_error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ez_now)][${EZ_LOGO}][${logger}]$(ez_log_stack ${stack}) ${message[@]}" >> "${file}"
-    fi
 }
 
 ###################################################################################################
@@ -118,7 +76,7 @@ function ez_function_get_long_arguments {
 
 function ez_function_get_list {
     local -n ez_function_get_list_arg_reference="${1}"
-    ez_split "ez_function_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
+    ez.string.split "ez_function_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
 }
 
 function ez_function_unregistered {
@@ -130,7 +88,7 @@ function ez_function_unregistered {
 
 function ez_function_check_help_keyword {
     [[ -z "${1}" ]] && return 0 # Print help info if no argument given
-    ez_excludes "${EZ_FUNC_HELP}" "${@}" && return 1 || return 0
+    ez.excludes "${EZ_FUNC_HELP}" "${@}" && return 1 || return 0
 }
 
 function ez_function_print_help {
@@ -140,15 +98,15 @@ function ez_function_print_help {
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-f" | "--function") shift; function=${1}; [[ -n "${1}" ]] && shift ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+            *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
     [[ -z "${function}" ]] && function="${FUNCNAME[1]}"
-    [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez.log.error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}" indent="    "
     echo; echo "${indent}[Function Name] \"${function}\""; echo
     {
-        echo "${indent}$(ez_join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
+        echo "${indent}$(ez.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
         local short; for short in $(ez_function_get_short_arguments "${function}"); do
             key="${function}${delimiter}${short}"
@@ -161,7 +119,7 @@ function ez_function_print_help {
             default="${EZ_S_ARG_TO_DEFAULT_MAP["${key}"]}"
             [[ -z "${default}" ]] && default="${EZ_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_NONE}"
-            echo "${indent}$(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
+            echo "${indent}$(ez.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
         done
         local long; for long in $(ez_function_get_long_arguments "${function}"); do
             key="${function}${delimiter}${long}"
@@ -176,7 +134,7 @@ function ez_function_print_help {
             info="${EZ_L_ARG_TO_INFO_MAP["${key}"]}"; [[ -z "${info}" ]] && info="${EZ_NONE}"
             if [[ -z "${short}" ]]; then
                 short="${EZ_NONE}"
-                echo "${indent}$(ez_join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
+                echo "${indent}$(ez.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
             fi
         done
     } | column -t -s "${delimiter}"; echo
@@ -192,13 +150,13 @@ function ez_arg_set {
     local function="${FUNCNAME[1]}" short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_FALSE}" default=() choices=()
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Register Function Argument" \
         -a "-f|--function" -t "String" -d "${function}" -c "" -i "Target Function Name" \
-        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez_join ", " ${!EZ_ARG_TYPE_SET[@]})]" -i "Function Argument Type" \
+        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez.join ", " ${!EZ_ARG_TYPE_SET[@]})]" -i "Function Argument Type" \
         -a "-s|--short" -t "String" -d "${short}" -c "" -i "Short Argument Identifier" \
         -a "-l|--long" -t "String" -d "${long}" -c "" -i "Long Argument Identifier" \
         -a "-e|--exclude" -t "String" -d "${exclude}" -c "" -i "Mutually Exclusive Group ID" \
         -a "-i|--info" -t "String" -d "${info}" -c "" -i "Argument Description" \
-        -a "-d|--default" -t "List" -d "[$(ez_join ", " ${default[@]})]" -c "" -i "Argument Default Value" \
-        -a "-c|--choices" -t "List" -d "[$(ez_join ", " ${choices[@]})]" -c "" -i "Argument Value Choices" \
+        -a "-d|--default" -t "List" -d "[$(ez.join ", " ${default[@]})]" -c "" -i "Argument Default Value" \
+        -a "-c|--choices" -t "List" -d "[$(ez.join ", " ${choices[@]})]" -c "" -i "Argument Value Choices" \
         -a "-r|--required" -t "Flag" -d "" -c "" -i "Required Argument" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
@@ -211,19 +169,19 @@ function ez_arg_set {
             "-r" | "--required") shift; required="${EZ_TRUE}" ;;
             "-d" | "--default") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_ez_arg_set["${1}"]}" ]] && break; default+=("${1}"); shift; done ;;
             "-c" | "--choices") shift; while [[ -n "${1}" ]]; do [[ -n "${ARG_SET_OF_ez_arg_set["${1}"]}" ]] && break; choices+=("${1}"); shift; done ;;
-            *) ez_log_error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+            *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
-    [[ -z "${short}" ]] && [[ -z "${long}" ]] && ez_log_error "\"-s|--short\" and \"-l|--long\" are None" && return 1
+    [[ -z "${short}" ]] && [[ -z "${long}" ]] && ez.log.error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [[ -z "${EZ_ARG_TYPE_SET[${type}]}" ]]; then
-        ez_log_error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez_join ', ' ${!EZ_ARG_TYPE_SET[@]})]"
+        ez.log.error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez.join ', ' ${!EZ_ARG_TYPE_SET[@]})]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
     [[ "${short}" = "${EZ_FUNC_HELP}" ]] &&
-        ez_log_error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
+        ez.log.error "Invalid short argument \"${short}\", which is an EZ-BASH reserved keyword" && return 2
     [[ "${long}" = "${EZ_FUNC_HELP}" ]] &&
-        ez_log_error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
+        ez.log.error "Invalid long argument \"${long}\", which is an EZ-BASH reserved keyword" && return 2
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}"
     # If the key has already been registered, then skip
     if [[ -n "${short}" ]] && [[ -n "${long}" ]]; then
@@ -243,8 +201,8 @@ function ez_arg_set {
         EZ_S_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_S_ARG_TO_EXCLUDE_MAP["${key}"]="${exclude}"
         EZ_S_ARG_TO_INFO_MAP["${key}"]="${info}"
-        EZ_S_ARG_TO_DEFAULT_MAP["${key}"]="$(ez_join "${delimiter}" "${default[@]}")"
-        EZ_S_ARG_TO_CHOICES_MAP["${key}"]="$(ez_join "${delimiter}" "${choices[@]}")"
+        EZ_S_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.join "${delimiter}" "${default[@]}")"
+        EZ_S_ARG_TO_CHOICES_MAP["${key}"]="$(ez.join "${delimiter}" "${choices[@]}")"
     else
         key="${function}${delimiter}${long}"; local short_old="${EZ_L_ARG_TO_S_ARG_MAP[${key}]}"
         if [ -n "${short_old}" ]; then
@@ -278,8 +236,8 @@ function ez_arg_set {
         EZ_L_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_L_ARG_TO_EXCLUDE_MAP["${key}"]="${exclude}"
         EZ_L_ARG_TO_INFO_MAP["${key}"]="${info}"
-        EZ_L_ARG_TO_DEFAULT_MAP["${key}"]="$(ez_join "${delimiter}" "${default[@]}")"
-        EZ_L_ARG_TO_CHOICES_MAP["${key}"]="$(ez_join "${delimiter}" "${choices[@]}")"
+        EZ_L_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.join "${delimiter}" "${default[@]}")"
+        EZ_L_ARG_TO_CHOICES_MAP["${key}"]="$(ez.join "${delimiter}" "${choices[@]}")"
     else
         key="${function}${delimiter}${short}"; local long_old="${EZ_S_ARG_TO_L_ARG_MAP[${key}]}"
         if [[ -n "${long_old}" ]]; then
@@ -322,7 +280,7 @@ function ez_arg_exclude_check {
     done
     for x_arg in "${arguments[@]}"; do
         if [[ -n "${x_arg}" ]] && [[ "${x_arg}" != "${arg_name}" ]] && [[ -n "${exclude_set[${x_arg}]}" ]]; then
-            ez_log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive in group: ${exclude}"
+            ez.log --stack "2" --logger "ERROR" --message "\"${arg_name}\" and \"${x_arg}\" are mutually exclusive in group: ${exclude}"
             return 1
         fi
     done
@@ -335,7 +293,7 @@ function ez_arg_get {
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Get argument value from argument list" \
         -a "-s|--short" -t "String" -d "${short}" -c "" -i "The name of the argument short identifier" \
         -a "-l|--long" -t "String" -d "${long}" -c "" -i "The name of the argument long identifier" \
-        -a "-a|--arguments" -t "List" -d "[$(ez_join ", " "${arguments[@]}")]" -c "" -i "Argument list of the target function" && {
+        -a "-a|--arguments" -t "List" -d "[$(ez.join ", " "${arguments[@]}")]" -c "" -i "Argument list of the target function" && {
         echo "    [Notes]"
         echo "        Can only be called by another function"
         echo "        The arguments to process must be at the end of this function's argument list"
@@ -343,51 +301,51 @@ function ez_arg_get {
         echo "        ${FUNCNAME[0]} -s|--short \${SHORT_ARG} -l|--long \${LONG_ARG} -a|--arguments \"\${@}\""
         echo
     } && return 0
-    [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez_log_error "Function \"${function}\" NOT registered" && return 2
+    [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez.log.error "Function \"${function}\" NOT registered" && return 2
     if [ "${1}" = "-s" -o "${1}" = "--short" ]; then short="${2}"
         if [ "${3}" = "-l" -o "${3}" = "--long" ]; then long="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+                ez.log.error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
+                ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
-            ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+            ez.log.error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
+            ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
         fi
     elif [ "${1}" = "-l" -o "${1}" = "--long" ]; then long="${2}"
         if [ "${3}" = "-s" -o "${3}" = "--short" ]; then short="${4}"
             if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
             else
-                ez_log_error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
-                ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+                ez.log.error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
+                ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
             fi
         elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
         else
-            ez_log_error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
-            ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+            ez.log.error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
+            ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
         fi
     else
-        ez_log_error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
-        ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+        ez.log.error "Invalid argument identifier \"${1}\", expected \"-s|--short\" or \"-l|--long\""
+        ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
     fi
     if [[ -z "${short}" ]] && [[ -z "${long}" ]]; then
-        ez_log_error "Not found \"-s|--short\" or \"-l|--long\""
-        ez_log_error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
+        ez.log.error "Not found \"-s|--short\" or \"-l|--long\""
+        ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
     fi
     local short_key long_key
     if [[ -n "${short}" ]]; then
         short_key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${short}"
         if [[ -z "${EZ_S_ARG_SET[${short_key}]}" ]]; then
-            ez_log_error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
+            ez.log.error "\"${short}\" has NOT been registered as short identifier for function \"${function}\""
             return 2
         fi
     fi
     if [[ -n "${long}" ]]; then
         long_key="${function}${EZ_CHAR_NON_SPACE_DELIMITER}${long}"
         if [[ -z "${EZ_L_ARG_SET[${long_key}]}" ]]; then
-            ez_log_error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
+            ez.log.error "\"${long}\" has NOT been registered as long identifier for function \"${function}\""
             return 2
         fi
     fi
@@ -397,9 +355,9 @@ function ez_arg_get {
         [[ "${EZ_L_ARG_TO_S_ARG_MAP[${long_key}]}" = "${short}" ]] && ((++match_count))
         [[ "${EZ_S_ARG_TO_L_ARG_MAP[${short_key}]}" = "${long}" ]] && ((++match_count))
         if [[ "${match_count}" -ne 2 ]]; then
-            ez_log_error "The Arg-Short identifier \"${short}\" and the Arg-Long identifier \"${long}\" Not Match"
-            ez_log_error "Expected: Arg-Short \"${short}\" -> Arg-Long \"${EZ_S_ARG_TO_L_ARG_MAP[${short_key}]}\""
-            ez_log_error "Expected: Arg-Long \"${long}\" -> Arg-Short \"${EZ_L_ARG_TO_S_ARG_MAP[${long_key}]}\""
+            ez.log.error "The Arg-Short identifier \"${short}\" and the Arg-Long identifier \"${long}\" Not Match"
+            ez.log.error "Expected: Arg-Short \"${short}\" -> Arg-Long \"${EZ_S_ARG_TO_L_ARG_MAP[${short_key}]}\""
+            ez.log.error "Expected: Arg-Long \"${long}\" -> Arg-Short \"${EZ_L_ARG_TO_S_ARG_MAP[${long_key}]}\""
             return 2
         fi
     fi
@@ -420,9 +378,9 @@ function ez_arg_get {
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}"
     if [[ -z "${argument_type}" ]]; then
         [[ -n "${short}" ]] &&
-            ez_log_error "Arg-Type for argument \"${short}\" of function \"${function}\" Not Found" && return 3
+            ez.log.error "Arg-Type for argument \"${short}\" of function \"${function}\" Not Found" && return 3
         [[ -n "${long}" ]] &&
-            ez_log_error "Arg-Type for argument \"${long}\" of function \"${function}\" Not Found" && return 3
+            ez.log.error "Arg-Type for argument \"${long}\" of function \"${function}\" Not Found" && return 3
     fi
     if [[ "${argument_type}" = "Flag" ]]; then
         local item; for item in "${arguments[@]}"; do
@@ -457,7 +415,7 @@ function ez_arg_get {
                     done
                     if [[ -z "${choice_set[${argument_value}]}" ]]; then
                         local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
-                        ez_log_error "Invalid value \"${argument_value}\" for \"${argument_name}\", please choose from [${choices_string}]"
+                        ez.log.error "Invalid value \"${argument_value}\" for \"${argument_name}\", please choose from [${choices_string}]"
                         return 5
                     fi
                 fi
@@ -479,8 +437,8 @@ function ez_arg_get {
                     echo "${ask_for_password}"; return 0
                 fi
             else
-                [[ -n "${short}" ]] && ez_log_error "Argument \"${short}\" is required" && return 6
-                [[ -n "${long}" ]] && ez_log_error "Argument \"${long}\" is required" && return 6
+                [[ -n "${short}" ]] && ez.log.error "Argument \"${short}\" is required" && return 6
+                [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
             fi
         fi
         # Not Found, Use Default, Only print the first item in the default list
@@ -506,22 +464,22 @@ function ez_arg_get {
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument identifier or end of line
-                    ez_includes "${arguments[${index}]}" $(ez_function_get_short_arguments "${function}") && break
-                    ez_includes "${arguments[${index}]}" $(ez_function_get_long_arguments "${function}") && break
+                    ez.includes "${arguments[${index}]}" $(ez_function_get_short_arguments "${function}") && break
+                    ez.includes "${arguments[${index}]}" $(ez_function_get_long_arguments "${function}") && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done
-                # [To Do] Return list directly: ez_split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${output}"
+                # [To Do] Return list directly: ez.string.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${output}"
                 echo "${output}"; return
             fi
         done
         # Required but not found and no default
         if [[ -z "${argument_default}" ]] && ez_is_true "${argument_required}"; then
-            [[ -n "${short}" ]] && ez_log_error "Argument \"${short}\" is required" && return 6
-            [[ -n "${long}" ]] && ez_log_error "Argument \"${long}\" is required" && return 6
+            [[ -n "${short}" ]] && ez.log.error "Argument \"${short}\" is required" && return 6
+            [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
         fi
         # Not Found, Use Default
-        # [To Do] Return list directly: ez_split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
+        # [To Do] Return list directly: ez.string.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
         echo "${argument_default}"
     fi
 }

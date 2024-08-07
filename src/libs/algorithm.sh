@@ -17,7 +17,7 @@ function ez_sort {
     local number && number="$(ez_arg_get --short "-n" --long "--number" --arguments "${@}")" &&
     local reverse && reverse="$(ez_arg_get --short "-r" --long "--reverse" --arguments "${@}")" || return 1
     local ez_sort_data_list; ez_function_get_list "ez_sort_data_list" "${data}"
-    if [[ "${#ez_sort_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#ez_sort_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     local item
     if ez_is_true "${number}" && ez_is_true "${reverse}"; then
         { for item in "${ez_sort_data_list[@]}"; do echo "${item}"; done } | sort -n -r

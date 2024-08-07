@@ -24,7 +24,7 @@ function ez_string_repeat {
     ez_function_usage "${@}" && return
     local string && string="$(ez_arg_get --short "-s" --long "--string" --arguments "${@}")" &&
     local count && count="$(ez_arg_get --short "-c" --long "--count" --arguments "${@}")" || return 1
-    [[ "${count}" -lt 0 ]] && ez_log_error "Invalid Count \"${count}\"" && return 1
+    [[ "${count}" -lt 0 ]] && ez.log.error "Invalid Count \"${count}\"" && return 1
     local line index=0; for ((; "${index}" < "${count}"; ++index)); do line+="${string}"; done; echo "${line}"
 }
 
@@ -112,6 +112,6 @@ function ez_banner {
     local message && message="$(ez_arg_get --short "-m" --long "--message" --arguments "${@}")" &&
     local log_prefix && log_prefix="$(ez_arg_get --short "-l" --long "--log-prefix" --arguments "${@}")" || return 1
     local line_spliter=$(ez_string_repeat --string "${string}" --count ${count})
-    if ez_is_true "${log_prefix}"; then ez_log_info "${line_spliter}"; ez_log_info "${message}"; ez_log_info "${line_spliter}"
+    if ez_is_true "${log_prefix}"; then ez.log.info "${line_spliter}"; ez.log.info "${message}"; ez.log.info "${line_spliter}"
     else echo "${line_spliter}"; echo "${message}"; echo "${line_spliter}"; fi
 }

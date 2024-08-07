@@ -39,7 +39,7 @@ function ez_file_string_replace {
         sed "s/${search}/${replacement}/g" "${path}.bak" > "${path}" 
         rm "${path}.bak"
     else
-        ez_log_error "File \"${path}\" not exist"
+        ez.log.error "File \"${path}\" not exist"
     fi
 }
 
@@ -52,12 +52,12 @@ function ez_file_delete_lines {
     local path && path="$(ez_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
     local keywords && ez_function_get_list "keywords" "$(ez_arg_get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_string=$(ez_join "\|" "${keywords[@]}")
+        local exclude_string=$(ez.join "\|" "${keywords[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
         rm "${path}.bak"
     else
-        ez_log_error "File \"${path}\" not exist"
+        ez.log.error "File \"${path}\" not exist"
     fi
 }
 
@@ -78,17 +78,17 @@ function ez_file_get_lines {
         if [[ -n "${ith}" ]]; then
             if [[ "${ith}" -gt 0 ]]; then from="${ith}" && to="${ith}"
             elif [[ "${ith}" -lt 0 ]]; then from=$((to + ith + 1)) && to="${from}"
-            else ez_log_error "\"--i-th\" cannot be \"0\"" && return 2; fi
+            else ez.log.error "\"--i-th\" cannot be \"0\"" && return 2; fi
         fi
         [[ "${from}" -lt 0 ]] && from=$((to + from + 1))
         [[ "${from}" -le 0 ]] && [[ "${to}" -le 0 ]] && return 2 # For ith < -(file_length)
         if [[ "${from}" -gt "${to}" ]]; then
-            ez_log_error "\"--from\" cannot be greater than \"--to\"" && return 2
+            ez.log.error "\"--from\" cannot be greater than \"--to\"" && return 2
         else
             sed -n "${from},${to}p" "${path}"
         fi
     else
-        ez_log_error "File \"${path}\" not exist"
+        ez.log.error "File \"${path}\" not exist"
     fi
 }
 
@@ -101,13 +101,13 @@ function ez_file_descriptor_count {
     local pid && pid="$(ez_arg_get --short "-p" --long "--process-id" --arguments "${@}")" &&
     local name && name="$(ez_arg_get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
     local fd_count=0
-    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez_log_error "Cannot use --pid and --name together" && return 1
-    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez_log_error "Must provide --pid or --name" && return 1
+    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez.log.error "Cannot use --pid and --name together" && return 1
+    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez.log.error "Must provide --pid or --name" && return 1
     elif [[ -z "${pid}" ]]; then
         if [[ "$(uname -s)" = "Linux" ]]; then
             for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
         else
-            ez_log_error "\"--name\" only works on linux" && return 1
+            ez.log.error "\"--name\" only works on linux" && return 1
         fi
     else
         if [[ "${os}" = "linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
@@ -129,7 +129,7 @@ function ez_file_parse_value {
     if [[ -f "${path}" ]]; then
         grep -oE "${key}=\"(\S+)\"" "${path}" | cut -d "\"" -f 2
     else
-        ez_log_error "File \"${path}\" not exist"
+        ez.log.error "File \"${path}\" not exist"
     fi
 }
 
@@ -151,7 +151,7 @@ function ez_file_parse_ip {
             fi
         } | column -s " " -t
     else
-        ez_log_error "File \"${path}\" not exist"
+        ez.log.error "File \"${path}\" not exist"
     fi
 }
 
@@ -167,7 +167,7 @@ function ez_file_parse_between_lines {
     local start && start="$(ez_arg_get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez_arg_get --short "-e" --long "--end" --arguments "${@}")" &&
     local greedy && greedy="$(ez_arg_get --short "-g" --long "--greedy" --arguments "${@}")" || return 1
-    [[ ! -f "${path}" ]] && ez_log_error "File \"${path}\" not exist" && return 1
+    [[ ! -f "${path}" ]] && ez.log.error "File \"${path}\" not exist" && return 1
     if [[ "${greedy}" = "${EZ_TRUE}" ]]; then
         sed -e "1,/${start}.*/d" -e "/${end}/,\$d" "${path}"
     else
@@ -185,12 +185,12 @@ function ez_backup {
     local source && source="$(ez_arg_get --short "-s" --long "--source" --arguments "${@}")" &&
     local backup && backup="$(ez_arg_get --short "-b" --long "--backup" --arguments "${@}")" || return 1
     [[ -n "${backup}" ]] && mkdir -p "${backup}"
-    [[ ! -d "${backup}" ]] && ez_log_error "Backup directory \"${backup}\" not found" && return 1
+    [[ ! -d "${backup}" ]] && ez.log.error "Backup directory \"${backup}\" not found" && return 1
     local source_basename="$(basename "${source}")"
-    [[ -z "${source_basename}" ]] && ez_log_error "Invalid source basename \"${source_basename}\"" && return 1
+    [[ -z "${source_basename}" ]] && ez.log.error "Invalid source basename \"${source_basename}\"" && return 1
     local destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
     [[ -e "${destination_path}" ]] && sleep 1 && destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
     cp -r "${source}" "${destination_path}"
     ls -lah "${backup}" | grep "${source_basename}"
-    ez_log --logger "Complete" --message  "Backup at ${destination_path}"; echo
+    ez.log --logger "Complete" --message  "Backup at ${destination_path}"; echo
 }

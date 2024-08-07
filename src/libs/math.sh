@@ -24,14 +24,14 @@ function ez_calculate {
 }
 
 function ez_floor {
-    local parts; ez_split "parts" "." "${1}"
+    local parts; ez.string.split "parts" "." "${1}"
     local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
     [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" = "-" ]] && ((--result))
     echo "${result}"
 }
 
 function ez_ceiling {
-    local parts; ez_split "parts" "." "${1}"
+    local parts; ez.string.split "parts" "." "${1}"
     local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
     [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" != "-" ]] && ((++result))
     echo "${result}"
@@ -74,7 +74,7 @@ function ez_convert_base_x_to_decimal {
 
 
 function ez_min {
-    if [[ "${#}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     local min=2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi
     done
@@ -82,7 +82,7 @@ function ez_min {
 }
 
 function ez_max {
-    if [[ "${#}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     local max=-2147483647 data; for data in "${@}"; do
         if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi
     done
@@ -90,7 +90,7 @@ function ez_max {
 }
 
 function ez_sum {
-    if [[ "${#}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     local sum=0 data; for data in "${@}"; do
         sum=$(ez_calculate --expression "${sum} + ${data}")
     done
@@ -106,7 +106,7 @@ function ez_average {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_average_data_list; ez_function_get_list "ez_average_data_list" "${data}"
-    if [[ "${#ez_average_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#ez_average_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     ez_calculate --expression "$(ez_sum ${ez_average_data_list[@]}) / ${#ez_average_data_list[@]}" --scale "${scale}"
 }
 
@@ -119,7 +119,7 @@ function ez_variance {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_variance_data_list; ez_function_get_list "ez_variance_data_list" "${data}"
-    if [[ "${#ez_variance_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#ez_variance_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     local average=$(ez_average --data "${ez_variance_data_list[@]}")
     local variance=0 data; for data in "${ez_variance_data_list[@]}"; do
         variance=$(ez_calculate --expression "${variance} + (${data} - ${average}) ^ 2")
@@ -136,7 +136,7 @@ function ez_std_deviation {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" &&
     local scale && scale="$(ez_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_std_deviation_data_list; ez_function_get_list "ez_std_deviation_data_list" "${data}"
-    if [[ "${#ez_std_deviation_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#ez_std_deviation_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     ez_calculate --expression "sqrt($(ez_variance --data ${ez_std_deviation_data_list[@]}))" --scale "${scale}"
 }
 
@@ -153,9 +153,9 @@ function ez_percentile {
     local method && method="$(ez_arg_get --short "-m" --long "--method" --arguments "${@}")" &&
     local scale && scale="$(ez_arg_get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_percentile_data_list; ez_function_get_list "ez_percentile_data_list" "${data}"
-    if [[ "${#ez_percentile_data_list[@]}" -eq 0 ]]; then ez_log_error "No data found"; return 1; fi
+    if [[ "${#ez_percentile_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     if (( $(bc -l <<< "${percentile} < 0") )) || (( $(bc -l <<< "${percentile} > 100") )); then
-        ez_log_error "Invalid percentile: ${percentile}"; return 1
+        ez.log.error "Invalid percentile: ${percentile}"; return 1
     fi
     local data_set=($(ez_sort --data "${ez_percentile_data_list[@]}" --number))
     if [[ "${percentile}" -eq 0 ]]; then

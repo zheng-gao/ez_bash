@@ -20,7 +20,7 @@ function ez_table_print {
     local data && data="$(ez_arg_get --short "-d" --long "--data" --arguments "${@}")" || return 1
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
-        [[ ! -f "${file}" ]] && ez_log_error "File \"${file}\" not found" && return 1
+        [[ ! -f "${file}" ]] && ez.log.error "File \"${file}\" not found" && return 1
         local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
         [[ -z "${file_content}" ]] && return 1
         if [[ "${row_delimiter}" = "\n" ]]; then

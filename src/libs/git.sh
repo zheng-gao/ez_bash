@@ -105,7 +105,7 @@ function ez_git_commit_stats {
     ez_function_usage "${@}" && return
     local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
     local time_format && time_format="$(ez_arg_get --short "-t" --long "--time-format" --arguments "${@}")" || return 1
-    [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     local date_option="iso-strict"
     [[ "${time_format}" = "Epoch" ]] && date_option="unix"
     git --git-dir "${repo_path}" config diff.renameLimit 999999
@@ -122,7 +122,7 @@ function ez_git_file_stats {
     ez_function_usage --run-with-no-argument "${@}" && return
     local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
     local operation && operation="$(ez_arg_get --short "-o" --long "--operation" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     if [[ "${operation}" = "OnlyHeadFiles" ]]; then
          git --git-dir "${repo_path}" ls-tree -r -t -l --full-name HEAD | sort -n -k 4 | awk -F ' ' '{print $3" "$4" "$5}' | column -t
     else
@@ -155,9 +155,9 @@ function ez_git_remove_file_from_history {
     ez_function_usage "${@}" && return
     local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
     local file_path && file_path="$(ez_arg_get --short "-f" --long "--file-path" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
-    ez_log_info "Removing ${file_path}"
+    ez.log.info "Removing ${file_path}"
     git --git-dir "${repo_path}" "filter-branch" --force --prune-empty --index-filter "git --git-dir ${repo_path} rm --cached --ignore-unmatch ${file_path}" --tag-name-filter cat -- --all
 }
 
@@ -169,7 +169,7 @@ function ez_git_find_large_blobs() {
     ez_function_usage "${@}" && return
     local repo_path && repo_path="$(ez_arg_get --short "-r" --long "--repo-path" --arguments "${@}")" &&
     local min_bytes && min_bytes="$(ez_arg_get --short "-b" --long "--min-bytes" --arguments "${@}")" || return 1
-    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez_log_error "\"${repo_path}\" Not Found!" && return 1
+    [[ -n "${repo_path}" ]] && [[ ! -d "${repo_path}" ]] && ez.log.error "\"${repo_path}\" Not Found!" && return 1
     [[ -z "${repo_path}" ]] && repo_path="."
     local line first_line=true
     echo "{"

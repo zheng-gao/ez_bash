@@ -6,7 +6,7 @@
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez_clock {
-    ez_now; sleep 1; while true; do ez_clear -l 1; ez_now; sleep 1; done
+    ez.time.now; sleep 1; while true; do ez_clear -l 1; ez.time.now; sleep 1; done
 }
 
 function ez_timezones {
@@ -117,6 +117,7 @@ function ez_time_elapsed {
     local end_epoch_seconds=$(ez_time_to_epoch_seconds --timestamp "${end}" --format "${format}")
     ez_time_seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))"
 }
+
 
 
 
