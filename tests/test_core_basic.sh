@@ -45,25 +45,25 @@ function test_ez.array.double_quote {
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez.join {
+function test_ez.string.join {
     local expect="abc-,123-,-,XYZ"
-    local result="$(ez.join "-," "abc" "123" "" "XYZ")"
+    local result="$(ez.string.join "-," "abc" "123" "" "XYZ")"
     ez_expect_result "${expect}" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez.includes {
+function test_ez.array.includes {
     local result
-    ez.includes "123" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.array.includes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
-    ez.includes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.array.includes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "False" "${result}" || ((++TEST_FAILURE))
 }
 
-function test_ez.excludes {
+function test_ez.array.excludes {
     local result
-    ez.excludes "123" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.array.excludes "123" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "False" "${result}" || ((++TEST_FAILURE))
-    ez.excludes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
+    ez.array.excludes "xyz" "abc" "123" "XYZ" && result="True" || result="False"
     ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
 }
 
@@ -109,9 +109,9 @@ test_ez.time.today
 test_ez.time.now
 test_ez.array.quote
 test_ez.array.double_quote
-test_ez.join
-test_ez.includes
-test_ez.excludes
+test_ez.string.join
+test_ez.array.includes
+test_ez.array.excludes
 test_ez.string.count_items
 test_ez.string.split
 test_ez.array.delete_item

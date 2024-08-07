@@ -52,7 +52,7 @@ function ez_file_delete_lines {
     local path && path="$(ez_arg_get --short "-p" --long "--path" --arguments "${@}")" &&
     local keywords && ez_function_get_list "keywords" "$(ez_arg_get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_string=$(ez.join "\|" "${keywords[@]}")
+        local exclude_string=$(ez.string.join "\|" "${keywords[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
         rm "${path}.bak"

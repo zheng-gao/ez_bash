@@ -152,9 +152,9 @@ function ez_self_source_option {
             "-a" | "--all") shift; all_flag="${EZ_TRUE}" ;;
             "-q" | "--quiet") shift; quiet_flag="${EZ_TRUE}" ;;
             "-i" | "--import") shift;
-                while [[ -n "${1}" ]]; do ez.includes "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez.array.includes "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
             "-s" | "--skip") shift;
-                while [[ -n "${1}" ]]; do ez.includes "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez.array.includes "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
             *) log_error "Unknown argument identifier \"${1}\""; return 1 ;;
         esac
     done
@@ -164,7 +164,7 @@ function ez_self_source_option {
         [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][INFO] Imported $(ez.string.format 'ForegroundYellow' 'ALL') ${EZ_LOGO} libraries!"
     elif [[ -n "${skip_libs}" ]]; then
         ez.source --path "${EZ_BASH_HOME}/src/libs" --exclude "${skip_libs[@]}" || return 1
-        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][$(ez.string.format 'ForegroundYellow' 'WARNING')] Imported ${EZ_LOGO}, skipping libraries $(ez.string.format 'ForegroundYellow' $(ez.join ', ' ${skip_libs[@]}))"
+        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_LOGO}][$(ez.string.format 'ForegroundYellow' 'WARNING')] Imported ${EZ_LOGO}, skipping libraries $(ez.string.format 'ForegroundYellow' $(ez.string.join ', ' ${skip_libs[@]}))"
     elif [[ -n "${import_libs}" ]]; then
         # Source the designated libraries
         local ez_library; for ez_library in "${import_libs[@]}"; do ez.source --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1; done
