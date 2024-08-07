@@ -32,7 +32,7 @@ function ez.math.sum {
 function ez.math.average {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
-        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
+        ez.argument.set --short "-s" --long "--scale" --required --default 6 --info "Number of digits after the dot" || return 1
     fi
     ez.function.help "${@}" && return
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
@@ -51,8 +51,8 @@ function ez.math.variance {
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_variance_data_list; ez.function.arguments.get_list "ez_math_variance_data_list" "${data}"
     if [[ "${#ez_math_variance_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local average=$(ez.math.average --data "${ez_math_variance_data_list[@]}") variance=0 data
-    for data in "${ez_math_variance_data_list[@]}"; do variance=$(ez.math.calculate --expression "${variance} + (${data} - ${average}) ^ 2"); done
+    local average=$(ez.math.average --data "${ez_math_variance_data_list[@]}" --scale "${scale}") variance=0 data
+    for data in "${ez_math_variance_data_list[@]}"; do variance=$(ez.math.calculate --expression "${variance} + (${data} - ${average}) ^ 2" --scale "${scale}"); done
     ez.math.calculate --expression "${variance} / (${#ez_math_variance_data_list[@]} - 1)" --scale "${scale}"
 }
 function ez.math.std_deviation {
@@ -65,7 +65,7 @@ function ez.math.std_deviation {
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_std_deviation_data_list; ez.function.arguments.get_list "ez_math_std_deviation_data_list" "${data}"
     if [[ "${#ez_math_std_deviation_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    ez.math.calculate --expression "sqrt($(ez.math.variance --data ${ez_math_std_deviation_data_list[@]}))" --scale "${scale}"
+    ez.math.calculate --expression "sqrt($(ez.math.variance --data "${ez_math_std_deviation_data_list[@]}" --scale "${scale}"))" --scale "${scale}"
 }
 function ez.math.calculate {
     if ez.function.is_unregistered; then
@@ -78,8 +78,6 @@ function ez.math.calculate {
     local result=$(bc -l <<< "scale=${scale}; ${expression}")  # bc scale does not work for mode %
     if [[ "${result:0:1}" = "." ]]; then result="0${result}"; elif [[ "${result:0:2}" = "-." ]]; then result="-0${result:1}"; fi; echo "${result}"
 }
-
-
 
 function ez.math.decimal.to_base_x {
     if ez.function.is_unregistered; then

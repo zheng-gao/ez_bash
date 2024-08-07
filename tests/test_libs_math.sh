@@ -67,6 +67,35 @@ function test_ez.math.sum {
     done
 }
 
+function test_ez.math.average {
+    local expects_and_results=(
+        0.166 "$(ez.math.average --data 3 -2 1 -5 0 4 --scale 3)"
+        2.0640 "$(ez.math.average --data 1.7 2.00 -0.88 4.5 3 --scale 4)"
+    )
+    local i expect result; for ((i=0; i < "${#expects_and_results[@]}" - 1; i+=2)); do
+        ez_expect_result "${expects_and_results[${i}]}" "${expects_and_results[$((i+1))]}" || ((++TEST_FAILURE))
+    done
+}
+
+function test_ez.math.variance {
+    local expects_and_results=(
+        10.966 "$(ez.math.variance --data 3 -2 1 -5 0 4 --scale 3)"
+        3.9033 "$(ez.math.variance --data 1.7 2.00 -0.88 4.5 3 --scale 4)"
+    )
+    local i expect result; for ((i=0; i < "${#expects_and_results[@]}" - 1; i+=2)); do
+        ez_expect_result "${expects_and_results[${i}]}" "${expects_and_results[$((i+1))]}" || ((++TEST_FAILURE))
+    done
+}
+
+function test_ez.math.std_deviation {
+    local expects_and_results=(
+        3.311 "$(ez.math.std_deviation --data 3 -2 1 -5 0 4 --scale 3)"
+        1.9756 "$(ez.math.std_deviation --data 1.7 2.00 -0.88 4.5 3 --scale 4)"
+    )
+    local i expect result; for ((i=0; i < "${#expects_and_results[@]}" - 1; i+=2)); do
+        ez_expect_result "${expects_and_results[${i}]}" "${expects_and_results[$((i+1))]}" || ((++TEST_FAILURE))
+    done
+}
 
 ###################################################################################################
 # ------------------------------------------ Run Test ------------------------------------------- #
@@ -76,6 +105,9 @@ test_ez.math.ceiling
 test_ez.math.min
 test_ez.math.max
 test_ez.math.sum
+test_ez.math.average
+test_ez.math.variance
+test_ez.math.std_deviation
 
 exit "${TEST_FAILURE}"
 
