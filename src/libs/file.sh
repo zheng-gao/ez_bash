@@ -6,17 +6,13 @@ ez_dependency_check "lsof" "awk" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez_file_read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
-function ez_file_clear { echo -n > "${1}"; }
-function ez_file_lines { wc -l "${1}" | awk '{print $1}'; }
-
-function ez_file_create {
+function ez.file.clear { echo -n > "${1}"; }
+function ez.file.create {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
         ez.argument.set --short "-u" --long "--unit" --required --default "B" --choices "B" "K" "M" "G" &&
         ez.argument.set --short "-s" --long "--size" --required || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
     local size && size="$(ez.argument.get --short "-s" --long "--size" --arguments "${@}")" || return 1
@@ -24,13 +20,15 @@ function ez_file_create {
     dd "if=/dev/urandom" "of=${path}" "iflag=fullblock" "bs=1${unit}" "count=${size}"
 }
 
+function ez_file_lines { wc -l "${1}" | awk '{print $1}'; }
+function ez_file_read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
+
 function ez_file_string_replace {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--search" --required --info "String to be replaced" &&
         ez.argument.set --short "-r" --long "--replacement" --required --info "Replacement String" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local search && search="$(ez.argument.get --short "-s" --long "--search" --arguments "${@}")" &&
     local replacement && replacement="$(ez.argument.get --short "-r" --long "--replacement" --arguments "${@}")" || return 1
@@ -47,8 +45,7 @@ function ez_file_delete_lines {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local keywords && ez.function.arguments.get_list "keywords" "$(ez.argument.get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
@@ -67,8 +64,7 @@ function ez_file_get_lines {
         ez.argument.set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
         ez.argument.set --short "-f" --long "--from" --default "1" --info "From line, negative number for reverse order" &&
         ez.argument.set --short "-t" --long "--to" --default "EOL" --required --info "To line" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local ith && ith="$(ez.argument.get --short "-i" --long "--i-th" --arguments "${@}")" &&
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local from && from="$(ez.argument.get --short "-f" --long "--from" --arguments "${@}")" &&
@@ -96,8 +92,7 @@ function ez_file_descriptor_count {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--process-id" --info "Process ID" &&
         ez.argument.set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local pid && pid="$(ez.argument.get --short "-p" --long "--process-id" --arguments "${@}")" &&
     local name && name="$(ez.argument.get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
     local fd_count=0
@@ -122,8 +117,7 @@ function ez_file_parse_value {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--key" --required --info "The name of the key" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
@@ -137,8 +131,7 @@ function ez_file_parse_ip {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local version && version="$(ez.argument.get --short "-v" --long "--version" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
@@ -161,8 +154,7 @@ function ez_file_parse_between_lines {
         ez.argument.set --short "-s" --long "--start" --required --info "Starting line marker" &&
         ez.argument.set --short "-e" --long "--end" --required --info "Ending line marker" &&
         ez.argument.set --short "-g" --long "--greedy" --type "Flag" --info "Greedy mode" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" &&
@@ -180,8 +172,7 @@ function ez_backup {
         ez.argument.set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
         ez.argument.set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||
         return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local source && source="$(ez.argument.get --short "-s" --long "--source" --arguments "${@}")" &&
     local backup && backup="$(ez.argument.get --short "-b" --long "--backup" --arguments "${@}")" || return 1
     [[ -n "${backup}" ]] && mkdir -p "${backup}"

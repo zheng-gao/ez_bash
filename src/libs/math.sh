@@ -1,11 +1,73 @@
 ###################################################################################################
-# -------------------------------------- Dependency Check --------------------------------------- #
+# -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
+EZ_INT_MAX=2147483647
+EZ_INT_MIN=-2147483647
 
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez.calculate {
+function ez.math.floor {
+    local ez_math_floor_parts; ez.string.split "ez_math_floor_parts" "." "${1}"
+    local result="${ez_math_floor_parts[0]}"; if [[ -z "${result}" || "${result}" = "-" ]]; then result+="0"; fi
+    if [[ -n "${ez_math_floor_parts[1]}" && "${ez_math_floor_parts[1]}" -ne 0 && "${1:0:1}" = "-" ]]; then ((--result)); fi; echo "${result}"
+}
+function ez.math.ceiling {
+    local ez_math_ceiling_parts; ez.string.split "ez_math_ceiling_parts" "." "${1}"
+    local result="${ez_math_ceiling_parts[0]}"; if [[ -z "${result}" || "${result}" = "-" ]]; then result+="0"; fi
+    if [[ -n "${ez_math_ceiling_parts[1]}" && "${ez_math_ceiling_parts[1]}" -ne 0 && "${1:0:1}" != "-" ]]; then ((++result)); fi; echo "${result}"
+}
+function ez.math.min {
+    local min="${EZ_INT_MAX}" data; if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    for data in "${@}"; do if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi; done; echo "${min}"
+}
+function ez.math.max {
+    local max="${EZ_INT_MIN}" data; if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    for data in "${@}"; do if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi; done; echo "${max}"
+}
+function ez.math.sum {
+    local sum=0 data; if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    for data in "${@}"; do sum=$(ez.math.calculate --expression "${sum} + ${data}"); done; echo "${sum}"
+}
+function ez.math.average {
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
+        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
+    fi
+    ez.function.help "${@}" && return
+    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
+    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
+    local ez_math_average_data_list; ez.function.arguments.get_list "ez_math_average_data_list" "${data}"
+    if [[ "${#ez_math_average_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    ez.math.calculate --expression "$(ez.math.sum ${ez_math_average_data_list[@]}) / ${#ez_math_average_data_list[@]}" --scale "${scale}"
+}
+function ez.math.variance {
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
+        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
+    fi
+    ez.function.help "${@}" && return
+    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
+    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
+    local ez_math_variance_data_list; ez.function.arguments.get_list "ez_math_variance_data_list" "${data}"
+    if [[ "${#ez_math_variance_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    local average=$(ez.math.average --data "${ez_math_variance_data_list[@]}") variance=0 data
+    for data in "${ez_math_variance_data_list[@]}"; do variance=$(ez.math.calculate --expression "${variance} + (${data} - ${average}) ^ 2"); done
+    ez.math.calculate --expression "${variance} / (${#ez_math_variance_data_list[@]} - 1)" --scale "${scale}"
+}
+function ez.math.std_deviation {
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
+        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
+    fi
+    ez.function.help "${@}" && return
+    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
+    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
+    local ez_math_std_deviation_data_list; ez.function.arguments.get_list "ez_math_std_deviation_data_list" "${data}"
+    if [[ "${#ez_math_std_deviation_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    ez.math.calculate --expression "sqrt($(ez.math.variance --data ${ez_math_std_deviation_data_list[@]}))" --scale "${scale}"
+}
+function ez.math.calculate {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-e" --long "--expression" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
@@ -13,31 +75,13 @@ function ez.calculate {
     ez.function.help "${@}" && return
     local expression && expression="$(ez.argument.get --short "-e" --long "--expression" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    # bc scale does not work for mode %
-    local result=$(bc -l <<< "scale=${scale}; ${expression}")
-    if [[ "${result:0:1}" = "." ]]; then
-        result="0${result}"
-    elif [[ "${result:0:2}" = "-." ]]; then
-        result="-0${result:1}"
-    fi
-    echo "${result}"
+    local result=$(bc -l <<< "scale=${scale}; ${expression}")  # bc scale does not work for mode %
+    if [[ "${result:0:1}" = "." ]]; then result="0${result}"; elif [[ "${result:0:2}" = "-." ]]; then result="-0${result:1}"; fi; echo "${result}"
 }
 
-function ez_floor {
-    local parts; ez.string.split "parts" "." "${1}"
-    local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
-    [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" = "-" ]] && ((--result))
-    echo "${result}"
-}
 
-function ez_ceiling {
-    local parts; ez.string.split "parts" "." "${1}"
-    local result="${parts[0]}"; if [[ -z "${result}" ]] || [[ "${result}" = "-" ]]; then result+="0"; fi
-    [[ -n "${parts[1]}" ]] && [[ "${parts[1]}" -ne 0 ]] && [[ "${1:0:1}" != "-" ]] && ((++result))
-    echo "${result}"
-}
 
-function ez_convert_decimal_to_base_x {
+function ez.math.decimal.to_base_x {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
@@ -53,7 +97,7 @@ function ez_convert_decimal_to_base_x {
     fi
 }
 
-function ez_convert_base_x_to_decimal {
+function ez.math.decimal.from_base_x {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-v" --long "--value" --required --info "Base X value" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" || return 1
@@ -72,75 +116,7 @@ function ez_convert_base_x_to_decimal {
     fi
 }
 
-
-function ez_min {
-    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local min=2147483647 data; for data in "${@}"; do
-        if (( $(bc -l <<< "${data} < ${min}") )); then min="${data}"; fi
-    done
-    echo "${min}"
-}
-
-function ez_max {
-    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local max=-2147483647 data; for data in "${@}"; do
-        if (( $(bc -l <<< "${data} > ${max}") )); then max="${data}"; fi
-    done
-    echo "${max}"
-}
-
-function ez_sum {
-    if [[ "${#}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local sum=0 data; for data in "${@}"; do
-        sum=$(ez.calculate --expression "${sum} + ${data}")
-    done
-    echo "${sum}"
-}
-
-function ez_average {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
-        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
-    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
-    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local ez_average_data_list; ez.function.arguments.get_list "ez_average_data_list" "${data}"
-    if [[ "${#ez_average_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    ez.calculate --expression "$(ez_sum ${ez_average_data_list[@]}) / ${#ez_average_data_list[@]}" --scale "${scale}"
-}
-
-function ez_variance {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
-        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
-    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
-    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local ez_variance_data_list; ez.function.arguments.get_list "ez_variance_data_list" "${data}"
-    if [[ "${#ez_variance_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local average=$(ez_average --data "${ez_variance_data_list[@]}")
-    local variance=0 data; for data in "${ez_variance_data_list[@]}"; do
-        variance=$(ez.calculate --expression "${variance} + (${data} - ${average}) ^ 2")
-    done
-    ez.calculate --expression "${variance} / (${#ez_variance_data_list[@]} - 1)" --scale "${scale}"
-}
-
-function ez_std_deviation {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-d" --long "--data" --type "List" --required &&
-        ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
-    fi
-    ez.function.help "${@}" && return
-    local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
-    local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local ez_std_deviation_data_list; ez.function.arguments.get_list "ez_std_deviation_data_list" "${data}"
-    if [[ "${#ez_std_deviation_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    ez.calculate --expression "sqrt($(ez_variance --data ${ez_std_deviation_data_list[@]}))" --scale "${scale}"
-}
-
-function ez_percentile {
+function ez.math.percentile {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-p" --long "--percentile" --required --default 50 &&
@@ -152,30 +128,30 @@ function ez_percentile {
     local percentile && percentile="$(ez.argument.get --short "-p" --long "--percentile" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-m" --long "--method" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local ez_percentile_data_list; ez.function.arguments.get_list "ez_percentile_data_list" "${data}"
-    if [[ "${#ez_percentile_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    local ez.math.percentile_data_list; ez.function.arguments.get_list "ez.math.percentile_data_list" "${data}"
+    if [[ "${#ez.math.percentile_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     if (( $(bc -l <<< "${percentile} < 0") )) || (( $(bc -l <<< "${percentile} > 100") )); then
         ez.log.error "Invalid percentile: ${percentile}"; return 1
     fi
-    local data_set=($(ez.sort --data "${ez_percentile_data_list[@]}" --number))
+    local data_set=($(ez.sort --data "${ez.math.percentile_data_list[@]}" --number))
     if [[ "${percentile}" -eq 0 ]]; then
         echo "${data_set[0]}"
     elif [[ "${percentile}" -eq 100 ]]; then
         echo "${data_set[-1]}"
     else
-        local ith=$(ez.calculate --expression "(${#data_set[@]} - 1) * ${percentile} / 100" --scale "${scale}")
-        local ith_floor="$(ez_floor ${ith})" ith_ceiling="$(ez_ceiling ${ith})"
-        local ith_fractional=$(ez.calculate --expression "${ith} - ${ith_floor}" --scale "${scale}")
+        local ith=$(ez.math.calculate --expression "(${#data_set[@]} - 1) * ${percentile} / 100" --scale "${scale}")
+        local ith_floor="$(ez.math.floor ${ith})" ith_ceiling="$(ez.math.ceiling ${ith})"
+        local ith_fractional=$(ez.math.calculate --expression "${ith} - ${ith_floor}" --scale "${scale}")
         if [[ "${ith_floor}" != "${ith_ceiling}" ]]; then
             local floor_data="${data_set[${ith_floor}]}" ceiling_data="${data_set[${ith_ceiling}]}"
             if [[ "${method}" = "Linear" ]]; then
-                ez.calculate --expression "${floor_data} + ${ith_fractional} * (${ceiling_data} - ${floor_data})" --scale "${scale}"
+                ez.math.calculate --expression "${floor_data} + ${ith_fractional} * (${ceiling_data} - ${floor_data})" --scale "${scale}"
             elif [[ "${method}" = "Lower" ]]; then
                 echo "${floor_data}"
             elif [[ "${method}" = "Higher" ]]; then
                 echo "${ceiling_data}"
             elif [[ "${method}" = "Midpoint" ]]; then
-                ez.calculate --expression "(${ceiling_data} + ${floor_data}) / 2" --scale "${scale}"
+                ez.math.calculate --expression "(${ceiling_data} + ${floor_data}) / 2" --scale "${scale}"
             elif [[ "${method}" = "Nearest" ]]; then
                 if (( $(bc -l <<< "${ith_fractional} <= 0.5") )); then echo "${floor_data}"; else echo "${ceiling_data}"; fi
             fi
@@ -185,7 +161,7 @@ function ez_percentile {
     fi
 }
 
-function ez_random_int {
+function ez.random.int {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-l" --long "--lower-bound" --required --default 0 --info "Inclusive Lower Bound" &&
         ez.argument.set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
@@ -195,6 +171,5 @@ function ez_random_int {
     local upper_bound && upper_bound="$(ez.argument.get --short "-u" --long "--upper-bound" --arguments "${@}")" || return 1
     [ "${lower_bound}" -gt "${upper_bound}" ] && return 2
     # Use $RANDOM as seed, which is an internal Bash function that returns a pseudo-random integer in the range [0, 32767]
-    local seed="${RANDOM}"
-    echo $(( (seed * 214013 + 2531011) % (upper_bound - lower_bound) + lower_bound ))
+    local seed="${RANDOM}"; echo $(( (seed * 214013 + 2531011) % (upper_bound - lower_bound) + lower_bound ))
 }

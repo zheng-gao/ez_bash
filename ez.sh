@@ -21,6 +21,7 @@ EZ_REQUIRED_MIN_BASH_VERSION=5
 EZ_DEFAULT_DEPENDENCIES=(
     "basename"
     "bash"
+    "bc"
     "column"
     "date"
     "dirname"

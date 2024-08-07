@@ -16,8 +16,7 @@ function ez.api {
         ez.argument.set --short "-o" --long "--output" --info "Output Path" &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
         ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-X" --long "--method" --arguments "${@}")" &&
     local auth && auth="$(ez.argument.get --short "-a" --long "--auth" --arguments "${@}")" &&
@@ -37,10 +36,7 @@ function ez.api {
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.string.join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
-    if [[ -z "${url}" ]]; then
-        [[ -n "${port}" ]] && domain="${domain}:${port}"
-        url="https://${domain}${endpoint}${params_str}"
-    fi
+    if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${endpoint}${params_str}"; fi
     local curl_str="curl -sL ${auth_op[@]} ${headers_opt[@]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"

@@ -1,15 +1,15 @@
-### ez.calculate
+### ez.math.calculate
 ```shell
-$ ez.calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
+$ ez.math.calculate --expression "1 + 2*3 / (2.5 - 0.5)" --scale 3
 4.000
 ```
 
-### ez_floor & ez_ceiling
+### ez.math.floor & ez.math.ceiling
 ```shell
 $ {
     echo "Number Floor Ceiling"
     for x in 0.0 5.6 0.3 2.0 -1.7; do
-        echo "$x $(ez_floor $x) $(ez_ceiling $x)"
+        echo "$x $(ez.math.floor $x) $(ez.math.ceiling $x)"
     done
 } | column -t
 Number  Floor  Ceiling
@@ -56,28 +56,28 @@ HEX(35): 23
 HEX(36): 24
 ````
 
-### ez_min & ez_max
+### ez.math.min & ez.math.max
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "min: $(ez_min ${data[@]}), max: $(ez_max ${data[@]})"
+$ echo "min: $(ez.math.min ${data[@]}), max: $(ez.math.max ${data[@]})"
 min: 0, max: 5
 ```
 
-### ez_sum & ez_average
+### ez.math.sum & ez.math.average
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "sum: $(ez_sum ${data[@]}), average: $(ez_average -d ${data[@]} -s 2)"
+$ echo "sum: $(ez.math.sum ${data[@]}), average: $(ez.math.average -d ${data[@]} -s 2)"
 sum: 14, average: 2.00
 ```
 
-### ez_variance & ez_std_deviation
+### ez.math.variance & ez.math.std_deviation
 ```shell
 $ data=(3 5 1 0 2 0 3)
-$ echo "variance: $(ez_variance -d ${data[@]}), std_deviation: $(ez_std_deviation -d ${data[@]})"
+$ echo "variance: $(ez.math.variance -d ${data[@]}), std_deviation: $(ez.math.std_deviation -d ${data[@]})"
 variance: 3.333333, std_deviation: 1.825741
 ```
 
-### ez_percentile
+### ez.math.percentile
 ```shell
 $ data=(1 2 3 4 5 6 7 8 9 10)
 $ percentiles=(0 5 10 25 50 66 70 75 83 90 95 99 100)
@@ -87,7 +87,7 @@ $ {
       for p in "${percentiles[@]}"; do
           line="P${p}"
           for m in "${methods[@]}"; do
-              value=$(ez_percentile --data "${data[@]}" --percentile "${p}" --method "${m}" --scale 2)
+              value=$(ez.math.percentile --data "${data[@]}" --percentile "${p}" --method "${m}" --scale 2)
               line+=" ${value}"
           done
           echo "${line}"

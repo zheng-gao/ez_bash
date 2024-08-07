@@ -1,4 +1,4 @@
-function ez_set_operation {
+function ez.collections.set.operation {
     if ez.function.is_unregistered; then
         local valid_operation=("Intersection" "Union" "LeftOnly" "RightOnly")
         ez.argument.set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
@@ -7,8 +7,7 @@ function ez_set_operation {
         ez.argument.set --short "-r" --long "--right" --type "List" --info "Right Set: Item_r1 Item_r2 ..." &&
         ez.argument.set --short "-R" --long "--right-from-file" --info "File Path"
         ez.argument.set --short "-s" --long "--summary" --type "Flag" --info "Show summary at the end" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" &&
     local left && ez.function.arguments.get_list "left" "$(ez.argument.get --short "-l" --long "--left" --arguments "${@}")" &&
     local right && ez.function.arguments.get_list "right" "$(ez.argument.get --short "-r" --long "--right" --arguments "${@}")" &&
@@ -48,13 +47,12 @@ function ez_set_operation {
     fi
 }
 
-function ez_set_contains {
+function ez.collections.set.contains {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
         ez.argument.set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1
-    fi
-    ez.function.help "${@}" && return
+    fi; ez.function.help "${@}" && return
     local superset && ez.function.arguments.get_list "superset" "$(ez.argument.get --short "-sp" --long "--superset" --arguments "${@}")" &&
     local subset && ez.function.arguments.get_list "subset" "$(ez.argument.get --short "-sb" --long "--subset" --arguments "${@}")" &&
     local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" || return 1
