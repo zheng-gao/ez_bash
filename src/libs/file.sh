@@ -6,6 +6,7 @@ ez.dependencies.check "lsof" "awk" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+function ez.file.read { cat "${1}"; }
 function ez.file.clear { echo -n > "${1}"; }
 function ez.file.create {
     if ez.function.is_unregistered; then
@@ -20,28 +21,10 @@ function ez.file.create {
     dd "if=/dev/urandom" "of=${path}" "iflag=fullblock" "bs=1${unit}" "count=${size}"
 }
 
-function ez.file.lines { wc -l "${1}" | awk '{print $1}'; }
-function ez.file.read_lines { local file="${1}" line; while read -r line; do echo ${line}; done < "${file}"; }
-
-function ez.file.string_replace {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
-        ez.argument.set --short "-s" --long "--search" --required --info "String to be replaced" &&
-        ez.argument.set --short "-r" --long "--replacement" --required --info "Replacement String" || return 1
-    fi; ez.function.help "${@}" || return 0
-    local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
-    local search && search="$(ez.argument.get --short "-s" --long "--search" --arguments "${@}")" &&
-    local replacement && replacement="$(ez.argument.get --short "-r" --long "--replacement" --arguments "${@}")" || return 1
-    if [[ -f "${path}" ]]; then
-        cp "${path}" "${path}.bak"
-        sed "s/${search}/${replacement}/g" "${path}.bak" > "${path}" 
-        rm "${path}.bak"
-    else
-        ez.log.error "File \"${path}\" not exist"
-    fi
-}
-
-function ez.file.delete_lines {
+########################################### Lines #################################################
+function ez.file.lines.count { wc -l "${1}" | awk '{print $1}'; }
+function ez.file.lines.strip { local line; while read -r line; do echo ${line}; done < "${1}"; }
+function ez.file.lines.delete {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
@@ -57,8 +40,7 @@ function ez.file.delete_lines {
         ez.log.error "File \"${path}\" not exist"
     fi
 }
-
-function ez.file.get_lines {
+function ez.file.lines.read {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
@@ -88,30 +70,8 @@ function ez.file.get_lines {
     fi
 }
 
-function ez.file.descriptor_count {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-p" --long "--process-id" --info "Process ID" &&
-        ez.argument.set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
-    fi; ez.function.help "${@}" || return 0
-    local pid && pid="$(ez.argument.get --short "-p" --long "--process-id" --arguments "${@}")" &&
-    local name && name="$(ez.argument.get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
-    local fd_count=0
-    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez.log.error "Cannot use --pid and --name together" && return 1
-    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez.log.error "Must provide --pid or --name" && return 1
-    elif [[ -z "${pid}" ]]; then
-        if [[ "$(uname -s)" = "Linux" ]]; then
-            for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
-        else
-            ez.log.error "\"--name\" only works on linux" && return 1
-        fi
-    else
-        if [[ "${os}" = "linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
-        elif [[ "${os}" = "macos" ]]; then fd_count=$(lsof -p ${pid} | wc -l | bc); fi
-    fi    
-    echo "${fd_count}"
-}
-
-function ez.file.parse_value {
+########################################### Parse #################################################
+function ez.file.parse.value {
     #  File Content:
     #  ...key="value"...
     if ez.function.is_unregistered; then
@@ -127,7 +87,7 @@ function ez.file.parse_value {
     fi
 }
 
-function ez.file.parse_ip {
+function ez.file.parse.ip {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
@@ -148,7 +108,7 @@ function ez.file.parse_ip {
     fi
 }
 
-function ez.file.parse_between_lines {
+function ez.file.parse.between_lines {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--start" --required --info "Starting line marker" &&
@@ -165,6 +125,48 @@ function ez.file.parse_between_lines {
     else
         awk "/${start}/{found=1;next}/${end}/{found=0}found" "${path}"
     fi
+}
+
+
+function ez.file.string_replace {
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
+        ez.argument.set --short "-s" --long "--search" --required --info "String to be replaced" &&
+        ez.argument.set --short "-r" --long "--replacement" --required --info "Replacement String" || return 1
+    fi; ez.function.help "${@}" || return 0
+    local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
+    local search && search="$(ez.argument.get --short "-s" --long "--search" --arguments "${@}")" &&
+    local replacement && replacement="$(ez.argument.get --short "-r" --long "--replacement" --arguments "${@}")" || return 1
+    if [[ -f "${path}" ]]; then
+        cp "${path}" "${path}.bak"
+        sed "s/${search}/${replacement}/g" "${path}.bak" > "${path}" 
+        rm "${path}.bak"
+    else
+        ez.log.error "File \"${path}\" not exist"
+    fi
+}
+
+function ez.file.descriptor.count {
+    if ez.function.is_unregistered; then
+        ez.argument.set --short "-p" --long "--process-id" --info "Process ID" &&
+        ez.argument.set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
+    fi; ez.function.help "${@}" || return 0
+    local pid && pid="$(ez.argument.get --short "-p" --long "--process-id" --arguments "${@}")" &&
+    local name && name="$(ez.argument.get --short "-n" --long "--process-name" --arguments "${@}")" || return 1
+    local fd_count=0
+    if [[ -n "${pid}" ]] && [[ -n "${name}" ]]; then ez.log.error "Cannot use --pid and --name together" && return 1
+    elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez.log.error "Must provide --pid or --name" && return 1
+    elif [[ -z "${pid}" ]]; then
+        if [[ "$(uname -s)" = "Linux" ]]; then
+            for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
+        else
+            ez.log.error "\"--name\" only works on linux" && return 1
+        fi
+    else
+        if [[ "${os}" = "linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
+        elif [[ "${os}" = "macos" ]]; then fd_count=$(lsof -p ${pid} | wc -l | bc); fi
+    fi    
+    echo "${fd_count}"
 }
 
 function ez.backup {
