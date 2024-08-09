@@ -64,7 +64,7 @@ function ez.function.show_registered { local function; for function in "${!EZ_FU
 function ez.function.is_unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
 function ez.function.help {  # By default it will print the "help" when no argument is given
     [[ "${@}" = "--run-with-no-argument" ]] && return 0  # No help info and run function if no argument given
-    if [[ -z "${@}" ]] || ez.array.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
+    if [[ -z "${@}" ]] || ez.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
 }
 function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
@@ -439,8 +439,8 @@ function ez.argument.get {
                 local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
                     local index=$((i + j))
                     # List ends with another argument identifier or end of line
-                    ez.array.includes "${arguments[${index}]}" $(ez.function.arguments.get_short "${function}") && break
-                    ez.array.includes "${arguments[${index}]}" $(ez.function.arguments.get_long "${function}") && break
+                    ez.includes "${arguments[${index}]}" $(ez.function.arguments.get_short "${function}") && break
+                    ez.includes "${arguments[${index}]}" $(ez.function.arguments.get_long "${function}") && break
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done

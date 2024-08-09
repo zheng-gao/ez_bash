@@ -14,8 +14,7 @@ function registered_function {
         ez.argument.set --short "-l" --long "--list-arg" --type "List" --default "Def 1" "Def 2" "Def 3" &&
         ez.argument.set --short "-b" --long "--buy-arg" --exclude "order" &&
         ez.argument.set --short "-s" --long "--sell-arg" --exclude "order" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-arguments || return 0
     local required_arg && required_arg="$(ez.argument.get --short "-r" --long "--required-arg" --arguments "${@}")" &&
     local default_arg && default_arg="$(ez.argument.get --short "-d" --long "--default-arg" --arguments "${@}")" &&
     local choices_arg && choices_arg="$(ez.argument.get --short "-c" --long "--choices-arg" --arguments "${@}")" &&
@@ -36,34 +35,34 @@ TEST_FAILURE=0
 function test_string_required {
     local error_output="$(registered_function 2>&1)" result
     [[  "${error_output}" =~ "Argument \"-r\" is required" ]] && result="True" || result="False"
-    ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
 }
 
 function test_string_exclude {
     local error_output="$(registered_function -r '' -b -s 2>&1)" result
     [[  "${error_output}" =~ "\"-b\" and \"-s\" are mutually exclusive in group: order" ]] && result="True" || result="False"
-    ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
 }
 
 function test_string_choices {
     local error_output="$(registered_function -r '' -c 'My Choice' 2>&1)" result
     [[  "${error_output}" =~ "Invalid value \"My Choice\" for \"-c\"" ]] && result="True" || result="False"
-    ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
     [[  "${error_output}" =~ "please choose from [Choice 1, Choice 2, Choice 3]" ]] && result="True" || result="False"
-    ez_expect_result "True" "${result}" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
 }
 
 function test_string_default {
-    ez_expect_result "default_arg: A default string" "$(registered_function -r '' | grep 'default_arg')" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "default_arg: A default string" --results "$(registered_function -r '' | grep 'default_arg')" || ((++TEST_FAILURE))
 }
 
 function test_list_default {
-    ez_expect_result "list_arg: Def 1#Def 2#Def 3" "$(registered_function -r '' | grep 'list_arg')" || ((++TEST_FAILURE))   
+    ez.test.check --benchmarks "list_arg: Def 1#Def 2#Def 3" --results "$(registered_function -r '' | grep 'list_arg')" || ((++TEST_FAILURE))   
 }
 
 function test_flag {
-    ez_expect_result "flag_arg: True" "$(registered_function -r '' -f | grep 'flag_arg')" || ((++TEST_FAILURE))
-    ez_expect_result "flag_arg: False" "$(registered_function -r '' | grep 'flag_arg')" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "flag_arg: True" --results "$(registered_function -r '' -f | grep 'flag_arg')" || ((++TEST_FAILURE))
+    ez.test.check --benchmarks "flag_arg: False" --results "$(registered_function -r '' | grep 'flag_arg')" || ((++TEST_FAILURE))
 }
 
 ###################################################################################################

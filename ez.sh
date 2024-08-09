@@ -153,9 +153,9 @@ function ez.self.source {
             "-a" | "--all") shift; all_flag="${EZ_TRUE}" ;;
             "-q" | "--quiet") shift; quiet_flag="${EZ_TRUE}" ;;
             "-i" | "--import") shift;
-                while [[ -n "${1}" ]]; do ez.array.includes "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez.includes "${1}" "${args[@]}" && break; import_libs+=("${1}"); shift; done ;;
             "-s" | "--skip") shift;
-                while [[ -n "${1}" ]]; do ez.array.includes "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
+                while [[ -n "${1}" ]]; do ez.includes "${1}" "${args[@]}" && break; skip_libs+=("${1}"); shift; done ;;
             *) log_error "Unknown argument identifier \"${1}\""; return 1 ;;
         esac
     done

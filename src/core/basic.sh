@@ -29,6 +29,10 @@ function ez.is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
 function ez.is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
 function ez.is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
+# ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
+function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
+
 ########################################## Time ###################################################
 function ez.time.today { date "+%F"; }
 # macos date not support milliseconds, brew install coreutils, use gdate
@@ -84,12 +88,15 @@ function ez.array.delete_index() {  # ${1} = array reference, ${2} = index
     for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
     return "${status}"
 }
-function ez.array.quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}"; }
-function ez.array.double_quote { local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}"; }
 
-# ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-function ez.array.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
-function ez.array.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
+function ez.quote {
+    #local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}";
+    local item; for item in "${@}"; do echo "'${item}'"; done
+}
+function ez.double_quote {
+    # local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}";
+    local item; for item in "${@}"; do echo "\"${item}\""; done
+}
 
 ######################################## Logging ##################################################
 function ez.log.level.set { export EZ_LOG_LEVEL="${1}"; }
@@ -139,11 +146,11 @@ function ez.log {
             "-f" | "--file") shift; file="${1}"; shift ;;
             "-o" | "--output-to") shift; output_to="${1}"; shift ;;
             "-s" | "--stack") shift; stack="${1}"; shift ;;
-            "-m" | "--message") shift; while [[ -n "${1}" ]] && ez.array.excludes "${1}" "${arg_list[@]}"; do message+=(${1}); shift; done ;;
+            "-m" | "--message") shift; while [[ -n "${1}" ]] && ez.excludes "${1}" "${arg_list[@]}"; do message+=("${1}"); shift; done ;;
             *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
-    if ez.array.excludes "${output_to}" "${valid_output_to[@]}"; then
+    if ez.excludes "${output_to}" "${valid_output_to[@]}"; then
         ez.log.error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez.string.join ', ' ${valid_output_to[@]})]"
         return 2
     fi
@@ -296,7 +303,7 @@ function ez.source {
         case "${1}" in
             "-p" | "--path") shift; path=${1}; shift ;;
             "-d" | "--depth") shift; depth=${1}; shift ;;
-            "-e" | "--exclude") shift; while [[ -n "${1}" ]] && ez.array.excludes "${1}" "${arg_list[@]}"; do exclude+=(${1}); shift; done ;;
+            "-e" | "--exclude") shift; while [[ -n "${1}" ]] && ez.excludes "${1}" "${arg_list[@]}"; do exclude+=(${1}); shift; done ;;
             *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
