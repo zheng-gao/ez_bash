@@ -35,13 +35,13 @@ function test_ez.time.now {
 
 function test_ez.quote {
     local benchmarks=("'abc'" "'123'" "'''" "'  '")
-    local results=($(ez.quote "abc" "123" "'") "$(ez.quote "  ")")
+    local results=("abc" "123" "'" "  "); ez.quote "results" "${results[@]}"
     ez.test.check --benchmarks "${benchmarks[@]}" --results "${results[@]}" || ((++TEST_FAILURE))
 }
 
 function test_ez.double_quote {
     local benchmarks=("\"abc\"" "\"123\"" "\"\"\"" "\"  \"")
-    local results=($(ez.double_quote "abc" "123" "\"") "$(ez.double_quote "  ")")
+    local results=("abc" "123" "\"" "  "); ez.double_quote "results" "${results[@]}"
     ez.test.check --benchmarks "${benchmarks[@]}" --results "${results[@]}" || ((++TEST_FAILURE))
 }
 

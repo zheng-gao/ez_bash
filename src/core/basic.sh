@@ -33,6 +33,17 @@ function ez.is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
 function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
+function ez.quote {
+    if [[ "${#@}" -le 1 ]]; then echo "'${1}'"; return; fi
+    local -n ez_quote_arg_reference="${1}"; ez_quote_arg_reference=()
+    local i; for i in "${@:2}"; do ez_quote_arg_reference+=("'${i}'"); done
+}
+function ez.double_quote {
+    if [[ "${#@}" -le 1 ]]; then echo "\"${1}\""; return; fi
+    local -n ez_double_quote_arg_reference="${1}"; ez_double_quote_arg_reference=()
+    local i; for i in "${@:2}"; do ez_double_quote_arg_reference+=("\"${i}\""); done
+}
+
 ########################################## Time ###################################################
 function ez.time.today { date "+%F"; }
 # macos date not support milliseconds, brew install coreutils, use gdate
@@ -87,15 +98,6 @@ function ez.array.delete_index() {  # ${1} = array reference, ${2} = index
     ez_array_delete_index_arg_reference=() 
     for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
     return "${status}"
-}
-
-function ez.quote {
-    #local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="'${i}'" || o+=" '${i}'"; done; echo "${o}";
-    local item; for item in "${@}"; do echo "'${item}'"; done
-}
-function ez.double_quote {
-    # local o i; for i in "${@}"; do [[ -z "${o}" ]] && o="\"${i}\"" || o+=" \"${i}\""; done; echo "${o}";
-    local item; for item in "${@}"; do echo "\"${item}\""; done
 }
 
 ######################################## Logging ##################################################
