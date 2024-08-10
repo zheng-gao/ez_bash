@@ -68,7 +68,7 @@ function ez.function.help {  # By default it will print the "help" when no argum
 }
 function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
-function ez.function.arguments.get_list { local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.string.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"; }
+function ez.function.arguments.get_list { local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"; }
 function ez.function.arguments.print {
     local function="${FUNCNAME[1]}"
     [[ "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Print the help info of the target function" \
@@ -84,7 +84,7 @@ function ez.function.arguments.print {
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}" indent="    "
     echo; echo "${indent}[Function Name] ${function}"; echo
     {
-        echo "${indent}$(ez.string.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
+        echo "${indent}$(ez.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
         local short; for short in $(ez.function.arguments.get_short "${function}"); do
             key="${function}${delimiter}${short}"
@@ -97,7 +97,7 @@ function ez.function.arguments.print {
             default="${EZ_S_ARG_TO_DEFAULT_MAP["${key}"]}"
             [[ -z "${default}" ]] && default="${EZ_NONE}" || default=$(sed "s/${delimiter}/, /g" <<< "${default}")
             info="${EZ_S_ARG_TO_INFO_MAP["${key}"]}"; [ -z "${info}" ] && info="${EZ_NONE}"
-            echo "${indent}$(ez.string.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
+            echo "${indent}$(ez.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
         done
         local long; for long in $(ez.function.arguments.get_long "${function}"); do
             key="${function}${delimiter}${long}"
@@ -112,7 +112,7 @@ function ez.function.arguments.print {
             info="${EZ_L_ARG_TO_INFO_MAP["${key}"]}"; [[ -z "${info}" ]] && info="${EZ_NONE}"
             if [[ -z "${short}" ]]; then
                 short="${EZ_NONE}"
-                echo "${indent}$(ez.string.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
+                echo "${indent}$(ez.join "${delimiter}" "${short}" "${long}" "${type}" "${required}" "${exclude}" "${default}" "${choices}" "${info}")"
             fi
         done
     } | column -t -s "${delimiter}"; echo
@@ -149,13 +149,13 @@ function ez.argument.set {
     local function="${FUNCNAME[1]}" short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_FALSE}" default=() choices=()
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Register Function Argument" \
         -a "-f|--function" -t "String" -d "${function}" -c "" -i "Target Function Name" \
-        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez.string.join ", " ${!EZ_ARG_TYPE_SET[@]})]" -i "Function Argument Type" \
+        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez.join ", " ${!EZ_ARG_TYPE_SET[@]})]" -i "Function Argument Type" \
         -a "-s|--short" -t "String" -d "${short}" -c "" -i "Short Argument Identifier" \
         -a "-l|--long" -t "String" -d "${long}" -c "" -i "Long Argument Identifier" \
         -a "-e|--exclude" -t "String" -d "${exclude}" -c "" -i "Mutually Exclusive Group ID" \
         -a "-i|--info" -t "String" -d "${info}" -c "" -i "Argument Description" \
-        -a "-d|--default" -t "List" -d "[$(ez.string.join ", " ${default[@]})]" -c "" -i "Argument Default Value" \
-        -a "-c|--choices" -t "List" -d "[$(ez.string.join ", " ${choices[@]})]" -c "" -i "Argument Value Choices" \
+        -a "-d|--default" -t "List" -d "[$(ez.join ", " ${default[@]})]" -c "" -i "Argument Default Value" \
+        -a "-c|--choices" -t "List" -d "[$(ez.join ", " ${choices[@]})]" -c "" -i "Argument Value Choices" \
         -a "-r|--required" -t "Flag" -d "" -c "" -i "Required Argument" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
@@ -173,7 +173,7 @@ function ez.argument.set {
     done
     [[ -z "${short}" ]] && [[ -z "${long}" ]] && ez.log.error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [[ -z "${EZ_ARG_TYPE_SET[${type}]}" ]]; then
-        ez.log.error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez.string.join ', ' ${!EZ_ARG_TYPE_SET[@]})]"
+        ez.log.error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez.join ', ' ${!EZ_ARG_TYPE_SET[@]})]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help
@@ -200,8 +200,8 @@ function ez.argument.set {
         EZ_S_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_S_ARG_TO_EXCLUDE_MAP["${key}"]="${exclude}"
         EZ_S_ARG_TO_INFO_MAP["${key}"]="${info}"
-        EZ_S_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.string.join "${delimiter}" "${default[@]}")"
-        EZ_S_ARG_TO_CHOICES_MAP["${key}"]="$(ez.string.join "${delimiter}" "${choices[@]}")"
+        EZ_S_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.join "${delimiter}" "${default[@]}")"
+        EZ_S_ARG_TO_CHOICES_MAP["${key}"]="$(ez.join "${delimiter}" "${choices[@]}")"
     else
         key="${function}${delimiter}${long}"; local short_old="${EZ_L_ARG_TO_S_ARG_MAP[${key}]}"
         if [ -n "${short_old}" ]; then
@@ -235,8 +235,8 @@ function ez.argument.set {
         EZ_L_ARG_TO_REQUIRED_MAP["${key}"]="${required}"
         EZ_L_ARG_TO_EXCLUDE_MAP["${key}"]="${exclude}"
         EZ_L_ARG_TO_INFO_MAP["${key}"]="${info}"
-        EZ_L_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.string.join "${delimiter}" "${default[@]}")"
-        EZ_L_ARG_TO_CHOICES_MAP["${key}"]="$(ez.string.join "${delimiter}" "${choices[@]}")"
+        EZ_L_ARG_TO_DEFAULT_MAP["${key}"]="$(ez.join "${delimiter}" "${default[@]}")"
+        EZ_L_ARG_TO_CHOICES_MAP["${key}"]="$(ez.join "${delimiter}" "${choices[@]}")"
     else
         key="${function}${delimiter}${short}"; local long_old="${EZ_S_ARG_TO_L_ARG_MAP[${key}]}"
         if [[ -n "${long_old}" ]]; then
@@ -268,7 +268,7 @@ function ez.argument.get {
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Get argument value from argument list" \
         -a "-s|--short" -t "String" -d "${short}" -c "" -i "The name of the argument short identifier" \
         -a "-l|--long" -t "String" -d "${long}" -c "" -i "The name of the argument long identifier" \
-        -a "-a|--arguments" -t "List" -d "[$(ez.string.join ", " "${arguments[@]}")]" -c "" -i "Argument list of the target function" && {
+        -a "-a|--arguments" -t "List" -d "[$(ez.join ", " "${arguments[@]}")]" -c "" -i "Argument list of the target function" && {
         echo "    [Notes]"
         echo "        Can only be called by another function"
         echo "        The arguments to process must be at the end of this function's argument list"
@@ -444,7 +444,7 @@ function ez.argument.get {
                     [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
                     ((++count))
                 done
-                # [To Do] Return list directly: ez.string.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${output}"
+                # [To Do] Return list directly: ez.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${output}"
                 echo "${output}"; return
             fi
         done
@@ -454,7 +454,7 @@ function ez.argument.get {
             [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
         fi
         # Not Found, Use Default
-        # [To Do] Return list directly: ez.string.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
+        # [To Do] Return list directly: ez.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
         echo "${argument_default}"
     fi
 }

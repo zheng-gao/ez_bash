@@ -33,7 +33,7 @@ function ez.api {
     local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
     local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" &&
     local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" || return 1
-    local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.string.join '&' ${params[@]})"
+    local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${endpoint}${params_str}"; fi

@@ -18,7 +18,7 @@ EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez.log.level.set" to override it
 # ----------------------------------- EZ-Bash Basic Functions ----------------------------------- #
 ###################################################################################################
 function ez.self.variables { set | grep "^EZ_" --color; }
-function ez.self.functions { set | grep "^ez_" | cut -d " " -f 1 | grep "^ez_" --color; }
+function ez.self.functions { set | grep "^ez." | cut -d " " -f 1 | grep "^ez." --color; }
 function ez.state.true { return 0; }
 function ez.state.false { return 1; }
 function ez.environment.path { echo "${PATH}" | tr ":" "\n"; }
@@ -29,21 +29,6 @@ function ez.is_all { [[ "${1}" = "${EZ_ALL}" ]] && return 0 || return 1; }
 function ez.is_any { [[ "${1}" = "${EZ_ANY}" ]] && return 0 || return 1; }
 function ez.is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 
-# ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
-function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
-function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
-
-function ez.quote {
-    if [[ "${#@}" -le 1 ]]; then echo "'${1}'"; return; fi
-    local -n ez_quote_arg_reference="${1}"; ez_quote_arg_reference=()
-    local i; for i in "${@:2}"; do ez_quote_arg_reference+=("'${i}'"); done
-}
-function ez.double_quote {
-    if [[ "${#@}" -le 1 ]]; then echo "\"${1}\""; return; fi
-    local -n ez_double_quote_arg_reference="${1}"; ez_double_quote_arg_reference=()
-    local i; for i in "${@:2}"; do ez_double_quote_arg_reference+=("\"${i}\""); done
-}
-
 ########################################## Time ###################################################
 function ez.time.today { date "+%F"; }
 # macos date not support milliseconds, brew install coreutils, use gdate
@@ -53,51 +38,82 @@ function ez.time.now { local f="+%F %T"; [[ "$(uname -s)" = "Darwin" ]] && f+=" 
 function ez.character.to_int { printf "%d\n" "'${1}"; }
 function ez.character.from_int { printf $(printf "\%o" ${1}); echo; }
 function ez.string.size { echo "${#1}"; }
-function ez.string.lower { tr "[:upper:]" "[:lower:]" <<< "${@}"; }
-function ez.string.upper { tr "[:lower:]" "[:upper:]" <<< "${@}"; }
 function ez.string.format { # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
     if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
         echo; echo "${EZ_INDENT}[Usage]"; echo "${EZ_INDENT}${FUNCNAME[0]} [Format] [String]"; echo; echo "${EZ_INDENT}[Demo]${EZ_INDENT}[Format]"; 
         local f; for f in "${!EZ_FORMAT_SET[@]}"; do echo -e "${EZ_INDENT}${EZ_FORMAT_SET[${f}]}demo${EZ_FORMAT_SET[ResetAll]}${EZ_INDENT}${f}"; done; echo; return 0
     fi; echo "${EZ_FORMAT_SET[${1}]}${@:2}${EZ_FORMAT_SET[ResetAll]}"
 }
-function ez.string.count_items {  # "@@" "@@123@@@xyz@@@@" -> 5
-    local delimiter="${1}" string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
+function ez.string.count_items {  # "," "a,b,c" -> 3
+    local delimiter="${1}"; [[ -z "${delimiter}" ]] && ez.log.error "Delimiter Not Found" && return 1
+    local string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi
     done
     echo "$((++count))"
 }
-function ez.string.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
-    local -n ez_string_split_arg_reference="${1}"; local delimiter="${2}" string="${@:3}" item="" k=0; ez_string_split_arg_reference=()
+
+# ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
+function ez.join {
+    local d="${1}"; [[ -z "${d}" ]] && ez.log.error "Delimiter Not Found" && return 1
+    local o i first=0; for i in "${@:2}"; do [[ "${first}" -eq 0 ]] && o="${i}" || o+="${d}${i}"; first=1; done; echo "${o}"
+}
+# IFS can only take 1 character
+# function ez.join { local IFS="${1}"; shift; echo "${*}"; }
+
+function ez.quote {
+    if [[ "${#@}" -le 1 ]]; then echo "'${1}'"; return; fi
+    local -n ez_quote_arg_reference="${1}"; ez_quote_arg_reference=()
+    local i; for i in "${@:2}"; do ez_quote_arg_reference+=("'${i}'"); done
+}
+function ez.quote.double {
+    if [[ "${#@}" -le 1 ]]; then echo "\"${1}\""; return; fi
+    local -n ez_quote_double_arg_reference="${1}"; ez_quote_double_arg_reference=()
+    local i; for i in "${@:2}"; do ez_quote_double_arg_reference+=("\"${i}\""); done
+}
+function ez.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
+    local -n ez_split_arg_reference="${1}"; local delimiter="${2}" string="${@:3}" item="" k=0; ez_split_arg_reference=()
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then
-            ez_string_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
+            ez_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
         else
             item+="${string:${k}:1}"; ((++k))
         fi
-        [[ "${k}" -ge "${#string}" ]] && ez_string_split_arg_reference+=("${item}")
+        if [[ "${k}" -ge "${#string}" ]]; then ez_split_arg_reference+=("${item}"); fi
     done
 }
-
-# ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
-function ez.string.join { local d="${1}" o i; for i in "${@:2}"; do [[ -z "${o}" ]] && o="${i}" || o+="${d}${i}"; done; echo "${o}"; }
-# IFS can only take 1 character
-# function ez.string.join { local IFS="${1}"; shift; echo "${*}"; }
+function ez.lower {
+    if [[ "${#@}" -le 1 ]]; then tr "[:upper:]" "[:lower:]" <<< "${1}"; return; fi
+    local -n ez_lower_arg_reference="${1}"; ez_lower_arg_reference=()
+    local i; for i in "${@:2}"; do ez_lower_arg_reference+=("$(tr "[:upper:]" "[:lower:]" <<< "${i}")"); done
+}
+function ez.upper {
+    if [[ "${#@}" -le 1 ]]; then tr "[:lower:]" "[:upper:]" <<< "${1}"; return; fi
+    local -n ez_upper_arg_reference="${1}"; ez_upper_arg_reference=()
+    local i; for i in "${@:2}"; do ez_upper_arg_reference+=("$(tr "[:lower:]" "[:upper:]" <<< "${i}")"); done
+}
 
 ########################################## Array ##################################################
+# ${1} = Item, ${2} ~ ${n} = ${input_list[@]}
+function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
+function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
+
 function ez.array.size { echo "${#@}"; }
-function ez.array.delete_item() {  # ${1} = array reference, ${2} = item
-    local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=("${ez_array_delete_item_arg_reference[@]}") item status=1;
-    ez_array_delete_item_arg_reference=() 
-    for item in "${tmp_array[@]}"; do [[ "${item}" != "${2}" ]] && ez_array_delete_item_arg_reference+=("${item}") || status=0; done
-    return "${status}"
+function ez.array.delete.item() {  # ${1} = array reference, ${2} = item
+    local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=() item
+    for item in "${ez_array_delete_item_arg_reference[@]}"; do tmp_array+=("${item}"); done
+    ez_array_delete_item_arg_reference=()
+    for item in "${tmp_array[@]}"; do
+        if [[ "${item}" != "${2}" ]]; then ez_array_delete_item_arg_reference+=("${item}"); fi
+    done
 }
-function ez.array.delete_index() {  # ${1} = array reference, ${2} = index
-    local -n ez_array_delete_index_arg_reference="${1}"; local tmp_array=("${ez_array_delete_index_arg_reference[@]}") i=0 status=1
-    ez_array_delete_index_arg_reference=() 
-    for ((; i < "${#tmp_array[@]}"; ++i)); do [[ "${i}" -ne "${2}" ]] && ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}") || status=0; done
-    return "${status}"
+function ez.array.delete.index() {  # ${1} = array reference, ${2} = index
+    local -n ez_array_delete_index_arg_reference="${1}"; local tmp_array=() item index="${2}" i
+    for item in "${ez_array_delete_index_arg_reference[@]}"; do tmp_array+=("${item}"); done
+    ez_array_delete_index_arg_reference=(); if [[ "${index}" -lt 0 ]]; then (( index += "${#tmp_array[@]}" )); fi
+    for ((i=0; i < "${#tmp_array[@]}"; ++i)); do
+        if [[ "${i}" -ne "${index}" ]]; then ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}"); fi
+    done
 }
 
 ######################################## Logging ##################################################
@@ -119,19 +135,19 @@ function ez.log.stack {
 }
 function ez.log.error {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_ERROR})" ]] && return 0; local color="ForegroundRed"
-    (>&2 echo -e "[$(ez.time.now)][${EZ_LOGO}][$(ez.string.format "${color}" "ERROR")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")")
+    (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "ERROR")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")")
 }
 function ez.log.warning {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_WARNING})" ]] && return 0; local color="ForegroundYellow"
-    echo -e "[$(ez.time.now)][${EZ_LOGO}][$(ez.string.format "${color}" "WARNING")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "WARNING")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
 }
 function ez.log.info {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_INFO})" ]] && return 0
-    echo -e "[$(ez.time.now)][${EZ_LOGO}][INFO]$(ez.log.stack 1) ${@}"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][INFO]$(ez.log.stack 1) ${@}"
 }
 function ez.log.debug {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="ForegroundLightGray"
-    echo -e "[$(ez.time.now)][${EZ_LOGO}][$(ez.string.format "${color}" "DEBUG")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "DEBUG")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
 }
 function ez.log {
     local valid_output_to=("Console" "File" "${EZ_ALL}") logger="INFO" file="" message=() stack=1 output_to="Console"
@@ -140,8 +156,8 @@ function ez.log {
         -a "-l|--logger" -t "String" -d "${logger}" -c "" -i "Logger type" \
         -a "-f|--file" -t "String" -d "${file}" -c "" -i "Path to the log file" \
         -a "-s|--stack" -t "Integer" -d "${stack}" -c "" -i "Hide top x function from stack" \
-        -a "-m|--message" -t "List" -d "[$(ez.string.join ", " "${message[@]}")]" -c "" -i "The message to print" \
-        -a "-o|--output-to" -t "List" -d "Console" -c "[$(ez.string.join ", " "${valid_output_to[@]}")]" -i "" && return 0
+        -a "-m|--message" -t "List" -d "[$(ez.join ", " "${message[@]}")]" -c "" -i "The message to print" \
+        -a "-o|--output-to" -t "List" -d "Console" -c "[$(ez.join ", " "${valid_output_to[@]}")]" -i "" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-l" | "--logger") shift; logger="${1}"; shift ;;
@@ -153,16 +169,16 @@ function ez.log {
         esac
     done
     if ez.excludes "${output_to}" "${valid_output_to[@]}"; then
-        ez.log.error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez.string.join ', ' ${valid_output_to[@]})]"
+        ez.log.error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez.join ', ' ${valid_output_to[@]})]"
         return 2
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
-        if [[ "$(ez.string.lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ez.time.now)][${EZ_LOGO}][$(ez.string.format ForegroundRed ${logger})]$(ez.log.stack ${stack}) ${message[@]}")
-        elif [[ "$(ez.string.lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ez.time.now)][${EZ_LOGO}][$(ez.string.format ForegroundYellow ${logger})]$(ez.log.stack ${stack}) ${message[@]}"
+        if [[ "$(ez.lower ${logger})" = "error" ]]; then
+            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format ForegroundRed ${logger})]$(ez.log.stack ${stack}) ${message[@]}")
+        elif [[ "$(ez.lower ${logger})" = "warning" ]]; then
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format ForegroundYellow ${logger})]$(ez.log.stack ${stack}) ${message[@]}"
         else
-            echo -e "[$(ez.time.now)][${EZ_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
@@ -171,7 +187,7 @@ function ez.log {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez.log.error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez.log.error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ez.time.now)][${EZ_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}" >> "${file}"
+        echo "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}" >> "${file}"
     fi
 }
 
@@ -300,7 +316,7 @@ function ez.source {
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Source a file or a directory recursively" \
         -a "-p|--path" -t "String" -d "${path}" -c "" -i "Path to source" \
         -a "-d|--depth" -t "String" -d "${depth}" -c "" -i "Directory search depth, none for infinity" \
-        -a "-e|--exclude" -t "List" -d "[$(ez.string.join ", " "${exclude[@]}")]" -c "" -i "Keywords to exclude" && return 0
+        -a "-e|--exclude" -t "List" -d "[$(ez.join ", " "${exclude[@]}")]" -c "" -i "Keywords to exclude" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-p" | "--path") shift; path=${1}; shift ;;
@@ -319,7 +335,7 @@ function ez.source {
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done
         else
-            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez.string.join "\|" "${exclude[@]}")); do
+            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez.join "\|" "${exclude[@]}")); do
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done
         fi

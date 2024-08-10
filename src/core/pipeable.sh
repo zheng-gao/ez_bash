@@ -2,11 +2,11 @@
 # unless the expand_aliases shell option is set using shopt
 shopt -s expand_aliases
 
-alias EZP_STRIP="sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//'"
-alias EZP_LSTRIP="sed 's/^[[:blank:]]*//'"
-alias EZP_RSTRIP="sed 's/[[:blank:]]*$//'"
-alias EZP_STATS="sort | uniq -c | sort -n"
-alias EZP_GET_VERSIONS="sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p'"
+alias ez.pipe.strip="sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//'"
+alias ez.pipe.lstrip="sed 's/^[[:blank:]]*//'"
+alias ez.pipe.rstrip="sed 's/[[:blank:]]*$//'"
+alias ez.pipe.stats="sort | uniq -c | sort -n"
+alias ez.pipe.versions="sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p'"
 
 function ez.pipe.column {
     local data delimiter="${1}" column="${2}"
@@ -23,4 +23,4 @@ function ez.pipe.column {
     fi
 }
 
-function ez.show_pipeables { alias | grep "EZ_" --color; }
+function ez.pipeables.show { alias | grep "EZ.PIPE." --color; }

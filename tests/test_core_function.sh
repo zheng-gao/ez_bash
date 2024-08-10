@@ -32,49 +32,54 @@ function registered_function {
 ###################################################################################################
 TEST_FAILURE=0
 
-function test_string_required {
-    local error_output="$(registered_function 2>&1)" result
-    [[  "${error_output}" =~ "Argument \"-r\" is required" ]] && result="True" || result="False"
-    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.argument.get.string.required {
+    local error_output="$(registered_function 2>&1)" expects=("True") results=()
+    [[  "${error_output}" =~ "Argument \"-r\" is required" ]] && results+=("True") || results+=("False")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_string_exclude {
-    local error_output="$(registered_function -r '' -b -s 2>&1)" result
-    [[  "${error_output}" =~ "\"-b\" and \"-s\" are mutually exclusive in group: order" ]] && result="True" || result="False"
-    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.argument.get.string.exclude {
+    local error_output="$(registered_function -r '' -b -s 2>&1)" expects=("True") results=()
+    [[  "${error_output}" =~ "\"-b\" and \"-s\" are mutually exclusive in group: order" ]] && results+=("True") || results+=("False")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_string_choices {
-    local error_output="$(registered_function -r '' -c 'My Choice' 2>&1)" result
-    [[  "${error_output}" =~ "Invalid value \"My Choice\" for \"-c\"" ]] && result="True" || result="False"
-    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
-    [[  "${error_output}" =~ "please choose from [Choice 1, Choice 2, Choice 3]" ]] && result="True" || result="False"
-    ez.test.check --benchmarks "True" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.argument.get.string.choices {
+    local error_output="$(registered_function -r '' -c 'My Choice' 2>&1)" expects=("True" "True") results=()
+    [[  "${error_output}" =~ "Invalid value \"My Choice\" for \"-c\"" ]] && results+=("True") || results+=("False")
+    [[  "${error_output}" =~ "please choose from [Choice 1, Choice 2, Choice 3]" ]] && results+=("True") || results+=("False")
+    ez.test.check --expects "expects" --results "results" --subject "Invalid Choices" || ((++TEST_FAILURE))
 }
 
-function test_string_default {
-    ez.test.check --benchmarks "default_arg: A default string" --results "$(registered_function -r '' | grep 'default_arg')" || ((++TEST_FAILURE))
+function test_ez.argument.get.string.default {
+    local expects=("default_arg: A default string") results=("$(registered_function -r '' | grep 'default_arg')")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_list_default {
-    ez.test.check --benchmarks "list_arg: Def 1#Def 2#Def 3" --results "$(registered_function -r '' | grep 'list_arg')" || ((++TEST_FAILURE))   
+function test_ez.argument.get.list.default {
+    local expects=("list_arg: Def 1#Def 2#Def 3") results=("$(registered_function -r '' | grep 'list_arg')")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_flag {
-    ez.test.check --benchmarks "flag_arg: True" --results "$(registered_function -r '' -f | grep 'flag_arg')" || ((++TEST_FAILURE))
-    ez.test.check --benchmarks "flag_arg: False" --results "$(registered_function -r '' | grep 'flag_arg')" || ((++TEST_FAILURE))
+function test_ez.argument.get.flag {
+    local expects=("flag_arg: True" "flag_arg: False")
+    local results=(
+        "$(registered_function -r '' -f | grep 'flag_arg')"
+        "$(registered_function -r '' | grep 'flag_arg')"
+    )
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
 ###################################################################################################
 # ------------------------------------------ Run Test ------------------------------------------- #
 ###################################################################################################
-test_string_required
-test_string_exclude
-test_string_choices
-test_string_default
+test_ez.argument.get.string.required
+test_ez.argument.get.string.exclude
+test_ez.argument.get.string.choices
+test_ez.argument.get.string.default
 
-test_list_default
-test_flag
+test_ez.argument.get.list.default
+test_ez.argument.get.flag
 
 exit "${TEST_FAILURE}"
 

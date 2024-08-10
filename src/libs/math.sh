@@ -8,12 +8,12 @@ EZ_INT_MIN=-2147483647
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez.math.floor {
-    local ez_math_floor_parts; ez.string.split "ez_math_floor_parts" "." "${1}"
+    local ez_math_floor_parts; ez.split "ez_math_floor_parts" "." "${1}"
     local result="${ez_math_floor_parts[0]}"; if [[ -z "${result}" || "${result}" = "-" ]]; then result+="0"; fi
     if [[ -n "${ez_math_floor_parts[1]}" && "${ez_math_floor_parts[1]}" -ne 0 && "${1:0:1}" = "-" ]]; then ((--result)); fi; echo "${result}"
 }
 function ez.math.ceiling {
-    local ez_math_ceiling_parts; ez.string.split "ez_math_ceiling_parts" "." "${1}"
+    local ez_math_ceiling_parts; ez.split "ez_math_ceiling_parts" "." "${1}"
     local result="${ez_math_ceiling_parts[0]}"; if [[ -z "${result}" || "${result}" = "-" ]]; then result+="0"; fi
     if [[ -n "${ez_math_ceiling_parts[1]}" && "${ez_math_ceiling_parts[1]}" -ne 0 && "${1:0:1}" != "-" ]]; then ((++result)); fi; echo "${result}"
 }

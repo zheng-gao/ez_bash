@@ -99,7 +99,7 @@ function ez.string.banner {
         local valid_keys=("Contains" "Starts" "Ends")
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The number of the strings in the line spliter" &&
-        ez.argument.set --short "-m" --long "--message" --default "${EZ_LOGO}" --info "Message to print in the banner" &&
+        ez.argument.set --short "-m" --long "--message" --default "${EZ_SELF_LOGO}" --info "Message to print in the banner" &&
         ez.argument.set --short "-l" --long "--log-prefix" --type "Flag" --info "Print EZ-BASH log prefix" || return 1
     fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&

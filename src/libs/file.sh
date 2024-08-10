@@ -32,7 +32,7 @@ function ez.file.lines.delete {
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local keywords && ez.function.arguments.get_list "keywords" "$(ez.argument.get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_string=$(ez.string.join "\|" "${keywords[@]}")
+        local exclude_string=$(ez.join "\|" "${keywords[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
         rm "${path}.bak"

@@ -9,39 +9,32 @@ source "${EZ_BASH_HOME}/src/core/pipeable.sh" || exit 1
 ###################################################################################################
 TEST_FAILURE=0
 
-function test_EZP_STRIP {
-    local benchmark="$(printf 'a bc\t def')"
-    local result=$(printf '  \ta bc\t def  \t ' | EZP_STRIP)
-    ez.test.check --benchmarks "${benchmark}" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.pipe.strip {
+    local expects=("$(printf 'a bc\t def')") results=("$(printf '  \ta bc\t def  \t ' | ez.pipe.strip)")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_EZP_LSTRIP {
-    local benchmark="$(printf 'a bc\t def  \t ')"
-    local result=$(printf '  \ta bc\t def  \t ' | EZP_LSTRIP)
-    ez.test.check --benchmarks "${benchmark}" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.pipe.lstrip {
+    local expects=("$(printf 'a bc\t def  \t ')") results=("$(printf '  \ta bc\t def  \t ' | ez.pipe.lstrip)")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_EZP_RSTRIP {
-    local benchmark="$(printf '  \ta bc\t def')"
-    local result=$(printf '  \ta bc\t def  \t ' | EZP_RSTRIP)
-    ez.test.check --benchmarks "${benchmark}" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.pipe.rstrip {
+    local expects=("$(printf '  \ta bc\t def')") results=("$(printf '  \ta bc\t def  \t ' | ez.pipe.rstrip)")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_EZP_STATS {
-    local benchmark="$(printf '   1 d\n   2 c\n   3 a\n   4 b\n')"
-    local result=$(printf 'b\na\nb\nc\nb\nd\na\na\nc\nb\n' | EZP_STATS)
-    ez.test.check --benchmarks "${benchmark}" --results "${result}" || ((++TEST_FAILURE))
+function test_ez.pipe.stats {
+    local expects=("$(printf '   1 d\n   2 c\n   3 a\n   4 b\n')") results=("$(printf 'b\na\nb\nc\nb\nd\na\na\nc\nb\n' | ez.pipe.stats)")
+    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
 ###################################################################################################
 # ------------------------------------------ Run Test ------------------------------------------- #
 ###################################################################################################
-test_EZP_STRIP
-test_EZP_LSTRIP
-test_EZP_RSTRIP
-test_EZP_STATS
+test_ez.pipe.strip
+test_ez.pipe.lstrip
+test_ez.pipe.rstrip
+test_ez.pipe.stats
 
 exit "${TEST_FAILURE}"
-
-
-
