@@ -17,8 +17,10 @@ EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez.log.level.set" to override it
 ###################################################################################################
 # ----------------------------------- EZ-Bash Basic Functions ----------------------------------- #
 ###################################################################################################
-function ez.self.variables { set | grep "^EZ_" --color; }
-function ez.self.functions { set | grep "^ez." | cut -d " " -f 1 | grep "^ez." --color; }
+function ez.self.show.variables { set | grep "^EZ_" --color; }
+function ez.self.show.functions { set | cut -d " " -f 1 | grep -v "^ez.pipe." | grep "^ez." --color; }
+function ez.self.show.pipeables { alias | grep "ez.pipe." --color; set | cut -d " " -f 1 | grep "^ez.pipe." --color; }
+
 function ez.state.true { return 0; }
 function ez.state.false { return 1; }
 function ez.environment.path { echo "${PATH}" | tr ":" "\n"; }

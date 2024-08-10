@@ -22,5 +22,3 @@ function ez.pipe.column {
         while read -r data; do echo "${data}" | awk -F "${delimiter}" "{print \$(NF${column})}"; done
     fi
 }
-
-function ez.pipeables.show { alias | grep "EZ.PIPE." --color; }
