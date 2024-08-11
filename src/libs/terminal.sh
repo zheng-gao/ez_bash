@@ -44,7 +44,7 @@ function ez.clear {
     fi
 }
 
-function ez.terminal.set_title {
+function ez.terminal.title.set {
     if ez.function.is_unregistered; then
         ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" \
                     --info "Terminal Title" || return 1
