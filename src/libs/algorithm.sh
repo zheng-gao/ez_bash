@@ -7,7 +7,7 @@
 ###################################################################################################
 
 function ez.sort {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-n" --long "--number" --type "Flag" &&
         ez.argument.set --short "-r" --long "--reverse" --type "Flag" || return 1

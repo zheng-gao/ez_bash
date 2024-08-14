@@ -54,7 +54,7 @@ function ez.git.flow {
 }
 
 function ez.git.push.batches {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
         ez.argument.set --short "-r" --long "--remote" --default "origin" --info "Git Remote" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -96,7 +96,7 @@ function ez.git.push.batches {
 }
 
 function ez.git.commit.stats {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_time_formats=("Epoch" "Datetime")
         ez.argument.set --short "-r" --long "--repo-path" --required --info "Path to the git repo directory" &&
         ez.argument.set --short "-t" --long "--time-format" --required --default "Datetime" --choices "${valid_time_formats[@]}" || return 1
@@ -112,7 +112,7 @@ function ez.git.commit.stats {
 
 
 function ez.git.file.stats {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_operations=("${EZ_ALL}" "ExcludeHeadFiles" "OnlyHeadFiles")
         ez.argument.set --short "-r" --long "--repo-path" --default "." --info "Path to the git repo directory" &&
         ez.argument.set --short "-o" --long "--operation" --default "${EZ_ALL}" --choices "${valid_operations[@]}" || return 1
@@ -145,7 +145,7 @@ function ez.git.file.stats {
 }
 
 function ez.git.history.remove_file {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
         ez.argument.set --short "-f" --long "--file-path" --info "Relative file path, e.g. ./test.txt" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -158,7 +158,7 @@ function ez.git.history.remove_file {
 }
 
 function ez.git.history.large_blobs() {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-r" --long "--repo-path" --info "Path to the git repo directory" &&
         ez.argument.set --short "-b" --long "--min-bytes" --info "Find blobs larger than this bytes" || return 1
     fi; ez.function.help "${@}" || return 0

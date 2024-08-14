@@ -32,10 +32,9 @@ function ez.draw.banner {
 }
 
 function ez.clear {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-l" --long "--lines" --required --default "0" --info "Lines to clean, non-positve clear console" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local lines && lines="$(ez.argument.get --short "-l" --long "--lines" --arguments "${@}")" || return 1
     if [[ "${lines}" -gt 0 ]]; then
         local i=0; for ((; i < "${lines}"; ++i)); do tput "cuu1" && tput "el"; done # cursor up one line and clean
@@ -45,25 +44,22 @@ function ez.clear {
 }
 
 function ez.terminal.title.set {
-    if ez.function.is_unregistered; then
-        ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" \
-                    --info "Terminal Title" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    if ez.function.unregistered; then
+        ez.argument.set --short "-t" --long "--title" --type "String" --required --default "hostname" --info "Terminal Title" || return 1
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local title && title="$(ez.argument.get --short "-t" --long "--title" --arguments "${@}")" || return 1
     if [[ "${title}" == "hostname" ]]; then title=$(hostname); fi
     echo -n -e "\033]0;${title}\007"
 }
 
 function ez.sleep {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-u" --long "--unit" --required --default "Second" \
-                    --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name" &&
+            --choices "d" "D" "Day" "h" "H" "Hour" "m" "M" "Minute" "s" "S" "Second" --info "Unit Name" &&
         ez.argument.set --short "-v" --long "--value" --required --info "Number of units to sleep" &&
         ez.argument.set --short "-n" --long "--interval" --required --default 1 \
-                    --info "Output refresh frequency in seconds, 0 for no output" || return 1
-    fi
-    ez.function.help "${@}" || return 0
+            --info "Output refresh frequency in seconds, 0 for no output" || return 1
+    fi; ez.function.help "${@}" || return 0
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
     local value && value="$(ez.argument.get --short "-v" --long "--value" --arguments "${@}")" &&
     local interval && interval="$(ez.argument.get --short "-n" --long "--interval" --arguments "${@}")" || return 1
@@ -99,7 +95,7 @@ function ez.sleep {
 }
 
 function ez.progress.print {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-f" --long "--filler" --required --default ">" --info "Symbol for progress bar filler" &&
         ez.argument.set --short "-b" --long "--blank" --required --default " " --info "Symbol for progress bar blanks" &&
         ez.argument.set --short "-t" --long "--total" --required --info "Total Steps" &&

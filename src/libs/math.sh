@@ -30,7 +30,7 @@ function ez.math.sum {
     for data in "${@}"; do sum=$(ez.math.calculate --expression "${sum} + ${data}"); done; echo "${sum}"
 }
 function ez.math.average {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 --info "Number of digits after the dot" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -41,7 +41,7 @@ function ez.math.average {
     ez.math.calculate --expression "$(ez.math.sum ${ez_math_average_data_list[@]}) / ${#ez_math_average_data_list[@]}" --scale "${scale}"
 }
 function ez.math.variance {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
     fi; ez.function.help "${@}" || return 0
@@ -54,7 +54,7 @@ function ez.math.variance {
     ez.math.calculate --expression "${variance} / (${#ez_math_variance_data_list[@]} - 1)" --scale "${scale}"
 }
 function ez.math.std_deviation {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
     fi; ez.function.help "${@}" || return 0
@@ -65,7 +65,7 @@ function ez.math.std_deviation {
     ez.math.calculate --expression "sqrt($(ez.math.variance --data "${ez_math_std_deviation_data_list[@]}" --scale "${scale}"))" --scale "${scale}"
 }
 function ez.math.calculate {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-e" --long "--expression" --required &&
         ez.argument.set --short "-s" --long "--scale" --required --default 6 || return 1
     fi; ez.function.help "${@}" || return 0
@@ -76,7 +76,7 @@ function ez.math.calculate {
 }
 
 function ez.math.decimal.to_base_x {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--decimal" --required --info "Decimal Number" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" &&
         ez.argument.set --short "-p" --long "--padding" --default "2" --info "Total length for padding if not fill" || return 1
@@ -91,7 +91,7 @@ function ez.math.decimal.to_base_x {
 }
 
 function ez.math.decimal.from_base_x {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-v" --long "--value" --required --info "Base X value" &&
         ez.argument.set --short "-b" --long "--base" --required --default "2" --choices "2" "8" "16" --info "Base x" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -109,7 +109,7 @@ function ez.math.decimal.from_base_x {
 }
 
 function ez.math.percentile {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-d" --long "--data" --type "List" --required &&
         ez.argument.set --short "-p" --long "--percentile" --required --default 50 &&
         ez.argument.set --short "-m" --long "--method" --required --default "Linear" --choices "Linear" "Lower" "Higher" "Midpoint" "Nearest" &&
@@ -153,7 +153,7 @@ function ez.math.percentile {
 }
 
 function ez.random.int {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-l" --long "--lower-bound" --required --default 0 --info "Inclusive Lower Bound" &&
         ez.argument.set --short "-u" --long "--upper-bound" --required --info "Exclusive Upper Bound" || return 1
     fi; ez.function.help "${@}" || return 0

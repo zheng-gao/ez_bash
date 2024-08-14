@@ -9,7 +9,7 @@ ez.dependencies.check "lsof" "awk" || return 1
 function ez.file.read { cat "${1}"; }
 function ez.file.clear { echo -n > "${1}"; }
 function ez.file.create {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --default "/var/tmp/dummy" --info "Path to the file" &&
         ez.argument.set --short "-u" --long "--unit" --required --default "B" --choices "B" "K" "M" "G" &&
         ez.argument.set --short "-s" --long "--size" --required || return 1
@@ -25,7 +25,7 @@ function ez.file.create {
 function ez.file.lines.count { wc -l "${1}" | awk '{print $1}'; }
 function ez.file.lines.strip { local line; while read -r line; do echo ${line}; done < "${1}"; }
 function ez.file.lines.delete {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--keywords" --type "List" --info "List of keywords to be deleted" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -41,7 +41,7 @@ function ez.file.lines.delete {
     fi
 }
 function ez.file.lines.read {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-i" --long "--i-th" --info "The i-th line, negative number for reverse order" &&
         ez.argument.set --short "-f" --long "--from" --default "1" --info "From line, negative number for reverse order" &&
@@ -74,7 +74,7 @@ function ez.file.lines.read {
 function ez.file.parse.value {
     #  File Content:
     #  ...key="value"...
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-k" --long "--key" --required --info "The name of the key" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -88,7 +88,7 @@ function ez.file.parse.value {
 }
 
 function ez.file.parse.ip {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-v" --long "--version" --default "4" --required --choices "4" "6" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -109,7 +109,7 @@ function ez.file.parse.ip {
 }
 
 function ez.file.parse.between_lines {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--start" --required --info "Starting line marker" &&
         ez.argument.set --short "-e" --long "--end" --required --info "Ending line marker" &&
@@ -129,7 +129,7 @@ function ez.file.parse.between_lines {
 
 
 function ez.file.string_replace {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
         ez.argument.set --short "-s" --long "--search" --required --info "String to be replaced" &&
         ez.argument.set --short "-r" --long "--replacement" --required --info "Replacement String" || return 1
@@ -147,7 +147,7 @@ function ez.file.string_replace {
 }
 
 function ez.file.descriptor.count {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--process-id" --info "Process ID" &&
         ez.argument.set --short "-n" --long "--process-name" --info "Process Name, only works for linux" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -170,7 +170,7 @@ function ez.file.descriptor.count {
 }
 
 function ez.backup {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-s" --long "--source" --required --info "The path of a file or directory to be backed up" &&
         ez.argument.set --short "-b" --long "--backup" --required --default "${HOME}/backups" --info "Backup directory path" ||
         return 1

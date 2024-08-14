@@ -9,7 +9,7 @@ alias ez.pipe.stats="sort | uniq -c | sort -n"
 alias ez.pipe.versions="sed -nre 's/^[^0-9]*(([0-9]+\.)+[0-9]+).*/\1/p'"
 
 function ez.pipe.columns.get {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-id" --long "--input-delimiter" --default "<SPACE>" --info "Default delimiter will ignore continuous spaces" &&
         ez.argument.set --short "-od" --long "--output-delimiter" --default "<SPACE>" &&
         ez.argument.set --short "-c" --long "--columns" --type "List" --default 0 --required --info "Column Numbers" || return 1

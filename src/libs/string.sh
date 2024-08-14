@@ -17,7 +17,7 @@ function ez.string.count_substring {
 }
 
 function ez.string.repeat {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "String to be repeated" &&
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The count of the substrings" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -28,7 +28,7 @@ function ez.string.repeat {
 }
 
 function ez.string.trim {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_keys=("Left" "Right" "Both" "Any")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be trimmed" &&
         ez.argument.set --short "-p" --long "--pattern" --required --default "${EZ_CHAR_SPACE}" --info "Substring Pattern" &&
@@ -54,7 +54,7 @@ function ez.string.trim {
 }
 
 function ez.string.cut {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_keys=("Left" "Right" "Both")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be cut" &&
         ez.argument.set --short "-l" --long "--length" --info "Length to be cut" &&
@@ -71,7 +71,7 @@ function ez.string.cut {
 }
 
 function ez.string.check {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be checked" &&
         ez.argument.set --short "-p" --long "--pattern" --required --info "Substring Pattern" &&
@@ -95,7 +95,7 @@ function ez.string.check {
 }
 
 function ez.string.banner {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
         ez.argument.set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&
         ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The number of the strings in the line spliter" &&

@@ -7,7 +7,7 @@ ez.dependencies.check "awk" || return 1
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
 function ez.table.print {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-cd" --long "--col-delimiter" --required --default "," --info "Column Delimiter" &&
         ez.argument.set --short "-rd" --long "--row-delimiter" --required --default ";" --info "Row Delimiter" &&
         ez.argument.set --short "-d" --long "--data" --exclude "1" --info "The input data if file is not provided" && 

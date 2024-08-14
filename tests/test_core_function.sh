@@ -6,7 +6,7 @@ source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
 source "${EZ_BASH_HOME}/src/core/function.sh" || exit 1
 
 function registered_function {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-r" --long "--required-arg" --required &&
         ez.argument.set --short "-d" --long "--default-arg" --default "A default string" &&
         ez.argument.set --short "-c" --long "--choices-arg" --choices "Choice 1" "Choice 2" "Choice 3" &&

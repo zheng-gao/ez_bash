@@ -13,10 +13,9 @@
 ### --required
 ```bash
 function ez_test_string_arg_required {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-i" --long "--input" --required || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local input; input=$(ez.argument.get --short "-i" --long "--input" --arguments "${@}") || return 1
     echo "input = \"${input}\""
 }
@@ -35,10 +34,9 @@ input = "hello world"
 ### --default
 ```bash
 function ez_test_string_arg_default {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-i" --long "--input" --default "A default string" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local input; input=$(ez.argument.get --short "-i" --long "--input" --arguments "${@}") || return 1
     echo "input = \"${input}\""
 }
@@ -57,13 +55,12 @@ input = "hello world"
 ### --exclude
 ```bash
 function ez_test_string_arg_exclude {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-m" --long "--male" --exclude "1" || return 1
         ez.argument.set --short "-f" --long "--female" --exclude "1" || return 1
         ez.argument.set --short "-l" --long "--lock" --exclude "2" || return 1
         ez.argument.set --short "-u" --long "--unlock" --exclude "2" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local male; male=$(ez.argument.get --short "-m" --long "--male" --arguments "${@}") || return 1
     local female; female=$(ez.argument.get --short "-f" --long "--female" --arguments "${@}") || return 1
     local lock; lock=$(ez.argument.get --short "-l" --long "--lock" --arguments "${@}") || return 1
@@ -95,10 +92,9 @@ lock = "Test"
 ### --choices
 ```bash
 function ez_test_string_arg_choices {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set -s "-i" -l "--input" -r --choices "Cappuccino" "Espresso" "Latte" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local input && input=$(ez.argument.get -s "-i" -l "--input" -a "${@}") || return 1
     echo "input = \"${input}\""
 }
@@ -118,10 +114,9 @@ input = "Latte"
 ### --type "Password"
 ```bash
 function ez_test_password_arg {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set -s "-p" -l "--password" -r -t "Password" -i "Admin password" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local password && password=$(ez.argument.get -s "-p" -l "--password" -a "${@}") || return 1
     echo "$(ez.string.repeat --string "*" --count ${#password})"
     echo "password = \"${password}\""
@@ -139,10 +134,9 @@ password = "my secret"
 ### --type "List"
 ```bash
 function ez_test_list_arg_default {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set -s "-l" -l "--list" -d "Def 1" "Def 2" "Def 3" -t "List" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local list_arg && ez.function.arguments.get_list "list_arg" "$(ez.argument.get -s "-l" -l "--list" -a "${@}")" || return 1
     for item in "${list_arg[@]}"; do echo "${item}"; done
 }
@@ -165,10 +159,9 @@ Item 3
 ### --type "Flag"
 ```bash
 function ez_test_flag_arg {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-f" --long "--flag" --type "Flag" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local flag && flag=$(ez.argument.get --short "-f" --long "--flag" --arguments "${@}") || return 1
     echo "flag = ${flag}"
 }

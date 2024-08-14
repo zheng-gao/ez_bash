@@ -8,7 +8,7 @@ ez.dependencies.check "openssl" || return 1
 ###################################################################################################
 
 function ez.ssl.cert {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-h" --long "--hostname" --required --info "FQDN" &&
         ez.argument.set --short "-p" --long "--port" --required --default "443" --info "Port Number" ||
         return 1
@@ -19,7 +19,7 @@ function ez.ssl.cert {
 }
 
 function ez.ssl.fingerprint {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-c" --long "--cert" --required --info "File path to the cert" &&
         ez.argument.set --short "-s" --long "--sha" --required --default "SHA1" --choices "SHA1" "SHA256" --info "SHA type" ||
         return 1

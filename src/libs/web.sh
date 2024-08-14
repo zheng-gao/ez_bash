@@ -8,13 +8,12 @@ ez.dependencies.check "nc" || return 1
 ###################################################################################################
 
 function ez.web {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-h" --long "--host" --required --default "localhost" --info "Hostname or IP" &&
         ez.argument.set --short "-p" --long "--port" --required --default "5555" &&
         ez.argument.set --short "-i" --long "--index" --info "Path to the index.html" &&
         ez.argument.set --short "-b" --long "--background" --type "Flag" --info "Run server on background" || return 1
-    fi
-    [[ -n "${@}" ]] && ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local host && host="$(ez.argument.get --short "-h" --long "--host" --arguments "${@}")" &&
     local port && port="$(ez.argument.get --short "-p" --long "--port" --arguments "${@}")" &&
     local index && index="$(ez.argument.get --short "-i" --long "--index" --arguments "${@}")" &&

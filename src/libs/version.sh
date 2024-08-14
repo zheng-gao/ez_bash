@@ -28,7 +28,7 @@ function ez.version.compare {
 }
 
 function ez.version.compare_2 {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
                     --info "Must quote operation \">\" and \">=\"" &&
         ez.argument.set --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
@@ -36,8 +36,7 @@ function ez.version.compare_2 {
         ez.argument.set --short "-r" --long "--right-version" --required --info "The version on right side" &&
         ez.argument.set --short "-c" --long "--check-length" --type "Flag" --info "The lengths of the versions must match" &&
         ez.argument.set --short "-p" --long "--print" --type "Flag" --info "Print boolean result" || return 1
-    fi
-    ez.function.help "${@}" || return 0
+    fi; ez.function.help "${@}" || return 0
     local operation && operation="$(ez.argument.get --short "-o" --long "--operation" --arguments "${@}")" &&
     local delimiter && delimiter="$(ez.argument.get --short "-d" --long "--delimiter" --arguments "${@}")" &&
     local left_version && left_version="$(ez.argument.get --short "-l" --long "--left-version" --arguments "${@}")" &&

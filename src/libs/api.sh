@@ -1,5 +1,5 @@
 function ez.api {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-u" --long "--url" --info "The full url overrides domain, port, endpoint, params"  &&
         ez.argument.set --short "-D" --long "--domain" &&
         ez.argument.set --short "-P" --long "--port" &&

@@ -1,5 +1,5 @@
 function ez.collections.set.operation {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         local valid_operation=("Intersection" "Union" "LeftOnly" "RightOnly")
         ez.argument.set --short "-o" --long "--operation" --required --default "Intersection" --choices "${valid_operation[@]}" &&
         ez.argument.set --short "-l" --long "--left" --type "List" --info "Left Set: Item_l1 Item_l2 ..." &&
@@ -48,7 +48,7 @@ function ez.collections.set.operation {
 }
 
 function ez.collections.set.contains {
-    if ez.function.is_unregistered; then
+    if ez.function.unregistered; then
         ez.argument.set --short "-sp" --long "--superset" --type "List" --info "Superset: Item_l1 Item_l2 ..." &&
         ez.argument.set --short "-sb" --long "--subset" --type "List" --info "Subset: Item_s1 Item_s2 ..." &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print Result" || return 1

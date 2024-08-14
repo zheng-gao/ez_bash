@@ -60,8 +60,8 @@ unset EZ_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZ_S_ARG_TO_EXCLUD
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
 function ez.function.show_registered { local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done; }
-# ez.function.is_unregistered  Should only be called by another function. If not, give the function name in 1st argument
-function ez.function.is_unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
+# ez.function.unregistered  Should only be called by another function. If not, give the function name in 1st argument
+function ez.function.unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
 function ez.function.help {  # By default it will print the "help" when no argument is given
     [[ "${@}" = "--run-with-no-argument" ]] && return 0  # No help info and run function if no argument given
     if [[ -z "${@}" ]] || ez.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
