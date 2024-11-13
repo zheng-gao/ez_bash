@@ -6,15 +6,9 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez.string.replace {
-    local string="${1}" pattern="${2}" replacement="${3}"
-    echo "${string//${pattern}/${replacement}}"
-}
-
-function ez.string.count_substring {
-    local input_string="${1}" substring="${2}"
-    echo "${input_string}" | grep -o "${substring}" | wc -l | bc
-}
+function ez.string.contains { local string="${1}" substring="${2}"; [[ "${string}" == *"${substring}"* ]]; }
+function ez.string.replace { local string="${1}" pattern="${2}" replacement="${3}"; echo "${string//${pattern}/${replacement}}"; }
+function ez.string.count_substring { local input_string="${1}" substring="${2}"; echo "${input_string}" | grep -o "${substring}" | wc -l | bc; }
 
 function ez.string.repeat {
     if ez.function.unregistered; then

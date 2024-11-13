@@ -6,9 +6,10 @@ ez.dependencies.check "lsof" "awk" "stat" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez.file.mode { stat -c "%a" "${1}"; }
-function ez.file.user { stat -c "%U" "${1}"; }
-function ez.file.group { stat -c "%G" "${1}"; }
+function ez.mode { stat -c "%a" "${1}"; }
+function ez.user { stat -c "%U" "${1}"; }
+function ez.group { stat -c "%G" "${1}"; }
+
 function ez.file.read { cat "${1}"; }
 function ez.file.clear { echo -n > "${1}"; }
 function ez.file.create {
