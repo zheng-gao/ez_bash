@@ -23,7 +23,8 @@ function ez.api {
         ez.argument.set --short "-T" --long "--upload-file" --info "File Path" &&
         ez.argument.set --short "-o" --long "--output" --info "Output Path" &&
         ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
-        ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" || return 1
+        ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" &&
+        ez.argument.set --short "-c" --long "--code-only" --type "Flag" --info "Print HTTP response code only" || return 1
     fi; ez.function.help "${@}" || return 0
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-X" --long "--method" --arguments "${@}")" &&
@@ -40,7 +41,8 @@ function ez.api {
     local upload_file && upload_file="$(ez.argument.get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
     local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" &&
-    local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" || return 1
+    local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" &&
+    local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
@@ -53,6 +55,7 @@ function ez.api {
     [[ "${head}" = "True" ]] && curl_str+=" -I"
     [[ "${insecure}" = "True" ]] && curl_str+=" -k"
     [[ "${verbose}" = "True" ]] && curl_str+=" -v"
+    [[ "${code_only}" = "True" ]] && curl_str+=" -w \"%{http_code}\" -o \"/dev/null\""
     if [[ "${dryrun}" = "True" || "${EZ_API_DRY_RUN}" = "True" ]]; then
         >&2 echo "${curl_str}"
     else
