@@ -100,6 +100,7 @@ function ez.upper {
 function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 0; done; return 1; }
 function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
+function ez.array.init { local size="${1}" item="${2}"; for ((; size > 0; --size)) do echo "${item}"; done; }
 function ez.array.size { echo "${#@}"; }
 function ez.array.delete.item() {  # ${1} = array reference, ${2} = item
     local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=() item
