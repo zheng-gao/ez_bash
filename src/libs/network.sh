@@ -27,6 +27,8 @@ function ez.http.code {
         # Informational Codes (1xx)
         100) echo "Continue" ;;
         101) echo "Switching Protocols" ;;
+        102) echo "Processing" ;;
+        103) echo "Early Hints" ;;
         # Successful Codes (2xx)
         200) echo "OK" ;;
         201) echo "Created" ;;
@@ -35,6 +37,9 @@ function ez.http.code {
         204) echo "No Content" ;;
         205) echo "Reset Content" ;;
         206) echo "Partial Content" ;;
+        207) echo "Multi-Status" ;;
+        208) echo "Already Reported" ;;
+        226) echo "IM Used" ;;
         # Redirection Codes (3xx)
         300) echo "Multiple Choices" ;;
         301) echo "Moved Permanently" ;;
@@ -44,6 +49,7 @@ function ez.http.code {
         305) echo "Use Proxy" ;;
         306) echo "Switch Proxy" ;;
         307) echo "Temporary Redirect" ;;
+        308) echo "Permanent Redirect" ;;
         # Client Error Codes (4xx)
         400) echo "Bad Request" ;;
         401) echo "Unauthorized" ;;
@@ -63,6 +69,17 @@ function ez.http.code {
         415) echo "Unsupported Media Type" ;;
         416) echo "Requested Range Not Satisfiable" ;;
         417) echo "Expectation Failed" ;;
+        418) echo "I'm a teapot" ;;
+        421) echo "Misdirected Request" ;;
+        422) echo "Unprocessable Content" ;;
+        423) echo "Locked" ;;
+        424) echo "Failed Dependency" ;;
+        425) echo "Too Early" ;;
+        426) echo "Upgrade Required" ;;
+        428) echo "Precondition Required" ;;
+        429) echo "Too Many Requests" ;;
+        431) echo "Request Header Fields Too Large" ;;
+        451) echo "Unavailable For Legal Reasons" ;;
         # Server Error Codes (5xx)
         500) echo "Internal Server Error" ;;
         501) echo "Not Implemented" ;;
@@ -70,6 +87,11 @@ function ez.http.code {
         503) echo "Service Unavailable" ;;
         504) echo "Gateway Timeout" ;;
         505) echo "HTTP Version Not Supported" ;;
+        506) echo "Variant Also Negotiates" ;;
+        507) echo "Insufficient Storage" ;;
+        508) echo "Loop Detected" ;;
+        510) echo "Not Extended" ;;
+        511) echo "Network Authentication Required" ;;
         525) echo "SSL Handshake Failed" ;;
         *) ez.log.error "Not Implemented: ${1}"; return 1 ;;
     esac
