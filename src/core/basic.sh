@@ -42,8 +42,10 @@ function ez.character.from_int { printf $(printf "\%o" ${1}); echo; }
 function ez.string.size { echo "${#1}"; }
 function ez.string.format { # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
     if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
-        echo; echo "${EZ_INDENT}[Usage]"; echo "${EZ_INDENT}${FUNCNAME[0]} [Format] [String]"; echo; echo "${EZ_INDENT}[Demo]${EZ_INDENT}[Format]"; 
-        local f; for f in "${!EZ_FORMAT_SET[@]}"; do echo -e "${EZ_INDENT}${EZ_FORMAT_SET[${f}]}demo${EZ_FORMAT_SET[ResetAll]}${EZ_INDENT}${f}"; done; echo; return 0
+        echo; echo "${EZ_INDENT}[Usage]"; echo "${EZ_INDENT}${FUNCNAME[0]} [Format] [String]"; echo
+        echo "${EZ_INDENT}[Demo]    [Format]"; local f;
+        for f in "${!EZ_FORMAT_SET[@]}"; do echo -e "${EZ_INDENT}${EZ_FORMAT_SET[${f}]}demo${EZ_FORMAT_SET[ResetAll]}      ${f}"; done
+        echo; return 0
     fi; echo "${EZ_FORMAT_SET[${1}]}${@:2}${EZ_FORMAT_SET[ResetAll]}"
 }
 function ez.string.count_items {  # "," "a,b,c" -> 3
