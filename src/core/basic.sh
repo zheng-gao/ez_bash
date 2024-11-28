@@ -40,14 +40,6 @@ function ez.time.now { local f="+%F %T"; [[ "$(uname -s)" = "Darwin" ]] && f+=" 
 function ez.character.to_int { printf "%d\n" "'${1}"; }
 function ez.character.from_int { printf $(printf "\%o" ${1}); echo; }
 function ez.string.size { echo "${#1}"; }
-function ez.string.format { # ${1} = format, ${2} ~ ${n} = ${input_string[@]}
-    if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
-        echo; echo "${EZ_INDENT}[Usage]"; echo "${EZ_INDENT}${FUNCNAME[0]} [Format] [String]"; echo
-        echo "${EZ_INDENT}[Demo]    [Format]"; local f;
-        for f in "${!EZ_FORMAT_SET[@]}"; do echo -e "${EZ_INDENT}${EZ_FORMAT_SET[${f}]}demo${EZ_FORMAT_SET[ResetAll]}      ${f}"; done
-        echo; return 0
-    fi; echo "${EZ_FORMAT_SET[${1}]}${@:2}${EZ_FORMAT_SET[ResetAll]}"
-}
 function ez.string.count_items {  # "," "a,b,c" -> 3
     local delimiter="${1}"; [[ -z "${delimiter}" ]] && ez.log.error "Delimiter Not Found" && return 1
     local string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
@@ -139,20 +131,20 @@ function ez.log.stack {
     [[ -n "${stack}" ]] && echo "[${stack}]"
 }
 function ez.log.error {
-    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_ERROR})" ]] && return 0; local color="ForegroundRed"
-    (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "ERROR")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")")
+    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_ERROR})" ]] && return 0; local color="Red"
+    (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "${color}" -t "ERROR")]$(ez.log.stack 1) $(ez.text.decorate -f "${color}" -t "${@}")")
 }
 function ez.log.warning {
-    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_WARNING})" ]] && return 0; local color="ForegroundYellow"
-    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "WARNING")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
+    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_WARNING})" ]] && return 0; local color="Yellow"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "${color}" -t "WARNING")]$(ez.log.stack 1) $(ez.text.decorate -f "${color}" -t "${@}")"
 }
 function ez.log.info {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_INFO})" ]] && return 0
     echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][INFO]$(ez.log.stack 1) ${@}"
 }
 function ez.log.debug {
-    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="ForegroundLightGray"
-    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format "${color}" "DEBUG")]$(ez.log.stack 1) $(ez.string.format "${color}" "${@}")"
+    [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="LightGray"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "${color}" -t "DEBUG")]$(ez.log.stack 1) $(ez.text.decorate -f "${color}" -t "${@}")"
 }
 function ez.log {
     local valid_output_to=("Console" "File" "${EZ_ALL}") logger="INFO" file="" message=() stack=1 output_to="Console"
@@ -179,9 +171,9 @@ function ez.log {
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         if [[ "$(ez.lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format ForegroundRed ${logger})]$(ez.log.stack ${stack}) ${message[@]}")
+            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack ${stack}) ${message[@]}")
         elif [[ "$(ez.lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.string.format ForegroundYellow ${logger})]$(ez.log.stack ${stack}) ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack ${stack}) ${message[@]}"
         else
             echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}"
         fi
@@ -221,81 +213,135 @@ function ez.function.usage {
 
 ########################################## Color ##################################################
 # https://misc.flogisoft.com/bash/tip_colors_and_formatting
-unset EZ_FORMAT_SET
-declare -g -A EZ_FORMAT_SET=(
-# Formatting
-    # Set
-    ["Bold"]="\e[1m"
-    ["Dim"]="\e[2m"
-    ["Italic"]="\e[3m"
-    ["Underlined"]="\e[4m"
-    ["Blink"]="\e[5m"
-    ["Reverse"]="\e[7m" # invert the foreground and background colors
-    ["Hidden"]="\e[8m" # useful for passwords
-    # ["StrikeThrough"]="\e[9m"
-    # Reset
-    ["ResetAll"]="\e[0m"
-    ["ResetBold"]="\e[21m"
-    ["ResetDim"]="\e[22m"
-    ["ResetItalic"]="\e[23m"
-    ["ResetUnderlined"]="\e[24m"
-    ["ResetBlink"]="\e[25m"
-    ["ResetReverse"]="\e[27m"
-    ["ResetHidden"]="\e[28m"
+unset EZ_TEXT_EFFECT_SET
+declare -g -A EZ_TEXT_EFFECT_SET=(
+    ["Bold"]=1
+    ["Dim"]=2
+    ["Italic"]=3
+    ["Underlined"]=4
+    ["Blink"]=5
+    ["Reverse"]=7       # invert the foreground and background colors
+    ["Hidden"]=8        # useful for passwords
+    # ["StrikeThrough"]=9
+    ["ResetAll"]=0
+    ["ResetBold"]=21
+    ["ResetDim"]=22
+    ["ResetItalic"]=23
+    ["ResetUnderlined"]=24
+    ["ResetBlink"]=25
+    ["ResetReverse"]=27
+    ["ResetHidden"]=28
     # ["ResetStrikeThrough"]="\e[29m"
-# Colors
-    # Foreground
-    ["ForegroundDefault"]="\e[39m"
-    ["ForegroundBlack"]="\e[30m"
-    ["ForegroundRed"]="\e[31m"
-    ["ForegroundGreen"]="\e[32m"
-    ["ForegroundYellow"]="\e[33m"
-    ["ForegroundBlue"]="\e[34m"
-    ["ForegroundMagenta"]="\e[35m"
-    ["ForegroundCyan"]="\e[36m"
-    ["ForegroundLightGray"]="\e[37m"
-    ["ForegroundDarkGray"]="\e[90m"
-    ["ForegroundLightRed"]="\e[91m"
-    ["ForegroundLightGreen"]="\e[92m"
-    ["ForegroundLightYellow"]="\e[93m"
-    ["ForegroundLightBlue"]="\e[94m"
-    ["ForegroundLightMagenta"]="\e[95m"
-    ["ForegroundLightCyan"]="\e[96m"
-    ["ForegroundWhite"]="\e[97m"
-    # Background
-    ["BackgroundDefault"]="\e[49m"
-    ["BackgroundBlack"]="\e[40m"
-    ["BackgroundRed"]="\e[41m"
-    ["BackgroundGreen"]="\e[42m"
-    ["BackgroundYellow"]="\e[43m"
-    ["BackgroundBlue"]="\e[44m"
-    ["BackgroundMagenta"]="\e[45m"
-    ["BackgroundCyan"]="\e[46m"
-    ["BackgroundLightGray"]="\e[47m"
-    ["BackgroundDarkGray"]="\e[100m"
-    ["BackgroundLightRed"]="\e[101m"
-    ["BackgroundLightGreen"]="\e[102m"
-    ["BackgroundLightYellow"]="\e[103m"
-    ["BackgroundLightBlue"]="\e[104m"
-    ["BackgroundLightMagenta"]="\e[105m"
-    ["BackgroundLightCyan"]="\e[106m"
-    ["BackgroundWhite"]="\e[107m"
 )
-function ez.color.format {
+unset EZ_TEXT_FOREGROUND_COLOR_SET
+declare -g -A EZ_TEXT_FOREGROUND_COLOR_SET=(
+    ["Default"]=39
+    ["Black"]=30
+    ["Red"]=31
+    ["Green"]=32
+    ["Yellow"]=33
+    ["Blue"]=34
+    ["Magenta"]=35
+    ["Cyan"]=36
+    ["LightGray"]=37
+    ["DarkGray"]=90
+    ["LightRed"]=91
+    ["LightGreen"]=92
+    ["LightYellow"]=93
+    ["LightBlue"]=94
+    ["LightMagenta"]=95
+    ["LightCyan"]=96
+    ["White"]=97
+)
+unset EZ_TEXT_BACKGROUND_COLOR_SET
+declare -g -A EZ_TEXT_BACKGROUND_COLOR_SET=(
+    ["Default"]=49
+    ["Black"]=40
+    ["Red"]=41
+    ["Green"]=42
+    ["Yellow"]=43
+    ["Blue"]=44
+    ["Magenta"]=45
+    ["Cyan"]=46
+    ["LightGray"]=47
+    ["DarkGray"]=100
+    ["LightRed"]=101
+    ["LightGreen"]=102
+    ["LightYellow"]=103
+    ["LightBlue"]=104
+    ["LightMagenta"]=105
+    ["LightCyan"]=106
+    ["White"]=107
+)
+function ez.text.format {
+    local effect f_color b_color output="\e["
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-e" | "--effect") shift; effect="${1}"; shift ;;
+            "-f" | "--foreground-color") shift; f_color="${1}"; shift ;;
+            "-b" | "--background-color") shift; b_color="${1}"; shift ;;
+            *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+        esac
+    done
+    if [[ -n "${effect}" ]]; then
+        if ez.excludes "${effect}" "${!EZ_TEXT_EFFECT_SET[@]}"; then ez.log.error "Invalid Effect: ${effect}"; return 1; fi
+        output+="${EZ_TEXT_EFFECT_SET["${effect}"]}"
+    fi
+    if [[ -n "${f_color}" ]]; then
+        if ez.excludes "${f_color}" "${!EZ_TEXT_FOREGROUND_COLOR_SET[@]}"; then ez.log.error "Invalid Foreground Color: ${f_color}"; return 1; fi
+        output+=";${EZ_TEXT_FOREGROUND_COLOR_SET["${f_color}"]}"
+    fi
+    if [[ -n "${b_color}" ]]; then
+        if ez.excludes "${b_color}" "${!EZ_TEXT_BACKGROUND_COLOR_SET[@]}"; then ez.log.error "Invalid Background Color: ${b_color}"; return 1; fi
+        output+=";${EZ_TEXT_BACKGROUND_COLOR_SET["${b_color}"]}"
+    fi
+    echo "${output}m"
+}
+function ez.text.decorate {
+    if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
+        echo; echo "${EZ_INDENT}[Usage]"; echo "${EZ_INDENT}${FUNCNAME[0]} [Options] -t|--text [Text]"; echo
+        echo "${EZ_INDENT}[Demo]    [Options]"; local f
+        for f in "${!EZ_TEXT_EFFECT_SET[@]}"; do
+            if [[ "${f}" =~ "Reset"* ]]; then continue; fi
+            echo -e "${EZ_INDENT}$(ez.text.format -e "${f}")demo$(ez.text.format -e "ResetAll")      -e|--effect ${f}"
+        done
+        for f in "${!EZ_TEXT_FOREGROUND_COLOR_SET[@]}"; do
+            echo -e "${EZ_INDENT}$(ez.text.format -f "${f}")demo$(ez.text.format -e "ResetAll")      -f|--foreground ${f}"
+        done
+        for f in "${!EZ_TEXT_BACKGROUND_COLOR_SET[@]}"; do
+            echo -e "${EZ_INDENT}$(ez.text.format -b "${f}")demo$(ez.text.format -e "ResetAll")      -b|--background ${f}"
+        done
+        echo
+        return 0
+    fi
+    local effect f_color b_color text=() text_format
+    local arg_list=("-e" "--effect" "-f" "--foreground-color" "-b" "--background-color" "-t" "--text")
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-e" | "--effect") shift; effect="${1}"; shift ;;
+            "-f" | "--foreground-color") shift; f_color="${1}"; shift ;;
+            "-b" | "--background-color") shift; b_color="${1}"; shift ;;
+            "-t" | "--text") shift; while [[ -n "${1}" ]] && ez.excludes "${1}" "${arg_list[@]}"; do text+=("${1}"); shift; done ;;
+            *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+        esac
+    done
+    text_format="$(ez.text.format -e "${effect}" -f "${f_color}" -b "${b_color}")" || return 1
+    echo "${text_format}${text[@]}$(ez.text.format -e "ResetAll")"
+}
+function ez.text.color {
     local foreground=38 background=48 color
     if [[ -z "${1}" ]] || [[ "${1}" = "-h" ]] || [[ "${1}" = "--help" ]]; then
         echo; echo "${EZ_INDENT}[Usage]"
         echo "${EZ_INDENT}${FUNCNAME[0]} [-f|--foreground or -b|--background] [0~255]"
         echo; echo "${EZ_INDENT}[Foreground]"
         for color in {0..255}; do
-            printf "${EZ_INDENT}\e[${foreground};5;%sm  %3s  ${EZ_FORMAT_SET[ResetAll]}" "${color}" "${color}"
+            printf "${EZ_INDENT}\e[${foreground};5;%sm  %3s  $(ez.text.format -e 'ResetAll')" "${color}" "${color}"
             # Print 6 colors per line
             [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
         done
         echo; echo "${EZ_INDENT}[Background]"
         for color in {0..255}; do
-            printf "${EZ_INDENT}\e[${background};5;%sm${EZ_FORMAT_SET[ForegroundBlack]}  %3s  ${EZ_FORMAT_SET[ResetAll]}" \
-                   "${color}" "${color}"
+            printf "${EZ_INDENT}\e[${background};5;%sm  %3s  $(ez.text.format -e 'ResetAll')" "${color}" "${color}"
             # Print 6 colors per line
             [[ $(((${color} + 1) % 6)) -eq 4 ]] && echo
         done

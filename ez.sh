@@ -162,10 +162,10 @@ function ez.self.source {
     # Source Other Libs, echo to stderr (>&2) to unblock rsync.
     if [[ -n "${all_flag}" ]]; then
         ez.source --path "${EZ_BASH_HOME}/src/libs" || return 1
-        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_SELF_LOGO}][INFO] Imported $(ez.string.format 'ForegroundYellow' 'ALL') ${EZ_SELF_LOGO} libraries!"
+        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_SELF_LOGO}][INFO] Imported $(ez.text.decorate -f 'Yellow' -t 'ALL') ${EZ_SELF_LOGO} libraries!"
     elif [[ -n "${skip_libs}" ]]; then
         ez.source --path "${EZ_BASH_HOME}/src/libs" --exclude "${skip_libs[@]}" || return 1
-        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_SELF_LOGO}][$(ez.string.format 'ForegroundYellow' 'WARNING')] Imported ${EZ_SELF_LOGO}, skipping libraries $(ez.string.format 'ForegroundYellow' $(ez.join ', ' ${skip_libs[@]}))"
+        [[ -z "${quiet_flag}" ]] && >&2 echo -e "[${EZ_SELF_LOGO}][$(ez.text.decorate -f 'Yellow' -t 'WARNING')] Imported ${EZ_SELF_LOGO}, skipping libraries $(ez.text.decorate -f 'Yellow' -t "$(ez.join ', ' ${skip_libs[@]})")"
     elif [[ -n "${import_libs}" ]]; then
         # Source the designated libraries
         local ez_library; for ez_library in "${import_libs[@]}"; do ez.source --path "${EZ_BASH_HOME}/src/libs/${ez_library}" || return 1; done
