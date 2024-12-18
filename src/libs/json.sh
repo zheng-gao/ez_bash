@@ -6,7 +6,7 @@ ez.dependencies.check "jq" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez.jq.table {
+function ez.json.flatten {
     if ez.function.unregistered; then
         ez.argument.set --short "-l" --long "--list-filter" --required --default ".[]" --info "JQ filter to the list field" &&
         ez.argument.set --short "-f" --long "--fields" --type "List" --info "Json Keys" &&

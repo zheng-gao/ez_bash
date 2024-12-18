@@ -228,9 +228,9 @@ else
     unset local_current_bash_version
     [[ -z "${EZ_BASH_HOME}" ]] && export EZ_BASH_HOME="$(dirname ${BASH_SOURCE[0]})"
     # Source EZ-Bash Core
+    source "${EZ_BASH_HOME}/src/core/alias.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
-    source "${EZ_BASH_HOME}/src/core/pipeable.sh" || return 1
     ez.self.source "${@:1}" || return 1
 fi
 
