@@ -1,4 +1,4 @@
-source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
+source "${EZ_BASH_HOME}/ez.sh" || exit 1
 
 function ez.test.check {
     local -n ez_test_check_expects ez_test_check_results; local benchmark result subject error=0

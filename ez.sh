@@ -231,7 +231,7 @@ else
     source "${EZ_BASH_HOME}/src/core/alias.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/basic.sh" || return 1
     source "${EZ_BASH_HOME}/src/core/function.sh" || return 1
-    ez.self.source "${@:1}" || return 1
+    if [[ -n "${@:1}" ]]; then ez.self.source "${@:1}" || return 1; fi
 fi
 
 unset ez.self.source

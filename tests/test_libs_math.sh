@@ -2,8 +2,6 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 source "${EZ_BASH_HOME}/tests/utils.sh" || exit 1
-source "${EZ_BASH_HOME}/src/core/basic.sh" || exit 1
-source "${EZ_BASH_HOME}/src/core/function.sh" || exit 1
 source "${EZ_BASH_HOME}/src/libs/math.sh" || exit 1
 
 ###################################################################################################

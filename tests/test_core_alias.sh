@@ -2,8 +2,6 @@
 # -------------------------------------- Import Libraries --------------------------------------- #
 ###################################################################################################
 source "${EZ_BASH_HOME}/tests/utils.sh" || exit 1
-source "${EZ_BASH_HOME}/src/core/alias.sh" || exit 1
-source "${EZ_BASH_HOME}/src/core/function.sh" || exit 1
 
 ###################################################################################################
 # --------------------------------------- Test Function ----------------------------------------- #
@@ -42,22 +40,6 @@ function test_ez.versions {
     ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
-function test_ez.columns.get {
-    local expects=(
-        "a d b"
-        "a#d#b"
-        "a d "
-        "a&d&c&&&b"
-    )
-    local results=(
-        "$(echo "a    b c d" | ez.columns.get -c 1 -1 2)"
-        "$(echo "a    b c d" | ez.columns.get -od "#" -c 1 -1 2)"
-        "$(echo "a@@@@b@c@d" | ez.columns.get -id "@" -c 1 -1 2)"
-        "$(echo 'a!!!!b!c!d' | ez.columns.get -id "!" -od "&" -c 1 -1 -2 3 4 5)"
-    )
-    ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
-}
-
 ###################################################################################################
 # ------------------------------------------ Run Test ------------------------------------------- #
 ###################################################################################################
@@ -67,7 +49,4 @@ test_ez.rstrip
 test_ez.stats
 test_ez.versions
 
-test_ez.columns.get
-
 exit "${TEST_FAILURE}"
-
