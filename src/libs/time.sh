@@ -109,7 +109,7 @@ function ez.time.elapsed {
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
     local start_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${start}" --format "${format}")
     local end_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${end}" --format "${format}")
-    ez.time.seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))"
+    ez.time.seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))" --format "Long"
 }
 
 
