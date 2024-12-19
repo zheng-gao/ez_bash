@@ -1,11 +1,18 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZ_TRUE="True" EZ_FALSE="False"
-EZ_ALL="All" EZ_ANY="Any" EZ_NONE="None"
+EZ_TRUE="True"
+EZ_FALSE="False"
+EZ_ALL="All"
+EZ_ANY="Any"
+EZ_NONE="None"
+
 EZ_INDENT="    "
 
-EZ_LOG_ERROR="ERROR" EZ_LOG_WARNING="WARNING" EZ_LOG_INFO="INFO" EZ_LOG_DEBUG="DEBUG"
+EZ_LOG_ERROR="ERROR"
+EZ_LOG_WARNING="WARNING"
+EZ_LOG_INFO="INFO"
+EZ_LOG_DEBUG="DEBUG"
 EZ_LOG_LEVEL="${EZ_LOG_INFO}"  # Use "ez.log.level.set" to override it
 
 ###################################################################################################
