@@ -276,6 +276,10 @@ declare -g -A EZ_TEXT_BACKGROUND_COLOR_SET=(
 )
 function ez.text.format {
     local effect f_color b_color output="\e["
+    [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Format text to add effect and color" \
+        -a "-e|--effect" -t "String" -d "${effect}" -c "${!EZ_TEXT_EFFECT_SET[*]}" -i "" \
+        -a "-f|--foreground-color" -t "String" -d "${f_color}" -c "${!EZ_TEXT_FOREGROUND_COLOR_SET[*]}" -i "" \
+        -a "-b|--background-color" -t "String" -d "${b_color}" -c "${!EZ_TEXT_BACKGROUND_COLOR_SET[*]}" -i "" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-e" | "--effect") shift; effect="${1}"; shift ;;
