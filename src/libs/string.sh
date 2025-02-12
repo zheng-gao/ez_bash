@@ -91,16 +91,29 @@ function ez.string.check {
 function ez.string.banner {
     if ez.function.unregistered; then
         local valid_keys=("Contains" "Starts" "Ends")
-        ez.argument.set --short "-s" --long "--string" --required --default "=" --info "The string in the line spliter" &&
-        ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The number of the strings in the line spliter" &&
+        ez.argument.set --short "-s" --long "--string" --required --default "=" --info "The string item in the line spliter" &&
+        ez.argument.set --short "-c" --long "--count" --required --default "80" --info "The number of the string items in the line spliter" &&
         ez.argument.set --short "-m" --long "--message" --default "${EZ_SELF_LOGO}" --info "Message to print in the banner" &&
+        ez.argument.set --short "-e" --long "--effect" --info "The string effect" &&
+        ez.argument.set --short "-f" --long "--foreground-color" --info "The string foreground color" &&
+        ez.argument.set --short "-b" --long "--background-color" --info "The string background color" &&
         ez.argument.set --short "-l" --long "--log-prefix" --type "Flag" --info "Print EZ-BASH log prefix" || return 1
     fi; ez.function.help "${@}" || return 0
     local string && string="$(ez.argument.get --short "-s" --long "--string" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
     local message && message="$(ez.argument.get --short "-m" --long "--message" --arguments "${@}")" &&
+    local effect && effect="$(ez.argument.get --short "-e" --long "--effect" --arguments "${@}")" &&
+    local f_color && f_color="$(ez.argument.get --short "-f" --long "--foreground-color" --arguments "${@}")" &&
+    local b_color && b_color="$(ez.argument.get --short "-b" --long "--background-color" --arguments "${@}")" &&
     local log_prefix && log_prefix="$(ez.argument.get --short "-l" --long "--log-prefix" --arguments "${@}")" || return 1
     local line_spliter=$(ez.string.repeat --string "${string}" --count ${count})
-    if ez.is_true "${log_prefix}"; then ez.log.info "${line_spliter}"; ez.log.info "${message}"; ez.log.info "${line_spliter}"
-    else echo "${line_spliter}"; echo "${message}"; echo "${line_spliter}"; fi
+    if ez.is_true "${log_prefix}"; then
+        ez.log.info "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${line_spliter}")"
+        ez.log.info "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${message}")"
+        ez.log.info "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${line_spliter}")"
+    else
+        echo -e "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${line_spliter}")"
+        echo -e "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${message}")"
+        echo -e "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${line_spliter}")"
+    fi
 }
