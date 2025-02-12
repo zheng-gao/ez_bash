@@ -35,18 +35,32 @@ function ez.timeout {
     fi
 }
 
+function ez.ssh.agent.kill {
+    local ssh_agent_pids=($(ps -ef | grep "ssh-agent" | grep -v "grep" | awk "{print \$2}"))
+    echo "Killing PIDs: ${ssh_agent_pids[@]}"
+    kill "${ssh_agent_pids[@]}"
+}
 function ez.ssh.port.forward {
     if ez.function.unregistered; then
-        ez.argument.set --short "-l" --long "--local-port" --required &&
-        ez.argument.set --short "-r" --long "--remote-port" --required &&
-        ez.argument.set --short "-i" --long "--remote-ip" --required --info "The remote IP or FQDN" &&
-        ez.argument.set --short "-u" --long "--remote-user" --required --default "${USER}" || return 1
+        ez.argument.set --short "-la" --long "--local-address" --default "localhost" --required --info "The local IP or FQDN" &&
+        ez.argument.set --short "-lp" --long "--local-port" --info "Same as remote port if not specified" &&
+        ez.argument.set --short "-ra" --long "--remote-address" --required --info "The remote IP or FQDN" &&
+        ez.argument.set --short "-rp" --long "--remote-port" --info "Same as local port if not specified" &&
+        ez.argument.set --short "-ru" --long "--remote-user" --required --default "${USER}" || return 1
     fi; ez.function.help "${@}" || return 0
-    local local_port && local_port="$(ez.argument.get --short "-l" --long "--local-port" --arguments "${@}")" &&
-    local remote_port && remote_port="$(ez.argument.get --short "-r" --long "--remote-port" --arguments "${@}")" &&
-    local remote_ip && remote_ip="$(ez.argument.get --short "-i" --long "--remote-ip" --arguments "${@}")" &&
-    local remote_user && remote_user="$(ez.argument.get --short "-u" --long "--remote-user" --arguments "${@}")" || return 1
-    ssh -R "${local_port}:${remote_ip}:${remote_port}" "${remote_user}@${remote_ip}"
+    local local_address && local_address="$(ez.argument.get --short "-la" --long "--local-address" --arguments "${@}")" &&
+    local local_port && local_port="$(ez.argument.get --short "-lp" --long "--local-port" --arguments "${@}")" &&
+    local remote_address && remote_address="$(ez.argument.get --short "-ra" --long "--remote-address" --arguments "${@}")" &&
+    local remote_port && remote_port="$(ez.argument.get --short "-rp" --long "--remote-port" --arguments "${@}")" &&
+    local remote_user && remote_user="$(ez.argument.get --short "-ru" --long "--remote-user" --arguments "${@}")" || return 1
+    if [[ -z "${remote_port}" && -n "${local_port}" ]]; then
+        remote_port="${local_port}"
+    elif [[ -z "${local_port}" && -n "${remote_port}" ]]; then
+        local_port="${remote_port}"
+    else
+        ez.log.error "Port Not Found"; return 1
+    fi
+    ssh -R "${local_port}:${remote_address}:${remote_port}" "${remote_user}@${remote_address}"
 }
 
 function ez.ssh.oneliner {
