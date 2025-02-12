@@ -35,6 +35,20 @@ function ez.timeout {
     fi
 }
 
+function ez.ssh.port.forward {
+    if ez.function.unregistered; then
+        ez.argument.set --short "-l" --long "--local-port" --required &&
+        ez.argument.set --short "-r" --long "--remote-port" --required &&
+        ez.argument.set --short "-i" --long "--remote-ip" --required --info "The remote IP or FQDN" &&
+        ez.argument.set --short "-u" --long "--remote-user" --required --default "${USER}" || return 1
+    fi; ez.function.help "${@}" || return 0
+    local local_port && local_port="$(ez.argument.get --short "-l" --long "--local-port" --arguments "${@}")" &&
+    local remote_port && remote_port="$(ez.argument.get --short "-r" --long "--remote-port" --arguments "${@}")" &&
+    local remote_ip && remote_ip="$(ez.argument.get --short "-i" --long "--remote-ip" --arguments "${@}")" &&
+    local remote_user && remote_user="$(ez.argument.get --short "-u" --long "--remote-user" --arguments "${@}")" || return 1
+    ssh -R "${local_port}:${remote_ip}:${remote_port}" "${remote_user}@${remote_ip}"
+}
+
 function ez.ssh.oneliner {
     if ez.function.unregistered; then
         ez.argument.set --short "-h" --long "--hosts" --required --type "List" --info "The remote hostnames or IPs" &&
