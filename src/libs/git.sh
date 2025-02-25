@@ -53,6 +53,8 @@ function ez.git.flow {
     echo
 }
 
+function ez.git.branch.current { if git "rev-parse" 2> "/dev/null"; then git "symbolic-ref" "HEAD" | cut -d "/" -f 3-; fi }
+
 function ez.git.push.batches {
     if ez.function.unregistered; then
         ez.argument.set --short "-b" --long "--batch-size" --default "500" --info "Number of commits in each batch" &&
