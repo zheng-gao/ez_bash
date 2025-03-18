@@ -19,11 +19,11 @@ function ez.time.zones {
 function ez.time.from_epoch_seconds {
     if ez.function.unregistered; then
         ez.argument.set --short "-e" --long "--epoch" --required --default "0" --info "Epoch Seconds" &&
-        ez.argument.set --short "-f" --long "--format" --required --default "+%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
+        ez.argument.set --short "-f" --long "--format" --required --default "%Y-%m-%d %H:%M:%S" --info "Timestamp Format" || return 1
     fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local epoch && epoch="$(ez.argument.get --short "-e" --long "--epoch" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "${format}" || date "${format}" -d "@${epoch}"
+    [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "+${format}" || date "+${format}" -d "@${epoch}"
 }
 
 function ez.time.to_epoch_seconds {
@@ -61,7 +61,7 @@ function ez.time.offset {
                 *) unit_value=0 ;;
     esac
     ((epoch_seconds += unit_value * offset))
-    ez.time.from_epoch_seconds --epoch "${epoch_seconds}" --format "+${format}"
+    ez.time.from_epoch_seconds --epoch "${epoch_seconds}" --format "${format}"
 }
 
 function ez.time.seconds_to_readable {
