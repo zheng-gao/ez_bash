@@ -387,11 +387,11 @@ function ez.source {
         [[ ! -r "${path}" ]] && ez.log.error "Cannot read directory \"${path}\"" && return 1
         [[ -n "${depth}" ]] && depth="-depth ${depth}"
         if [[ -z "${exclude}" ]]; then
-            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth}); do
+            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | sort); do
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done
         else
-            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez.join "\|" "${exclude[@]}")); do
+            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez.join "\|" "${exclude[@]}") | sort); do
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done
         fi
