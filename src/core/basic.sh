@@ -123,7 +123,7 @@ function ez.log.level.enum {
         "${EZ_LOG_INFO}") echo 2 ;;
         "${EZ_LOG_DEBUG}") echo 1 ;;
         *) echo 0 ;;
-    esac    
+    esac
 }
 function ez.log.stack {
     local ignore_top_x="${1}" i="$((${#FUNCNAME[@]} - 1))" stack="" first=0
