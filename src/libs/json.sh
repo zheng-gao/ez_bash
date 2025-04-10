@@ -27,6 +27,6 @@ function ez.json.flatten {
         echo "$(ez.join "|" "${columns[@]}")"
         echo -e "$(ez.join "|" $(ez.array.init "${#columns[@]}" "--"))$(ez.text.format -e "ResetAll")"
         jq -r "${list_filter}[$(ez.join ", " "${fields[@]}")] | @tsv" <<< "${data}" | sed "s/\t/|/g" | sed "s/||/| |/g" | sed "s/||/| |/g" \
-            | { [[ "${sort_numbers}" = "True" ]] && sort -n -k "${sort_column}" -t "," || sort -k "${sort_column}" -t ","; }
+            | { [[ "${sort_numbers}" = "True" ]] && sort -n -k "${sort_column}" -t "|" || sort -k "${sort_column}" -t "|"; }
     } | column -s "|" -t)"
 }
