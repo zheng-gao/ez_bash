@@ -20,6 +20,7 @@ function ez.json.flatten {
     local sort_column && sort_column="$(ez.argument.get --short "-k" --long "--sort-column" --arguments "${@}")" &&
     local sort_numbers && sort_numbers="$(ez.argument.get --short "-n" --long "--sort-numbers" --arguments "${@}")" || return 1
     local f line data=""; while read -r "line"; do data+="${line}"; done
+    if [[ "${PIPESTATUS[-1]}" -ne 0 ]]; then jq <<< "${data}"; return "${PIPESTATUS[-1]}"; fi
     if [[ -n "${list_filter}" ]]; then list_filter+=" | "; fi
     if [[ -z "${fields[*]}" ]]; then fields=(); for f in $(jq -r "${list_filter}keys_unsorted[]" <<< "${data}" | sort -u); do fields+=(".${f}"); done; fi
     if [[ -z "${columns[*]}" ]]; then local columns=(); for f in "${fields[@]}"; do columns+=("${f}"); done; fi
