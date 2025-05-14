@@ -12,6 +12,7 @@ function ez.api {
         ez.argument.set --short "-D" --long "--domain" &&
         ez.argument.set --short "-P" --long "--port" &&
         ez.argument.set --short "-k" --long "--insecure" --type "Flag" --info "Ignore Cert" &&
+        ez.argument.set --short "-v" --long "--version" --info "Endpoint version prefix" &&
         ez.argument.set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
         ez.argument.set --short "-E" --long "--ends-with-slash" --type "Flag" --info "Ensure the url ends with a slash" &&
         ez.argument.set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
@@ -23,7 +24,7 @@ function ez.api {
         ez.argument.set --short "-d" --long "--data" --info "PUT/POST payload" &&
         ez.argument.set --short "-T" --long "--upload-file" --info "File Path" &&
         ez.argument.set --short "-o" --long "--output" --info "Output Path" &&
-        ez.argument.set --short "-v" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
+        ez.argument.set --short "-V" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
         ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" &&
         ez.argument.set --short "-c" --long "--code-only" --type "Flag" --info "Print HTTP response code only" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -33,6 +34,7 @@ function ez.api {
     local domain && domain="$(ez.argument.get --short "-D" --long "--domain" --arguments "${@}")" &&
     local port && port="$(ez.argument.get --short "-P" --long "--port" --arguments "${@}")" &&
     local insecure && insecure="$(ez.argument.get --short "-k" --long "--insecure" --arguments "${@}")" &&
+    local version && version="$(ez.argument.get --short "-v" --long "--version" --arguments "${@}")" &&
     local endpoint && endpoint="$(ez.argument.get --short "-e" --long "--endpoint" --arguments "${@}")" &&
     local ends_with_slash && ends_with_slash="$(ez.argument.get --short "-E" --long "--ends-with-slash" --arguments "${@}")" &&
     local head && head="$(ez.argument.get --short "-I" --long "--head" --arguments "${@}")" &&
@@ -42,14 +44,14 @@ function ez.api {
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
     local upload_file && upload_file="$(ez.argument.get --short "-T" --long "--upload-file" --arguments "${@}")" &&
     local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
-    local verbose && verbose="$(ez.argument.get --short "-v" --long "--verbose" --arguments "${@}")" &&
+    local verbose && verbose="$(ez.argument.get --short "-V" --long "--verbose" --arguments "${@}")" &&
     local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" &&
     local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.join '&' ${params[@]})"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     if [[ "${ends_with_slash}" = "True" && "${endpoint:0-1}" != "/" ]]; then endpoint+="/"; fi
-    if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${endpoint}${params_str}"; fi
+    if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${version}${endpoint}${params_str}"; fi
     local curl_str="curl -sL ${auth_op[@]} ${headers_opt[@]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
@@ -65,3 +67,5 @@ function ez.api {
         bash -c "${curl_str}"  # eval "${curl_str}"
     fi
 }
+
+
