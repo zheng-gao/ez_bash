@@ -17,12 +17,12 @@ function registered_function {
     local default_arg && default_arg="$(ez.argument.get --short "-d" --long "--default-arg" --arguments "${@}")" &&
     local choices_arg && choices_arg="$(ez.argument.get --short "-c" --long "--choices-arg" --arguments "${@}")" &&
     local flag_arg && flag_arg="$(ez.argument.get --short "-f" --long "--flag-arg" --arguments "${@}")" &&
-    local list_arg && list_arg="$(ez.argument.get --short "-l" --long "--list-arg" --arguments "${@}")" &&
+    local list_arg && ez.function.arguments.get_list "list_arg" "$(ez.argument.get --short "-l" --long "--list-arg" --arguments "${@}")" &&
     local buy_arg && buy_arg="$(ez.argument.get --short "-b" --long "--buy-arg" --arguments "${@}")" &&
     local sell_arg && sell_arg="$(ez.argument.get --short "-s" --long "--sell-arg" --arguments "${@}")" || return 1
     echo "default_arg: ${default_arg}"
     echo "flag_arg: ${flag_arg}"
-    echo "list_arg: ${list_arg}"
+    local l; for l in "${list_arg[@]}"; do echo "list_arg: ${l}"; done
 }
 
 ###################################################################################################
@@ -55,12 +55,21 @@ function test_ez.argument.get.string.default {
 }
 
 function test_ez.argument.get.list.default {
-    local expects=("list_arg: Def 1#Def 2#Def 3") results=("$(registered_function -r '' | grep 'list_arg')")
+    local expects=(
+        "list_arg: Def 1"
+        "list_arg: Def 2"
+        "list_arg: Def 3"
+    )
+    local results=()
+    local line; while read -rd $'\n' line; do results+=("${line}"); done < <(registered_function -r "" | grep "list_arg")
     ez.test.check --expects "expects" --results "results" || ((++TEST_FAILURE))
 }
 
 function test_ez.argument.get.flag {
-    local expects=("flag_arg: True" "flag_arg: False")
+    local expects=(
+        "flag_arg: True"
+        "flag_arg: False"
+    )
     local results=(
         "$(registered_function -r '' -f | grep 'flag_arg')"
         "$(registered_function -r '' | grep 'flag_arg')"

@@ -68,7 +68,10 @@ function ez.function.help {  # By default it will print the "help" when no argum
 }
 function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
-function ez.function.arguments.get_list { local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"; }
+function ez.function.arguments.get_list {
+    local status_code="${?}"; if [[ "${status_code}" -ne 0 ]]; then return "${status_code}"; fi
+    local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
+}
 function ez.function.arguments.print {
     local function="${FUNCNAME[1]}"
     [[ "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Print the help info of the target function" \
@@ -430,32 +433,40 @@ function ez.argument.get {
             [[ "${k}" -eq "${last_index}" ]] && [[ -n "${default_value}" ]] && echo "${default_value}"
         done
     elif [[ "${argument_type}" = "List" ]]; then
-        local i=0; for ((; i < ${#arguments[@]} - 1; ++i)); do
+        local i=0 j index list_item list_items=()
+        for ((; i < ${#arguments[@]} - 1; ++i)); do
             if [[ "${arguments[${i}]}" = "${short}" ]] || [[ "${arguments[${i}]}" = "${long}" ]]; then
                 if [[ -n "${argument_exclude}" ]]; then
                     ez.argument.exclude_check "${function}" "${arguments[${i}]}" "${argument_exclude}" "${arguments[@]}" || return 4
                 fi
-                local output=""; local count=0
-                local j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
-                    local index=$((i + j))
+                j=1; for ((; i + j < ${#arguments[@]}; ++j)); do
+                    index=$((i + j))
                     # List ends with another argument identifier or end of line
                     ez.includes "${arguments[${index}]}" $(ez.function.arguments.get_short "${function}") && break
                     ez.includes "${arguments[${index}]}" $(ez.function.arguments.get_long "${function}") && break
-                    [[ "${count}" -eq 0 ]] && output="${arguments[${index}]}" || output+="${delimiter}${arguments[${index}]}"
-                    ((++count))
+                    list_items+=("${arguments[${index}]}")
                 done
-                # [To Do] Return list directly: ez.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${output}"
-                echo "${output}"; return
             fi
         done
-        # Required but not found and no default
-        if [[ -z "${argument_default}" ]] && ez.is_true "${argument_required}"; then
-            [[ -n "${short}" ]] && ez.log.error "Argument \"${short}\" is required" && return 6
-            [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
+        if [[ "${#list_items[@]}" -gt 0 ]]; then
+            if [[ -n "${argument_choices}" ]]; then
+                local list_choices=(); ez.split "list_choices" "${delimiter}" "${argument_choices}"
+                for list_item in "${list_items[@]}"; do
+                    if ez.excludes "${list_item}" "${list_choices[@]}"; then
+                        local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
+                        ez.log.error "Invalid value \"${list_item}\" for \"${short}|${long}\", please choose from [${choices_string}]"; return 5
+                    fi
+                done
+            fi
+            ez.join "${delimiter}" "${list_items[@]}"
+        else
+            # Required but not found and no default
+            if [[ -z "${argument_default}" ]] && ez.is_true "${argument_required}"; then
+                [[ -n "${short}" ]] && ez.log.error "Argument \"${short}\" is required" && return 6
+                [[ -n "${long}" ]] && ez.log.error "Argument \"${long}\" is required" && return 6
+            fi
+            echo "${argument_default}"
         fi
-        # Not Found, Use Default
-        # [To Do] Return list directly: ez.split "${EZ_CHAR_NON_SPACE_DELIMITER}" "${argument_default}"
-        echo "${argument_default}"
     fi
 }
 
