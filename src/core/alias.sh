@@ -2,6 +2,7 @@
 # unless the expand_aliases shell option is set using shopt
 shopt -s expand_aliases
 
+# Pipeable Alias
 alias ez.strip="sed 's/^[[:blank:]]*//;s/[[:blank:]]*$//'"
 alias ez.lstrip="sed 's/^[[:blank:]]*//'"
 alias ez.rstrip="sed 's/[[:blank:]]*$//'"
