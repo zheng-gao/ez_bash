@@ -126,12 +126,11 @@ function ez.ssh.local_function {
     local user && user="$(ez.argument.get --short "-u" --long "--user" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
     local func && func="$(ez.argument.get --short "-f" --long "--function" --arguments "${@}")" &&
-    local args && args="$(ez.argument.get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
-    local arg_list; ez.function.arguments.get_list "arg_list" "${args}"
-    local args_str="$(ez.quote.double "${arg_list[@]}")"
+    local arg_list && ez.function.arguments.get_list "arg_list" "$(ez.argument.get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
+    ez.array.quote.double "arg_list"
     local script="${EZ_DIR_SCRIPTS}/${func}.sh"
     declare -f "${func}" > "${script}"
-    echo "${func} ${args_str}" >> "${script}"
+    echo "${func} ${arg_list[@]}" >> "${script}"
     ez.ssh.local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}" --timeout "${timeout}"
 }
 

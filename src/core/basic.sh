@@ -58,16 +58,8 @@ function ez.join {
 # IFS can only take 1 character
 # function ez.join { local IFS="${1}"; shift; echo "${*}"; }
 
-function ez.quote {
-    if [[ "${#@}" -le 1 ]]; then echo "'${1}'"; return; fi
-    local -n ez_quote_arg_reference="${1}"; ez_quote_arg_reference=()
-    local i; for i in "${@:2}"; do ez_quote_arg_reference+=("'${i}'"); done
-}
-function ez.quote.double {
-    if [[ "${#@}" -le 1 ]]; then echo "\"${1}\""; return; fi
-    local -n ez_quote_double_arg_reference="${1}"; ez_quote_double_arg_reference=()
-    local i; for i in "${@:2}"; do ez_quote_double_arg_reference+=("\"${i}\""); done
-}
+function ez.quote { echo "'${1}'"; }
+function ez.quote.double { echo "\"${1}\""; }
 function ez.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
     local -n ez_split_arg_reference="${1}"; local delimiter="${2}" string="${@:3}" item="" k=0; ez_split_arg_reference=()
     while [[ "${k}" -lt "${#string}" ]]; do
@@ -96,6 +88,24 @@ function ez.includes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && r
 function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && return 1; done; return 0; }
 
 function ez.array.init { local size="${1}" item="${2}"; for ((; size > 0; --size)) do echo "${item}"; done; }
+function ez.array.map {
+    local array map_function item
+    while [[ -n "${1}" ]]; do
+        case "${1}" in
+            "-a" | "--array") shift; array="${1}"; shift ;;
+            "-f" | "--function") shift; map_function="${1}"; shift ;;
+            *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
+        esac
+    done
+    if [[ -z "${array}" ]]; then ez.log.error "Array Not Found."; return 1; fi
+    if [[ -z "${map_function}" ]]; then ez.log.error "Map Function Not Found."; return 1; fi
+    local -n ez_array_map_arg_reference="${array}" 
+    local i=0; for ((; i < "${#ez_array_map_arg_reference[@]}"; ++i)); do
+        ez_array_map_arg_reference["${i}"]="$("${map_function}" "${ez_array_map_arg_reference["${i}"]}")"
+    done
+}
+function ez.array.quote { ez.array.map --array "${1}" --function "ez.quote"; }
+function ez.array.quote.double { ez.array.map --array "${1}" --function "ez.quote.double"; }
 function ez.array.size { echo "${#@}"; }
 function ez.array.delete.item() {  # ${1} = array reference, ${2} = item
     local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=() item

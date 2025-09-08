@@ -22,17 +22,14 @@ function test_ez.upper {
     ez.test.check --expects "expects" --results "results" --subject "Uppercase an array of strings" || ((++TEST_FAILURE))
 }
 
-function test_ez.quote {
-    local expects=("' abc    def '") results=("$(ez.quote " abc    def ")")
-    ez.test.check --expects "expects" --results "results" --subject "Quote a single string" || ((++TEST_FAILURE))
-    expects=("'abc'" "'123'" "'''" "'  '"); results=("abc" "123" "'" "  "); ez.quote "results" "${results[@]}"
+function test_ez.array.quote {
+    local expects=("'ab c  '" "'   123'" "'''" "'  '"); results=("ab c  " "   123" "'" "  "); ez.array.quote "results"
     ez.test.check --expects "expects" --results "results" --subject "Quote an array of strings" || ((++TEST_FAILURE))
 }
 
-function test_ez.quote.double {
-    local expects=("\" abc    def \"") results=("$(ez.quote.double " abc    def ")")
-    ez.test.check --expects "expects" --results "results" --subject "Double quote a single string" || ((++TEST_FAILURE))
-    expects=("\"abc\"" "\"123\"" "\"\"\"" "\"  \""); results=("abc" "123" "\"" "  "); ez.quote.double "results" "${results[@]}"
+function test_ez.array.quote.double {
+    local expects=("\" abc    def \"" "\"abc\"" "\"123\"" "\"\"\"" "\"  \"")
+    local results=(" abc    def " "abc" "123" "\"" "  "); ez.array.quote.double "results"
     ez.test.check --expects "expects" --results "results" --subject "Double quote an array of strings" || ((++TEST_FAILURE))
 }
 
@@ -108,8 +105,8 @@ function test_ez.string.count_items {
 ###################################################################################################
 test_ez.lower
 test_ez.upper
-test_ez.quote
-test_ez.quote.double
+test_ez.array.quote
+test_ez.array.quote.double
 test_ez.includes
 test_ez.excludes
 test_ez.join
