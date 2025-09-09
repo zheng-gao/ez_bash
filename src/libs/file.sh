@@ -167,8 +167,9 @@ function ez.file.descriptor.count {
             ez.log.error "\"--name\" only works on linux" && return 1
         fi
     else
-        if [[ "${os}" = "linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
-        elif [[ "${os}" = "macos" ]]; then fd_count=$(lsof -p ${pid} | wc -l | bc); fi
+        local os="$(uname -s)"
+        if [[ "${os}" = "Linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
+        elif [[ "${os}" = "Darwin" ]]; then fd_count=$(lsof -p ${pid} | wc -l | bc); fi
     fi    
     echo "${fd_count}"
 }

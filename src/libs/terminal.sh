@@ -166,7 +166,7 @@ function ez.progress.print {
 }
 
 function ez.array.print_with_progress_bar {
-    local out i=0 data; for data in ${@}; do
+    local out i=0 data; for data in "${@}"; do
         out+="${data} "; ((++i))
         ez.progress.print -p -c "${i}" -t "${#}" -d1 0 -dx 2
         echo "${out}"
@@ -177,7 +177,7 @@ function ez.watch {
     local sleep_seconds="${1}" function_name="${2}"
     while true; do
         clear
-        ${function_name} ${@:3}
+        ${function_name} "${@:3}"
         sleep "${sleep_seconds}"
     done
 }

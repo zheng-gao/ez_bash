@@ -183,6 +183,7 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
         echo "    -i|--install                        Install ${EZ_SELF_LOGO}"
         echo "    -u|--uninstall                      Uninstall ${EZ_SELF_LOGO}"
         echo "    -v|--version                        Show version info"
+        echo "    -s|--shellcheck                     Run shellcheck"
         echo "    -t|--test <TEST_FILE.sh>            Run unit test"
         ls -1 "$(dirname ${0})/tests" | grep "^test_" | sed 's/^/              /'
         echo
@@ -201,6 +202,9 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
                     echo "    yum install shellcheck"
                 fi
             fi ;;
+        "-s" | "--shellcheck")
+            if ! which "shellcheck" > "/dev/null"; then echo -e "[${EZ_SELF_LOGO}][\e[31mERROR\e[0m] shellcheck command not found!"; exit 1; fi
+            find "$(dirname ${0})/src" -type f -name "*.sh" -print0 | xargs -0 shellcheck ;;
         "-t" | "--test") ez.self.test "$(dirname ${0})/tests" "${@:2}" ;;
         "-i" | "--install")
             if [[ "$(dirname ${0})" = "." ]]; then

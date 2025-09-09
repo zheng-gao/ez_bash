@@ -39,7 +39,7 @@ function ez.time.now { local f="+%F %T"; [[ "$(uname -s)" = "Darwin" ]] && f+=" 
 
 ######################################### String ##################################################
 function ez.character.to_int { printf "%d\n" "'${1}"; }
-function ez.character.from_int { printf $(printf "\%o" ${1}); echo; }
+function ez.character.from_int { printf "%b" "$(printf "\%o" "${1}")\n"; }
 function ez.string.size { echo "${#1}"; }
 function ez.string.count_items {  # "," "a,b,c" -> 3
     local delimiter="${1}"; [[ -z "${delimiter}" ]] && ez.log.error "Delimiter Not Found" && return 1
@@ -89,7 +89,13 @@ function ez.excludes { local i; for i in "${@:2}"; do [[ "${1}" = "${i}" ]] && r
 
 function ez.array.init { local size="${1}" item="${2}"; for ((; size > 0; --size)) do echo "${item}"; done; }
 function ez.array.map {
-    local array map_function item
+    if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
+        ez.function.usage -D "Process each item in the array with the given function" \
+            -a "-a|--array"    -t "String"  -d "" -c "" -i "Array Variable Name" \
+            -a "-f|--function" -t "String"  -d "" -c "" -i "Function Name"
+        return
+    fi
+    local array map_function
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-a" | "--array") shift; array="${1}"; shift ;;
@@ -160,12 +166,15 @@ function ez.log.debug {
 function ez.log {
     local valid_output_to=("Console" "File" "${EZ_ALL}") logger="INFO" file="" message=() stack=1 output_to="Console"
     local arg_list=("-l" "--logger" "-f" "--file" "-s" "--stack" "-m" "--message" "-o" "--output-to")
-    [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Print log to file in \"EZ-BASH\" standard log format" \
-        -a "-l|--logger" -t "String" -d "${logger}" -c "" -i "Logger type" \
-        -a "-f|--file" -t "String" -d "${file}" -c "" -i "Path to the log file" \
-        -a "-s|--stack" -t "Integer" -d "${stack}" -c "" -i "Hide top x function from stack" \
-        -a "-m|--message" -t "List" -d "[$(ez.join ", " "${message[@]}")]" -c "" -i "The message to print" \
-        -a "-o|--output-to" -t "List" -d "Console" -c "[$(ez.join ", " "${valid_output_to[@]}")]" -i "" && return 0
+    if [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]]; then
+        ez.function.usage -D "Print log to file in \"EZ-BASH\" standard log format" \
+            -a "-l|--logger"    -t "String"  -d "${logger}" -c ""                                          -i "Logger type" \
+            -a "-f|--file"      -t "String"  -d "${file}"   -c ""                                          -i "Path to the log file" \
+            -a "-s|--stack"     -t "Integer" -d "${stack}"  -c ""                                          -i "Hide top x function from stack" \
+            -a "-m|--message"   -t "List"    -d ""          -c ""                                          -i "The message to print" \
+            -a "-o|--output-to" -t "List"    -d "Console"   -c "[$(ez.join ", " "${valid_output_to[@]}")]" -i ""
+        return
+    fi
     while [[ -n "${1}" ]]; do
         case "${1}" in
             "-l" | "--logger") shift; logger="${1}"; shift ;;
