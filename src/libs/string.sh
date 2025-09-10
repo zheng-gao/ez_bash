@@ -106,7 +106,7 @@ function ez.string.banner {
     local f_color && f_color="$(ez.argument.get --short "-f" --long "--foreground-color" --arguments "${@}")" &&
     local b_color && b_color="$(ez.argument.get --short "-b" --long "--background-color" --arguments "${@}")" &&
     local log_prefix && log_prefix="$(ez.argument.get --short "-l" --long "--log-prefix" --arguments "${@}")" || return 1
-    local line_spliter=$(ez.string.repeat --string "${string}" --count ${count})
+    local line_spliter; line_spliter=$(ez.string.repeat --string "${string}" --count "${count}")
     if ez.is_true "${log_prefix}"; then
         ez.log.info "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${line_spliter}")"
         ez.log.info "$(ez.text.decorate -e "${effect}" -f "${f_color}" -b "${b_color}" -t "${message}")"

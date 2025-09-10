@@ -2,7 +2,7 @@ function ez.version.extract_digit {
     local digit; digit="$(cut -d '.' -f "${2}" <<< "${1}")"
     [[ "${3}" = "KeepWildCard" ]] && [[ "${digit}" = "*" ]] && echo "${digit}" && return
     digit="$(sed "s/^\([0-9]*\).*/\1/" <<< "${digit}")" # Trim off the trailing charaters
-    [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | bc
+    if [[ -z "${digit}" ]]; then echo "0" | bc; else echo "${digit}" | bc; fi
 }
 
 function ez.version.compare {

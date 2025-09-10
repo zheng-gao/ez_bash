@@ -27,7 +27,7 @@ function ez.file.create {
 
 ########################################### Lines #################################################
 function ez.file.lines.count { wc -l "${1}" | awk '{print $1}'; }
-function ez.file.lines.strip { local line; while read -r line; do echo ${line}; done < "${1}"; }
+function ez.file.lines.strip { local line; while read -r line; do echo "${line}"; done < "${1}"; }
 function ez.file.lines.delete {
     if ez.function.unregistered; then
         ez.argument.set --short "-p" --long "--path" --required --info "Path to the file" &&
@@ -36,7 +36,7 @@ function ez.file.lines.delete {
     local path && path="$(ez.argument.get --short "-p" --long "--path" --arguments "${@}")" &&
     local keywords && ez.function.arguments.get_list "keywords" "$(ez.argument.get --short "-k" --long "--keywords" --arguments "${@}")" || return 1
     if [[ -f "${path}" ]]; then
-        local exclude_string=$(ez.join "\|" "${keywords[@]}")
+        local exclude_string; exclude_string=$(ez.join "\|" "${keywords[@]}")
         cp "${path}" "${path}.bak"
         cat "${path}.bak" | grep -v "${exclude_string}" > "${path}"
         rm "${path}.bak"
@@ -167,9 +167,9 @@ function ez.file.descriptor.count {
             ez.log.error "\"--name\" only works on linux" && return 1
         fi
     else
-        local os="$(uname -s)"
-        if [[ "${os}" = "Linux" ]]; then fd_count=$(ls -1 /proc/${pid}/fd | wc -l | bc)
-        elif [[ "${os}" = "Darwin" ]]; then fd_count=$(lsof -p ${pid} | wc -l | bc); fi
+        local os; os="$(uname -s)"
+        if [[ "${os}" = "Linux" ]]; then fd_count=$(ls -1 "/proc/${pid}/fd" | wc -l | bc)
+        elif [[ "${os}" = "Darwin" ]]; then fd_count=$(lsof -p "${pid}" | wc -l | bc); fi
     fi    
     echo "${fd_count}"
 }
@@ -184,9 +184,9 @@ function ez.backup {
     local backup && backup="$(ez.argument.get --short "-b" --long "--backup" --arguments "${@}")" || return 1
     [[ -n "${backup}" ]] && mkdir -p "${backup}"
     [[ ! -d "${backup}" ]] && ez.log.error "Backup directory \"${backup}\" not found" && return 1
-    local source_basename="$(basename "${source}")"
+    local source_basename; source_basename="$(basename "${source}")"
     [[ -z "${source_basename}" ]] && ez.log.error "Invalid source basename \"${source_basename}\"" && return 1
-    local destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
+    local destination_path; destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
     [[ -e "${destination_path}" ]] && sleep 1 && destination_path="${backup}/${source_basename}.$(date +%Y_%m_%d_%H_%M_%S)"
     cp -r "${source}" "${destination_path}"
     ls -lah "${backup}" | grep "${source_basename}"

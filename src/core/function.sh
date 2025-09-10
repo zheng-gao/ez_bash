@@ -392,7 +392,7 @@ function ez.argument.get {
                         [[ "${k}" -eq "${last_index}" ]] && [[ -n "${choice}" ]] && choice_set["${choice}"]="${EZ_TRUE}"
                     done
                     if [[ -z "${choice_set[${argument_value}]}" ]]; then
-                        local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
+                        local choices_string; choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
                         ez.log.error "Invalid value \"${argument_value}\" for \"${argument_name}\", please choose from [${choices_string}]"
                         return 5
                     fi
@@ -453,7 +453,7 @@ function ez.argument.get {
                 local list_choices=(); ez.split "list_choices" "${delimiter}" "${argument_choices}"
                 for list_item in "${list_items[@]}"; do
                     if ez.excludes "${list_item}" "${list_choices[@]}"; then
-                        local choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
+                        local choices_string; choices_string="$(sed "s/${delimiter}/, /g" <<< "${argument_choices}")"
                         ez.log.error "Invalid value \"${list_item}\" for \"${short}|${long}\", please choose from [${choices_string}]"; return 5
                     fi
                 done

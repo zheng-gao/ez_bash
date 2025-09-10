@@ -23,7 +23,7 @@ function ez.time.from_epoch_seconds {
     fi; ez.function.help "${@}" --run-with-no-argument || return 0
     local epoch && epoch="$(ez.argument.get --short "-e" --long "--epoch" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    [[ "$(uname -s)" = "Darwin" ]] && date -r "${epoch}" "+${format}" || date "+${format}" -d "@${epoch}"
+    if [[ "$(uname -s)" = "Darwin" ]]; then date -r "${epoch}" "+${format}"; else date "+${format}" -d "@${epoch}"; fi
 }
 
 function ez.time.to_epoch_seconds {
@@ -34,9 +34,9 @@ function ez.time.to_epoch_seconds {
     local timestamp && timestamp="$(ez.argument.get --short "-t" --long "--timestamp" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
     if [[ -n "${timestamp}" ]]; then
-        [[ "$(uname -s)" = "Darwin" ]] && date -j -f "${format}" "${timestamp}" "+%s" || date -d "${timestamp}" "+%s"
+        if [[ "$(uname -s)" = "Darwin" ]]; then date -j -f "${format}" "${timestamp}" "+%s"; else date -d "${timestamp}" "+%s"; fi
     else
-        [[ "$(uname -s)" = "Darwin" ]] && date -j "+%s" || date "+%s"
+        if [[ "$(uname -s)" = "Darwin" ]]; then date -j "+%s"; else date "+%s"; fi
     fi
 }
 

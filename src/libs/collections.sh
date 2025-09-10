@@ -19,12 +19,12 @@ function ez.collections.set.operation {
     declare -A result_set
     local item
     if [[ -f "${left_path}" ]]; then
-        for item in $(cat ${left_path}); do left_set["${item}"]=0; done
+        for item in $(cat "${left_path}"); do left_set["${item}"]=0; done
     else
         for item in "${left[@]}"; do left_set["${item}"]=0; done
     fi
     if [[ -f "${right_path}" ]]; then
-        for item in $(cat ${right_path}); do right_set["${item}"]=0; done
+        for item in $(cat "${right_path}"); do right_set["${item}"]=0; done
     else
         for item in "${right[@]}"; do right_set["${item}"]=0; done
     fi

@@ -139,7 +139,7 @@ function ez.git.file.stats {
                 file_hashes_in_head["${line}"]="true"
             done
             while read -r line; do
-                local hash=$(echo "${line}" | cut -d ' ' -f 1)
+                local hash; hash=$(echo "${line}" | cut -d ' ' -f 1)
                 if [ ! ${file_hashes_in_head["${hash}"]+_} ]; then echo "$line"; fi
             done < "${log_file}"
         fi

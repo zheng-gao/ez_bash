@@ -227,7 +227,7 @@ function ez.ssh.sudo_cmd {
     local console && console="$(ez.argument.get --short "-C" --long "--console" --arguments "${@}")" &&
     local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
     local prompt && prompt="$(ez.argument.get --short "-P" --long "--prompt" --arguments "${@}")" || return 1
-    local data_file="${EZ_DIR_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
+    local data_file; data_file="${EZ_DIR_DATA}/${FUNCNAME[0]}.${host}.${user}.$(date '+%F_%H-%M-%S')"; [[ -f "${data_file}" ]] && rm -f "${data_file}"
     [[ "${user}" = "root" ]] && user=""; [[ "${user}" = "${USER}" ]] && user="-"
     [[ -z "${password}" ]] && read -s -p "Sudo Password: " password && echo
     prompt=$(sed "s/${EZ_CHAR_SPACE}/ /g" <<< "${prompt}")
@@ -251,7 +251,7 @@ EOF
     start_line=$((start_line+=2)); end_line=$((end_line-=1))
     ez.is_true "${console}" && sed -n "${start_line},${end_line}p" "${data_file}"
     [[ -n "${output}" ]] && sed -n "${start_line},${end_line}p" "${data_file}" > "${output}"
-    local status_string=$(grep "${status_banner}" "${data_file}" | grep -v "echo") # get the $?
+    local status_string; status_string=$(grep "${status_banner}" "${data_file}" | grep -v "echo") # get the $?
     if [[ "${status_string}" != "${status_banner}0${status_banner}"* ]]; then
         ez.is_true "${status}" && ez.log.error "Remote command failed, please check \"${data_file}\" for details"
         return 1

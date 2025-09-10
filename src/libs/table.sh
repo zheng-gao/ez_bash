@@ -35,18 +35,18 @@ function ez.table.print {
         IFS="${row_delimiter}" read -ra rows <<< "${data}"
     fi
     local row=0; for ((; row < "${number_of_rows}"; ++row)); do
-        local number_of_columns=$(ez.string.count_items "${col_delimiter}" "${rows[${row}]}")
+        local number_of_columns; number_of_columns=$(ez.string.count_items "${col_delimiter}" "${rows[${row}]}")
         # Add Line Delimiter
-        if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" $(ez.string.repeat --string "#+" --count "${number_of_columns}")); fi
+        if [[ "${row}" -eq 0 ]]; then table=$(printf "%s#+" "$(ez.string.repeat --string "#+" --count "${number_of_columns}")"); fi
         # Add Header Or Body
         table="${table}\n"
         local column=1; for ((; column <= "${number_of_columns}"; ++column)); do
-            table="${table}$(printf "#| %s" $(awk -F "${col_delimiter}" "{print \$${column}}" <<< "${rows[${row}]}"))"
+            table="${table}$(printf "#| %s" "$(awk -F "${col_delimiter}" "{print \$${column}}" <<< "${rows[${row}]}")")"
         done
         table="${table}#|\n"
         # Add Line Delimiter
         if [[ "${row}" -eq 0 ]] || [[ "$((row+1))" -eq "${number_of_rows}" ]]; then
-            table="${table}$(printf "%s#+" $(ez.string.repeat --string "#+" --count "${number_of_columns}"))"
+            table="${table}$(printf "%s#+" "$(ez.string.repeat --string "#+" --count "${number_of_columns}")")"
         fi
     done
     if [[ "$(uname -s)" = "Darwin" ]]; then

@@ -38,7 +38,7 @@ function ez.math.average {
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_average_data_list; ez.function.arguments.get_list "ez_math_average_data_list" "${data}"
     if [[ "${#ez_math_average_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    ez.math.calculate --expression "$(ez.math.sum ${ez_math_average_data_list[@]}) / ${#ez_math_average_data_list[@]}" --scale "${scale}"
+    ez.math.calculate --expression "$(ez.math.sum "${ez_math_average_data_list[@]}") / ${#ez_math_average_data_list[@]}" --scale "${scale}"
 }
 function ez.math.variance {
     if ez.function.unregistered; then
@@ -130,9 +130,9 @@ function ez.math.percentile {
     elif [[ "${percentile}" -eq 100 ]]; then
         echo "${data_set[-1]}"
     else
-        local ith=$(ez.math.calculate --expression "(${#data_set[@]} - 1) * ${percentile} / 100" --scale "${scale}")
-        local ith_floor="$(ez.math.floor ${ith})" ith_ceiling="$(ez.math.ceiling ${ith})"
-        local ith_fractional=$(ez.math.calculate --expression "${ith} - ${ith_floor}" --scale "${scale}")
+        local ith; ith=$(ez.math.calculate --expression "(${#data_set[@]} - 1) * ${percentile} / 100" --scale "${scale}")
+        local ith_floor; ith_floor="$(ez.math.floor "${ith}")" ith_ceiling="$(ez.math.ceiling "${ith}")"
+        local ith_fractional; ith_fractional=$(ez.math.calculate --expression "${ith} - ${ith_floor}" --scale "${scale}")
         if [[ "${ith_floor}" != "${ith_ceiling}" ]]; then
             local floor_data="${data_set[${ith_floor}]}" ceiling_data="${data_set[${ith_ceiling}]}"
             if [[ "${method}" = "Linear" ]]; then

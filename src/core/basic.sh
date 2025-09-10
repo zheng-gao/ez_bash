@@ -35,8 +35,7 @@ function ez.is_none { [[ "${1}" = "${EZ_NONE}" ]] && return 0 || return 1; }
 ########################################## Time ###################################################
 function ez.time.today { date "+%F"; }
 # macos date not support milliseconds, brew install coreutils, use gdate
-function ez.time.now { local f="+%F %T"; [[ "$(uname -s)" = "Darwin" ]] && f+=" %Z" || f+=".%3N %Z"; [[ -z "${1}" ]] && date "${f}" || TZ="${1}" date "${f}"; }
-
+function ez.time.now { local f="+%F %T"; if [[ "$(uname -s)" = "Darwin" ]]; then f+=" %Z"; else f+=".%3N %Z"; fi; date "${f}"; }
 ######################################### String ##################################################
 function ez.character.to_int { printf "%d\n" "'${1}"; }
 function ez.character.from_int { printf "%b" "$(printf "\%o" "${1}")\n"; }
@@ -192,7 +191,7 @@ function ez.log {
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         if [[ "$(ez.lower "${logger}")" = "error" ]]; then
             (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}")
-        elif [[ "$(ez.lower ${logger})" = "warning" ]]; then
+        elif [[ "$(ez.lower "${logger}")" = "warning" ]]; then
             echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}"
         else
             echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[@]}"

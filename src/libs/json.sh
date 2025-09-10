@@ -23,9 +23,10 @@ function ez.json.flatten {
     if [[ -n "${list_filter}" ]]; then list_filter+=" | "; fi
     if [[ -z "${fields[*]}" ]]; then fields=(); for f in $(jq -r "${list_filter}keys_unsorted[]" <<< "${data}" | sort -u); do fields+=(".${f}"); done; fi
     if [[ -z "${columns[*]}" ]]; then local columns=(); for f in "${fields[@]}"; do columns+=("${f}"); done; fi
+    local line_spliter=() c=0; for ((; c < "${#columns[@]}"; ++c)); do line_spliter+=("--"); done
     echo -e "$(ez.text.format -f "Yellow")$({
         ez.join "|" "${columns[@]}"
-        echo -e "$(ez.join "|" $(ez.array.init "${#columns[@]}" "--"))$(ez.text.format -e "ResetAll")"
+        echo -e "$(ez.join "|" "${line_spliter[@]}")$(ez.text.format -e "ResetAll")"
         jq -r "${list_filter}[$(ez.join ", " "${fields[@]}")] | @tsv" <<< "${data}" | sed "s/\t/|/g" | sed "s/||/| |/g" | sed "s/||/| |/g" \
             | { if [[ "${sort_numbers}" = "True" ]]; then sort -n -k "${sort_column}" -t "|"; else sort -k "${sort_column}" -t "|"; fi; }
     } | column -s "|" -t)"
