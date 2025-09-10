@@ -190,9 +190,9 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
         exit 0
     fi
     case "${1}" in
-        "-c" | "--check")
+        "-s" | "--shellcheck")
             if which "shellcheck" > "/dev/null"; then
-                find "$(dirname ${0})/src" -type f -name "*.sh" -exec shellcheck {} \;
+                find "$(dirname ${0})/src" -type f -name "*.sh" -print0 | xargs -0 shellcheck -e SC2119
             else
                 echo "Run following commands to install shellcheck:"
                 if [[ "$(uname -s)" = "Darwin" ]]; then
@@ -202,9 +202,6 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
                     echo "    yum install shellcheck"
                 fi
             fi ;;
-        "-s" | "--shellcheck")
-            if ! which "shellcheck" > "/dev/null"; then echo -e "[${EZ_SELF_LOGO}][\e[31mERROR\e[0m] shellcheck command not found!"; exit 1; fi
-            find "$(dirname ${0})/src" -type f -name "*.sh" -print0 | xargs -0 shellcheck ;;
         "-t" | "--test") ez.self.test "$(dirname ${0})/tests" "${@:2}" ;;
         "-i" | "--install")
             if [[ "$(dirname ${0})" = "." ]]; then

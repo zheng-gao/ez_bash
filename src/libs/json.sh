@@ -24,9 +24,9 @@ function ez.json.flatten {
     if [[ -z "${fields[*]}" ]]; then fields=(); for f in $(jq -r "${list_filter}keys_unsorted[]" <<< "${data}" | sort -u); do fields+=(".${f}"); done; fi
     if [[ -z "${columns[*]}" ]]; then local columns=(); for f in "${fields[@]}"; do columns+=("${f}"); done; fi
     echo -e "$(ez.text.format -f "Yellow")$({
-        echo "$(ez.join "|" "${columns[@]}")"
+        ez.join "|" "${columns[@]}"
         echo -e "$(ez.join "|" $(ez.array.init "${#columns[@]}" "--"))$(ez.text.format -e "ResetAll")"
         jq -r "${list_filter}[$(ez.join ", " "${fields[@]}")] | @tsv" <<< "${data}" | sed "s/\t/|/g" | sed "s/||/| |/g" | sed "s/||/| |/g" \
-            | { [[ "${sort_numbers}" = "True" ]] && sort -n -k "${sort_column}" -t "|" || sort -k "${sort_column}" -t "|"; }
+            | { if [[ "${sort_numbers}" = "True" ]]; then sort -n -k "${sort_column}" -t "|"; else sort -k "${sort_column}" -t "|"; fi; }
     } | column -s "|" -t)"
 }

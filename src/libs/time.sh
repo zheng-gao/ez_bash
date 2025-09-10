@@ -51,7 +51,7 @@ function ez.time.offset {
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" &&
     local unit && unit="$(ez.argument.get --short "-u" --long "--unit" --arguments "${@}")" &&
     local offset && offset="$(ez.argument.get --short "-o" --long "--offset" --arguments "${@}")" || return 1
-    local unit_value=0 epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${timestamp}" --format "${format}")
+    local unit_value=0 epoch_seconds; epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${timestamp}" --format "${format}")
     case "${unit}" in
         "seconds") unit_value=1 ;;
         "minutes") unit_value=60 ;;
@@ -107,8 +107,8 @@ function ez.time.elapsed {
     local start && start="$(ez.argument.get --short "-s" --long "--start" --arguments "${@}")" &&
     local end && end="$(ez.argument.get --short "-e" --long "--end" --arguments "${@}")" &&
     local format && format="$(ez.argument.get --short "-f" --long "--format" --arguments "${@}")" || return 1
-    local start_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${start}" --format "${format}")
-    local end_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${end}" --format "${format}")
+    local start_epoch_seconds; start_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${start}" --format "${format}")
+    local end_epoch_seconds; end_epoch_seconds=$(ez.time.to_epoch_seconds --timestamp "${end}" --format "${format}")
     ez.time.seconds_to_readable --seconds "$((end_epoch_seconds - start_epoch_seconds))" --format "Long"
 }
 

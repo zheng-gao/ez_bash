@@ -16,13 +16,13 @@ function ez.draw.line {
 }
 
 function ez.draw.full_line {
-    local item="${1}" line_size="$(tput 'cols')"
+    local item="${1}" line_size; line_size="$(tput 'cols')"
     ez.draw.line "${line_size}" "${item}"; echo
 }
 
 function ez.draw.banner {
-    local title=" ${1} " line_item="${2}"
-    local title_size="${#title}" terminal_size="$(tput 'cols')"
+    local title=" ${1} " line_item="${2}" title_size terminal_size
+    title_size="${#title}"; terminal_size="$(tput 'cols')"
     local left_wing_size="$(( (terminal_size - title_size) / 2 ))"
     local right_wing_size="$(( terminal_size - title_size - left_wing_size ))"
     ez.draw.line "${left_wing_size}" "${line_item}"
@@ -66,15 +66,15 @@ function ez.sleep {
     if [[ "${interval}" -lt 0 ]]; then interval=1; fi
     local timeout_in_seconds=0
     case "${unit}" in
-        "d" | "D" | "Day") timeout_in_seconds="$((${value} * 86400))" ;;
-        "h" | "H" | "Hour") timeout_in_seconds="$(("${value}" * 3600))" ;;
-        "m" | "M" | "Minute") timeout_in_seconds="$(("${value}" * 60))" ;;
+        "d" | "D" | "Day") timeout_in_seconds="$((value * 86400))" ;;
+        "h" | "H" | "Hour") timeout_in_seconds="$((value * 3600))" ;;
+        "m" | "M" | "Minute") timeout_in_seconds="$((value * 60))" ;;
         *) timeout_in_seconds=${value} ;;
     esac
     if [[ "${interval}" -eq 0 ]]; then sleep "${timeout_in_seconds}" && return; fi
     local wait_seconds=0
-    local timeout_string=$(ez.time.seconds_to_readable -s "${timeout_in_seconds}" -f "Mini")
-    local wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
+    local timeout_string; timeout_string=$(ez.time.seconds_to_readable -s "${timeout_in_seconds}" -f "Short")
+    local wait_seconds_string; wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Short")
     ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
     while [[ "${wait_seconds}" -lt "${timeout_in_seconds}" ]]; do
         local seconds_left=$((timeout_in_seconds - wait_seconds))
@@ -82,13 +82,13 @@ function ez.sleep {
             ((wait_seconds += "${interval}"))
             sleep "${interval}"
             ez.clear --lines 1
-            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
+            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Short")
             ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         else
             wait_seconds="${timeout_in_seconds}"
             sleep "${seconds_left}"
             ez.clear --lines 1
-            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Mini")
+            wait_seconds_string=$(ez.time.seconds_to_readable -s "${wait_seconds}" -f "Short")
             ez.log.info "Sleeping... (${wait_seconds_string} / ${timeout_string})"
         fi
     done
@@ -119,16 +119,16 @@ function ez.progress.print {
     [[ "${current_step}" -lt 0 ]] && ez.log.error "Invalid value \"${current_step}\" for \"-c|--current\"" && return 1
     [[ "${total_steps}" -le 0 ]] && ez.log.error "Invalid value \"${total_steps}\" for \"-t|--total\"" && return 1
     [[ "${total_steps}" -lt "${current_step}" ]] && ez.log.error "\"-t|--total\" ${total_steps} less than \"-c|--current\" ${current_step}" && return 1
-    local terminal_length="$(tput cols)"
+    local terminal_length; terminal_length="$(tput cols)"
     local percentage_string=""
     local integer_part=0
     if ez.is_true "${show_percentage}"; then
-        local percentage="$((${current_step} * 10000 / ${total_steps}))"
+        local percentage="$((current_step * 10000 / ${total_steps}))"
         percentage_string="[  0.00%]"
         local decimal_part=0
         if [[ "${percentage}" -gt 0 ]]; then
-            integer_part="$((${percentage} / 100))"
-            decimal_part="$((${percentage} % 100))"
+            integer_part="$((percentage / 100))"
+            decimal_part="$((percentage % 100))"
             if [[ "${integer_part}" -lt 10 ]]; then
                 percentage_string="[  ${integer_part}"
             elif [[ "${integer_part}" -eq 100 ]]; then
@@ -145,9 +145,9 @@ function ez.progress.print {
         percentage_string+="${current_step}/${total_steps}]"
         integer_part="$((${current_step} * 100 / ${total_steps}))"
     fi
-    local progress_bar_length="$((${terminal_length} - ${#percentage_string} - 2))"
-    local filler_count="$((${progress_bar_length} * ${integer_part} / 100))"
-    local blank_count="$((${progress_bar_length} - ${filler_count}))"
+    local progress_bar_length="$((terminal_length - "${#percentage_string}" - 2))"
+    local filler_count="$((progress_bar_length * integer_part / 100))"
+    local blank_count="$((progress_bar_length - filler_count))"
     local progress_bar_string=""
     local i=0; for ((; i < "${filler_count}"; ++i)); do progress_bar_string+="${filler_symbol}"; done
     local i=0; for ((; i < "${blank_count}"; ++i)); do progress_bar_string+="${blank_symbol}"; done

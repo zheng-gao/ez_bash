@@ -62,8 +62,8 @@ function ez.git.push.batches {
     fi; ez.function.help "${@}" || return 0
     local batch_size && batch_size="$(ez.argument.get --short "-b" --long "--batch-size" --arguments "${@}")" &&
     local remote && remote="$(ez.argument.get --short "-r" --long "--remote" --arguments "${@}")" || return 1
-    local branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
-    local number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
+    local branch; branch=$(git rev-parse --abbrev-ref HEAD) && echo "Branch: ${branch}"
+    local number_of_commits; number_of_commits=$(git log --first-parent --format=format:x HEAD | wc -l | bc) && echo "Number of Commits: ${number_of_commits}"
     local git_command=""
 
     # git for-each-ref --format='delete %(refname)' refs/pull | git update-ref --stdin
@@ -173,10 +173,10 @@ function ez.git.history.large_blobs() {
     echo "    \"objects\": ["
     git --git-dir "${repo_path}" "rev-list" --objects --all | \
     git --git-dir "${repo_path}" cat-file --batch-check='%(objectname) %(objectsize) %(objecttype) %(rest)' | \
-    awk '$3 == "blob" && $2 >= '${min_bytes}' {print $0}' | \
+    awk '$3 == "blob" && $2 >= '"${min_bytes}"' {print $0}' | \
     while read line; do
         if "${first_line}"; then first_line=false; else echo ","; fi
-        local array=(${line})
+        local array=("${line}")
         local blob_size="${array[1]}"
         # blob_size=$(numfmt --to=iec-i --suffix=B --padding=7 --round=nearest "${array[1]}")
         echo "        {"

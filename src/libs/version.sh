@@ -1,18 +1,18 @@
 function ez.version.extract_digit {
-    local digit="$(echo ${1} | cut -d '.' -f ${2})"
+    local digit; digit="$(cut -d '.' -f "${2}" <<< "${1}")"
     [[ "${3}" = "KeepWildCard" ]] && [[ "${digit}" = "*" ]] && echo "${digit}" && return
     digit="$(sed "s/^\([0-9]*\).*/\1/" <<< "${digit}")" # Trim off the trailing charaters
     [[ -z "${digit}" ]] && echo "0" | bc || echo "${digit}" | bc
 }
 
 function ez.version.compare {
-    local valid_comparators=("<" ">" "<=" ">=" "=") result
     [[ -z "${1}" ]] && ez.log.error "Invalid left version '${1}'" && return 255
     [[ -z "${3}" ]] && ez.log.error "Invalid right version '${3}'" && return 255
-    ez_contains "${2}" "${valid_comparators[@]}" || { ez.log.error "Invalid comparator '${2}'" && return 255; }
-    local l_major="$(ez.version.extract_digit ${1} 1)" r_major="$(ez.version.extract_digit ${3} 1)"
-    local l_minor="$(ez.version.extract_digit ${1} 2)" r_minor="$(ez.version.extract_digit ${3} 2)"
-    local l_patch="$(ez.version.extract_digit ${1} 3)" r_patch="$(ez.version.extract_digit ${3} 3)"
+    ez_contains "${2}" "<" ">" "<=" ">=" "=" || { ez.log.error "Invalid comparator '${2}'" && return 255; }
+    local l_major l_minor l_patch r_major r_minor r_patch result
+    l_major="$(ez.version.extract_digit "${1}" 1)" r_major="$(ez.version.extract_digit "${3}" 1)"
+    l_minor="$(ez.version.extract_digit "${1}" 2)" r_minor="$(ez.version.extract_digit "${3}" 2)"
+    l_patch="$(ez.version.extract_digit "${1}" 3)" r_patch="$(ez.version.extract_digit "${3}" 3)"
     if [ "${l_major}" -gt "${r_major}" ]; then result=1
     elif [ "${l_major}" -lt "${r_major}" ]; then result=-1
     elif [ "${l_minor}" -gt "${r_minor}" ]; then result=1
@@ -29,8 +29,7 @@ function ez.version.compare {
 
 function ez.version.compare_2 {
     if ez.function.unregistered; then
-        ez.argument.set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required \
-                    --info "Must quote operation \">\" and \">=\"" &&
+        ez.argument.set --short "-o" --long "--operation" --choices ">" ">=" "=" "<=" "<" --required --info "Must quote operation \">\" and \">=\"" &&
         ez.argument.set --short "-d" --long "--delimiter" --default "." --required --info "Version item delimiter" &&
         ez.argument.set --short "-l" --long "--left-version" --required --info "The version on left side" &&
         ez.argument.set --short "-r" --long "--right-version" --required --info "The version on right side" &&
@@ -68,23 +67,23 @@ function ez.version.compare_2 {
 }
 
 function ez.version.compare_and_bump_latest {
-    local l_major=$(echo "${1}" | cut -d "." -f 1); [[ "${l_major}" = "*" ]] && l_major=0 || l_major=$(echo "${l_major}" | bc)
-    local l_minor=$(echo "${1}" | cut -d "." -f 2); [[ "${l_minor}" = "*" ]] && l_minor=0 || l_minor=$(echo "${l_minor}" | bc)
-    local l_patch=$(echo "${1}" | cut -d "." -f 3); [[ "${l_patch}" = "*" ]] && l_patch=-1 || l_patch=$(echo "${l_patch}" | bc)
-    local r_major=$(echo "${2}" | cut -d "." -f 1); [[ "${r_major}" = "*" ]] && r_major=0 || r_major=$(echo "${r_major}" | bc)
-    local r_minor=$(echo "${2}" | cut -d "." -f 2); [[ "${r_minor}" = "*" ]] && r_minor=0 || r_minor=$(echo "${r_minor}" | bc)
-    local r_patch=$(echo "${2}" | cut -d "." -f 3); [[ "${r_patch}" = "*" ]] && r_patch=-1 || r_patch=$(echo "${r_patch}" | bc)
+    local l_major; l_major=$(echo "${1}" | cut -d "." -f 1); [[ "${l_major}" = "*" ]] && l_major=0 || l_major=$(echo "${l_major}" | bc)
+    local l_minor; l_minor=$(echo "${1}" | cut -d "." -f 2); [[ "${l_minor}" = "*" ]] && l_minor=0 || l_minor=$(echo "${l_minor}" | bc)
+    local l_patch; l_patch=$(echo "${1}" | cut -d "." -f 3); [[ "${l_patch}" = "*" ]] && l_patch=-1 || l_patch=$(echo "${l_patch}" | bc)
+    local r_major; r_major=$(echo "${2}" | cut -d "." -f 1); [[ "${r_major}" = "*" ]] && r_major=0 || r_major=$(echo "${r_major}" | bc)
+    local r_minor; r_minor=$(echo "${2}" | cut -d "." -f 2); [[ "${r_minor}" = "*" ]] && r_minor=0 || r_minor=$(echo "${r_minor}" | bc)
+    local r_patch; r_patch=$(echo "${2}" | cut -d "." -f 3); [[ "${r_patch}" = "*" ]] && r_patch=-1 || r_patch=$(echo "${r_patch}" | bc)
     if [[ "${l_major}" -gt "${r_major}" ]]; then
-        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+        echo "${l_major}.${l_minor}.$((l_patch + 1))"
     elif [[ "${l_major}" -lt "${r_major}" ]]; then
-        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+        echo "${r_major}.${r_minor}.$((r_patch + 1))"
     elif [[ "${l_minor}" -gt "${r_minor}" ]]; then
-        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+        echo "${l_major}.${l_minor}.$((l_patch + 1))"
     elif [[ "${l_minor}" -lt "${r_minor}" ]]; then
-        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+        echo "${r_major}.${r_minor}.$((r_patch + 1))"
     elif [[ "${l_patch}" -gt "${r_patch}" ]]; then
-        echo "${l_major}.${l_minor}.$(((l_patch + 1)))"
+        echo "${l_major}.${l_minor}.$((l_patch + 1))"
     else
-        echo "${r_major}.${r_minor}.$(((r_patch + 1)))"
+        echo "${r_major}.${r_minor}.$((r_patch + 1))"
     fi
 }

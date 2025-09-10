@@ -43,7 +43,7 @@ function ez.character.from_int { printf "%b" "$(printf "\%o" "${1}")\n"; }
 function ez.string.size { echo "${#1}"; }
 function ez.string.count_items {  # "," "a,b,c" -> 3
     local delimiter="${1}"; [[ -z "${delimiter}" ]] && ez.log.error "Delimiter Not Found" && return 1
-    local string="${@:2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
+    local string="${2}" k=0 count=0; [[ -z "${string}" ]] && echo "${count}" && return
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then ((++count)) && ((k += ${#delimiter})); else ((++k)); fi
     done
@@ -60,8 +60,8 @@ function ez.join {
 
 function ez.quote { echo "'${1}'"; }
 function ez.quote.double { echo "\"${1}\""; }
-function ez.split { # ${1} = array reference, ${2} = delimiter, ${3} ~ ${n} = ${input_string[@]}
-    local -n ez_split_arg_reference="${1}"; local delimiter="${2}" string="${@:3}" item="" k=0; ez_split_arg_reference=()
+function ez.split { # ${1} = array reference, ${2} = delimiter, ${3} = input string
+    local -n ez_split_arg_reference="${1}"; local delimiter="${2}" string="${3}" item="" k=0; ez_split_arg_reference=()
     while [[ "${k}" -lt "${#string}" ]]; do
         if [[ "${string:${k}:${#delimiter}}" = "${delimiter}" ]]; then
             ez_split_arg_reference+=("${item}"); item=""; ((k+=${#delimiter}))
@@ -186,16 +186,16 @@ function ez.log {
         esac
     done
     if ez.excludes "${output_to}" "${valid_output_to[@]}"; then
-        ez.log.error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez.join ', ' ${valid_output_to[@]})]"
+        ez.log.error "Invalid value \"${output_to}\" for \"-o|--output-to\", please choose from [$(ez.join ', ' "${valid_output_to[@]}")]"
         return 2
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
-        if [[ "$(ez.lower ${logger})" = "error" ]]; then
-            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack ${stack}) ${message[@]}")
+        if [[ "$(ez.lower "${logger}")" = "error" ]]; then
+            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}")
         elif [[ "$(ez.lower ${logger})" = "warning" ]]; then
-            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack ${stack}) ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}"
         else
-            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[@]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
@@ -204,7 +204,7 @@ function ez.log {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez.log.error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez.log.error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack ${stack}) ${message[@]}" >> "${file}"
+        echo "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[@]}" >> "${file}"
     fi
 }
 
@@ -361,13 +361,13 @@ function ez.text.color {
         for color in {0..255}; do
             printf "${EZ_INDENT}\e[${foreground};5;%sm  %3s  $(ez.text.format -e 'ResetAll')" "${color}" "${color}"
             # Print 6 colors per line
-            [[ $((("${color}" + 1) % 6)) -eq 4 ]] && echo
+            [[ $(((color + 1) % 6)) -eq 4 ]] && echo
         done
         echo; echo "${EZ_INDENT}[Background]"
         for color in {0..255}; do
             printf "${EZ_INDENT}\e[${background};5;%sm  %3s  $(ez.text.format -e 'ResetAll')" "${color}" "${color}"
             # Print 6 colors per line
-            [[ $(((${color} + 1) % 6)) -eq 4 ]] && echo
+            [[ $(((color + 1) % 6)) -eq 4 ]] && echo
         done
         echo
         return 0
@@ -394,9 +394,9 @@ function ez.source {
         -a "-e|--exclude" -t "List" -d "[$(ez.join ", " "${exclude[@]}")]" -c "" -i "Keywords to exclude" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
-            "-p" | "--path") shift; path=${1}; shift ;;
-            "-d" | "--depth") shift; depth=${1}; shift ;;
-            "-e" | "--exclude") shift; while [[ -n "${1}" ]] && ez.excludes "${1}" "${arg_list[@]}"; do exclude+=(${1}); shift; done ;;
+            "-p" | "--path") shift; path="${1}"; shift ;;
+            "-d" | "--depth") shift; depth="${1}"; shift ;;
+            "-e" | "--exclude") shift; while [[ -n "${1}" ]] && ez.excludes "${1}" "${arg_list[@]}"; do exclude+=("${1}"); shift; done ;;
             *) ez.log.error "Unknown argument identifier \"${1}\". Run \"${FUNCNAME[0]} --help\" for details"; return 1 ;;
         esac
     done
@@ -405,7 +405,7 @@ function ez.source {
     if [[ -d "${path}" ]]; then
         [[ ! -r "${path}" ]] && ez.log.error "Cannot read directory \"${path}\"" && return 1
         [[ -n "${depth}" ]] && depth="-depth ${depth}"
-        if [[ -z "${exclude}" ]]; then
+        if [[ -z "${exclude[@]}" ]]; then
             for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | sort); do
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done
