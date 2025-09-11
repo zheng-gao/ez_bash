@@ -42,13 +42,11 @@ function ez.ssh.agent.kill {
 }
 function ez.ssh.port.forward {
     if ez.function.unregistered; then
-        ez.argument.set --short "-la" --long "--local-address" --default "localhost" --required --info "The local IP or FQDN" &&
         ez.argument.set --short "-lp" --long "--local-port" --info "Same as remote port if not specified" &&
         ez.argument.set --short "-ra" --long "--remote-address" --required --info "The remote IP or FQDN" &&
         ez.argument.set --short "-rp" --long "--remote-port" --info "Same as local port if not specified" &&
         ez.argument.set --short "-ru" --long "--remote-user" --required --default "${USER}" || return 1
     fi; ez.function.help "${@}" || return 0
-    local local_address && local_address="$(ez.argument.get --short "-la" --long "--local-address" --arguments "${@}")" &&
     local local_port && local_port="$(ez.argument.get --short "-lp" --long "--local-port" --arguments "${@}")" &&
     local remote_address && remote_address="$(ez.argument.get --short "-ra" --long "--remote-address" --arguments "${@}")" &&
     local remote_port && remote_port="$(ez.argument.get --short "-rp" --long "--remote-port" --arguments "${@}")" &&
@@ -127,10 +125,9 @@ function ez.ssh.local_function {
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" &&
     local func && func="$(ez.argument.get --short "-f" --long "--function" --arguments "${@}")" &&
     local arg_list && ez.function.arguments.get_list "arg_list" "$(ez.argument.get --short "-a" --long "--arguments" --arguments "${@}")" || return 1
-    ez.array.quote.double "arg_list"
-    local script="${EZ_DIR_SCRIPTS}/${func}.sh"
+    local script="${EZ_DIR_SCRIPTS}/${func}.sh" func_arg
     declare -f "${func}" > "${script}"
-    echo "${func} ${arg_list[@]}" >> "${script}"
+    echo -n "${func}" >> "${script}"; for func_arg in "${arg_list[@]}"; do echo -n " \"${func_arg}\"" >> "${script}"; done; echo >> "${script}"
     ez.ssh.local_script --hosts "${hosts[@]}" --user "${user}" --script "${script}" --key "${key}" --timeout "${timeout}"
 }
 
@@ -246,8 +243,8 @@ function ez.ssh.sudo_cmd {
 EOF
         echo
     } &> "${data_file}"
-    local start_line=$(grep -n "${start_banner}" ${data_file} | tail -1 | cut -d ":" -f 1)
-    local end_line=$(grep -n "echo ${status_banner}" ${data_file} | tail -1 | cut -d ":" -f 1)
+    local start_line; start_line=$(grep -n "${start_banner}" "${data_file}" | tail -1 | cut -d ":" -f 1)
+    local end_line; end_line=$(grep -n "echo ${status_banner}" "${data_file}" | tail -1 | cut -d ":" -f 1)
     start_line=$((start_line+=2)); end_line=$((end_line-=1))
     ez.is_true "${console}" && sed -n "${start_line},${end_line}p" "${data_file}"
     [[ -n "${output}" ]] && sed -n "${start_line},${end_line}p" "${data_file}" > "${output}"

@@ -123,7 +123,7 @@ function ez.progress.print {
     local percentage_string=""
     local integer_part=0
     if ez.is_true "${show_percentage}"; then
-        local percentage="$((current_step * 10000 / ${total_steps}))"
+        local percentage="$((current_step * 10000 / total_steps))"
         percentage_string="[  0.00%]"
         local decimal_part=0
         if [[ "${percentage}" -gt 0 ]]; then
@@ -143,7 +143,7 @@ function ez.progress.print {
         local percentage_string="["
         local i=0; for ((; i < "${length_diff}"; ++i)); do percentage_string+=" "; done
         percentage_string+="${current_step}/${total_steps}]"
-        integer_part="$((${current_step} * 100 / ${total_steps}))"
+        integer_part="$((current_step * 100 / total_steps))"
     fi
     local progress_bar_length="$((terminal_length - "${#percentage_string}" - 2))"
     local filler_count="$((progress_bar_length * integer_part / 100))"

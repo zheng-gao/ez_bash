@@ -192,7 +192,7 @@ if [[ "${BASH_SOURCE[0]}" = "${0}" ]]; then
     case "${1}" in
         "-s" | "--shellcheck")
             if which "shellcheck" > "/dev/null"; then
-                find "$(dirname ${0})/src" -type f -name "*.sh" -print0 | xargs -0 shellcheck -e SC2119
+                find "$(dirname ${0})/src" -type f -name "*.sh" -print0 | xargs -0 shellcheck -s bash -e SC2119
             else
                 echo "Run following commands to install shellcheck:"
                 if [[ "$(uname -s)" = "Darwin" ]]; then

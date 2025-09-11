@@ -156,7 +156,7 @@ function ez.log.warning {
 }
 function ez.log.info {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_INFO})" ]] && return 0
-    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][INFO]$(ez.log.stack 1) ${@}"
+    echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][INFO]$(ez.log.stack 1) ${*}"
 }
 function ez.log.debug {
     [[ "$(ez.log.level.enum ${EZ_LOG_LEVEL})" -gt "$(ez.log.level.enum ${EZ_LOG_DEBUG})" ]] && return 0; local color="LightGray"
@@ -190,11 +190,11 @@ function ez.log {
     fi
     if [[ "${output_to}" = "Console" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
         if [[ "$(ez.lower "${logger}")" = "error" ]]; then
-            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}")
+            (>&2 echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Red" -t "${logger}")]$(ez.log.stack "${stack}") ${message[*]}")
         elif [[ "$(ez.lower "${logger}")" = "warning" ]]; then
-            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack "${stack}") ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][$(ez.text.decorate -f "Yellow" -t "${logger}")]$(ez.log.stack "${stack}") ${message[*]}"
         else
-            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[@]}"
+            echo -e "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[*]}"
         fi
     fi
     if [[ "${output_to}" = "File" ]] || [[ "${output_to}" = "${EZ_ALL}" ]]; then
@@ -203,7 +203,7 @@ function ez.log {
         [[ ! -e "${file}" ]] && touch "${file}"
         [[ ! -f "${file}" ]] && ez.log.error "Log File \"${file}\" not exist" && return 3
         [[ ! -w "${file}" ]] && ez.log.error "Log File \"${file}\" not writable" && return 3
-        echo "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[@]}" >> "${file}"
+        echo "[$(ez.time.now)][${EZ_SELF_LOGO}][${logger}]$(ez.log.stack "${stack}") ${message[*]}" >> "${file}"
     fi
 }
 
@@ -349,7 +349,7 @@ function ez.text.decorate {
         esac
     done
     text_format="$(ez.text.format -e "${effect}" -f "${f_color}" -b "${b_color}")" || return 1
-    echo "${text_format}${text[@]}$(ez.text.format -e "ResetAll")"
+    echo "${text_format}${text[*]}$(ez.text.format -e "ResetAll")"
 }
 function ez.text.color {
     local foreground=38 background=48 color
@@ -373,8 +373,10 @@ function ez.text.color {
     fi
     if [[ -n "${2}" ]] && [[ "${2}" -ge 0 ]] && [[ "${2}" -lt 255 ]]; then
         if [[ "${1}" = "-f" ]] || [[ "${1}" = "--foreground" ]]; then
-            echo "${EZ_INDENT}\e[${foreground};5;${2}m"; return 0
+            # shellcheck disable=SC2028
+            echo "${EZ_INDENT}\e[${foreground};5;${2}m"; return 0  
         elif [[ "${1}" = "-b" ]] || [[ "${1}" = "--background" ]]; then
+            # shellcheck disable=SC2028
             echo "${EZ_INDENT}\e[${background};5;${2}m"; return 0
         else
             return 1
@@ -404,7 +406,7 @@ function ez.source {
     if [[ -d "${path}" ]]; then
         [[ ! -r "${path}" ]] && ez.log.error "Cannot read directory \"${path}\"" && return 1
         [[ -n "${depth}" ]] && depth="-depth ${depth}"
-        if [[ -z "${exclude[@]}" ]]; then
+        if [[ -z "${exclude[*]}" ]]; then
             for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | sort); do
                 source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
             done

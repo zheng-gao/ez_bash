@@ -180,7 +180,7 @@ function ez.git.history.large_blobs() {
         local blob_size="${array[1]}"
         # blob_size=$(numfmt --to=iec-i --suffix=B --padding=7 --round=nearest "${array[1]}")
         echo "        {"
-        echo "            \"name\": \"${array[@]:3}\","
+        echo "            \"name\": \"${array[*]:3}\","
         echo "            \"blob\": \"${array[0]}\","
         echo "            \"size\": \"${blob_size}\","
         echo "            \"commits\": ["

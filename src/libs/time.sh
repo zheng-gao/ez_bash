@@ -11,9 +11,9 @@ function ez.time.clock {
 
 function ez.time.zones {
     local zone_info_dir="/usr/share/zoneinfo"
-    pushd "${zone_info_dir}" > "/dev/null"
+    pushd "${zone_info_dir}" > "/dev/null" || return 1
     find . -type f | sed 's@./@@' | grep '^[[:upper:]]' | sort
-    popd > "/dev/null"
+    popd > "/dev/null" || return 1
 }
 
 function ez.time.from_epoch_seconds {
