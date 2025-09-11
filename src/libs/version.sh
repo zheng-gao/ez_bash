@@ -42,8 +42,8 @@ function ez.version.compare_2 {
     local right_version && right_version="$(ez.argument.get --short "-r" --long "--right-version" --arguments "${@}")" &&
     local check_length && check_length="$(ez.argument.get --short '-c' --long "--check-length" --arguments "${@}")" &&
     local print && print="$(ez.argument.get --short '-p' --long "--print" --arguments "${@}")" || return 1
-    local left_digits=(${left_version//${delimiter}/" "}); local left_length=${#left_digits[@]}
-    local right_digits=(${right_version//${delimiter}/" "}); local right_length=${#right_digits[@]}
+    local left_digits; ez.split "left_digits" "${delimiter}" "${left_version}"; local left_length=${#left_digits[@]}
+    local right_digits; ez.split "right_digits" "${delimiter}" "${right_version}"; local right_length=${#right_digits[@]}
     if ez.is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
     	ez.log.error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi

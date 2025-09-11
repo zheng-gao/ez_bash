@@ -49,7 +49,7 @@ function ez.math.variance {
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
     local ez_math_variance_data_list; ez.function.arguments.get_list "ez_math_variance_data_list" "${data}"
     if [[ "${#ez_math_variance_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
-    local average=$(ez.math.average --data "${ez_math_variance_data_list[@]}" --scale "${scale}") variance=0 data
+    local variance=0 data average; average="$(ez.math.average --data "${ez_math_variance_data_list[@]}" --scale "${scale}")"
     for data in "${ez_math_variance_data_list[@]}"; do variance=$(ez.math.calculate --expression "${variance} + (${data} - ${average}) ^ 2" --scale "${scale}"); done
     ez.math.calculate --expression "${variance} / (${#ez_math_variance_data_list[@]} - 1)" --scale "${scale}"
 }
@@ -71,7 +71,7 @@ function ez.math.calculate {
     fi; ez.function.help "${@}" || return 0
     local expression && expression="$(ez.argument.get --short "-e" --long "--expression" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local result=$(bc -l <<< "scale=${scale}; ${expression}")  # bc scale does not work for mode %
+    local result; result=$(bc -l <<< "scale=${scale}; ${expression}")  # bc scale does not work for mode %
     if [[ "${result:0:1}" = "." ]]; then result="0${result}"; elif [[ "${result:0:2}" = "-." ]]; then result="-0${result:1}"; fi; echo "${result}"
 }
 
@@ -86,7 +86,7 @@ function ez.math.decimal.to_base_x {
     local padding && padding="$(ez.argument.get --short "-p" --long "--padding" --arguments "${@}")" || return 1
     if [[ "${base}" -eq "16" ]]; then printf "%0${padding}x\n" "${decimal}"
     elif [[ "${base}" -eq "8" ]]; then printf "%0${padding}o\n" "${decimal}"
-    else printf "%0${padding}d\n" $(bc <<< "obase=${base};${decimal}")
+    else printf "%0${padding}d\n" "$(bc <<< "obase=${base};${decimal}")"
     fi
 }
 
@@ -119,12 +119,12 @@ function ez.math.percentile {
     local percentile && percentile="$(ez.argument.get --short "-p" --long "--percentile" --arguments "${@}")" &&
     local method && method="$(ez.argument.get --short "-m" --long "--method" --arguments "${@}")" &&
     local scale && scale="$(ez.argument.get --short "-s" --long "--scale" --arguments "${@}")" || return 1
-    local ez.math.percentile_data_list; ez.function.arguments.get_list "ez.math.percentile_data_list" "${data}"
-    if [[ "${#ez.math.percentile_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
+    local ez_math_percentile_data_list; ez.function.arguments.get_list "ez_math_percentile_data_list" "${data}"
+    if [[ "${#ez_math_percentile_data_list[@]}" -eq 0 ]]; then ez.log.error "No data found"; return 1; fi
     if (( $(bc -l <<< "${percentile} < 0") )) || (( $(bc -l <<< "${percentile} > 100") )); then
         ez.log.error "Invalid percentile: ${percentile}"; return 1
     fi
-    local data_set=($(ez.sort --data "${ez.math.percentile_data_list[@]}" --number))
+    local data_set=($(ez.sort --data "${ez_math_percentile_data_list[@]}" --number))
     if [[ "${percentile}" -eq 0 ]]; then
         echo "${data_set[0]}"
     elif [[ "${percentile}" -eq 100 ]]; then

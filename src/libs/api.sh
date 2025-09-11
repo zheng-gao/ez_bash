@@ -47,12 +47,12 @@ function ez.api {
     local verbose && verbose="$(ez.argument.get --short "-V" --long "--verbose" --arguments "${@}")" &&
     local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" &&
     local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
-    local params_str=""; [[ -n "${params[@]}" ]] && params_str="?$(ez.join '&' ${params[@]})"
+    local params_str=""; [[ -n "${params[*]}" ]] && params_str="?$(ez.join '&' "${params[@]}")"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     if [[ "${ends_with_slash}" = "True" && "${endpoint:0-1}" != "/" ]]; then endpoint+="/"; fi
     if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${version}${endpoint}${params_str}"; fi
-    local curl_str="curl -sL ${auth_op[@]} ${headers_opt[@]} \"${url}\""
+    local curl_str="curl -sL ${auth_op[*]} ${headers_opt[*]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
     [[ -n "${upload_file}" ]] && curl_str+=" -T '${upload_file}'"

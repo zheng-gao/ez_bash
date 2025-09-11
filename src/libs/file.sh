@@ -162,7 +162,7 @@ function ez.file.descriptor.count {
     elif [[ -z "${pid}" ]] && [[ -z "${name}" ]]; then ez.log.error "Must provide --pid or --name" && return 1
     elif [[ -z "${pid}" ]]; then
         if [[ "$(uname -s)" = "Linux" ]]; then
-            for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l /proc/${pid}/fd | wc -l | bc)" | bc); done
+            for pid in $(pgrep -f "${name}"); do fd_count=$(echo "${fd_count} + $(ls -l "/proc/${pid}/fd" | wc -l | bc)" | bc); done
         else
             ez.log.error "\"--name\" only works on linux" && return 1
         fi

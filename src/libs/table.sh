@@ -20,7 +20,7 @@ function ez.table.print {
     local rows=(); local number_of_rows=0; local table=""
     if [[ -n "${file}" ]]; then
         [[ ! -f "${file}" ]] && ez.log.error "File \"${file}\" not found" && return 1
-        local file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
+        local file_content; file_content=$(cat "${file}" | sed "/^\s*$/d")  # Remove empty lines
         [[ -z "${file_content}" ]] && return 1
         if [[ "${row_delimiter}" = "\n" ]]; then
             local line; for line in "${file_content[@]}"; do rows+=("${line}"); ((++number_of_rows)); done

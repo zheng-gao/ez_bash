@@ -211,14 +211,14 @@ function ez.argument.set {
         if [ -n "${short_old}" ]; then
             key="${function}${delimiter}${short_old}"
             # Delete short_old
-            unset EZ_S_ARG_TO_L_ARG_MAP["${key}"]
-            unset EZ_S_ARG_TO_TYPE_MAP["${key}"]
-            unset EZ_S_ARG_TO_REQUIRED_MAP["${key}"]
-            unset EZ_S_ARG_TO_EXCLUDE_MAP["${key}"]
-            unset EZ_S_ARG_TO_DEFAULT_MAP["${key}"]
-            unset EZ_S_ARG_TO_INFO_MAP["${key}"]
-            unset EZ_S_ARG_TO_CHOICES_MAP["${key}"]
-            unset EZ_S_ARG_SET["${key}"]
+            unset 'EZ_S_ARG_TO_L_ARG_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_TYPE_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_REQUIRED_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_EXCLUDE_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_DEFAULT_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_INFO_MAP["${key}"]'
+            unset 'EZ_S_ARG_TO_CHOICES_MAP["${key}"]'
+            unset 'EZ_S_ARG_SET["${key}"]'
             local new_short_list_string=""
             local existing_short; for existing_short in $(ez.function.arguments.get_short "${function}"); do
                 if [[ "${short_old}" != "${existing_short}" ]]; then
@@ -246,14 +246,14 @@ function ez.argument.set {
         if [[ -n "${long_old}" ]]; then
             key="${function}${delimiter}${long_old}"
             # Delete long_old
-            unset EZ_L_ARG_TO_S_ARG_MAP["${key}"]
-            unset EZ_L_ARG_TO_TYPE_MAP["${key}"]
-            unset EZ_L_ARG_TO_REQUIRED_MAP["${key}"]
-            unset EZ_L_ARG_TO_EXCLUDE_MAP["${key}"]
-            unset EZ_L_ARG_TO_DEFAULT_MAP["${key}"]
-            unset EZ_L_ARG_TO_INFO_MAP["${key}"]
-            unset EZ_L_ARG_TO_CHOICES_MAP["${key}"]
-            unset EZ_L_ARG_SET["${key}"]
+            unset 'EZ_L_ARG_TO_S_ARG_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_TYPE_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_REQUIRED_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_EXCLUDE_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_DEFAULT_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_INFO_MAP["${key}"]'
+            unset 'EZ_L_ARG_TO_CHOICES_MAP["${key}"]'
+            unset 'EZ_L_ARG_SET["${key}"]'
             local new_long_list_string=""
             local existing_long; for existing_long in $(ez.function.arguments.get_long "${function}"); do
                 if [[ "${long_old}" != "${existing_long}" ]]; then
@@ -281,26 +281,26 @@ function ez.argument.get {
         echo
     } && return 0
     [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez.log.error "Function \"${function}\" NOT registered" && return 2
-    if [ "${1}" = "-s" -o "${1}" = "--short" ]; then short="${2}"
-        if [ "${3}" = "-l" -o "${3}" = "--long" ]; then long="${4}"
-            if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
+    if [[ "${1}" = "-s" || "${1}" = "--short" ]]; then short="${2}"
+        if [[ "${3}" = "-l" || "${3}" = "--long" ]]; then long="${4}"
+            if [[ "${5}" = "-a" || "${5}" = "--arguments" ]]; then arguments=("${@:6}")
             else
                 ez.log.error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
                 ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
             fi
-        elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
+        elif [[ "${3}" = "-a" || "${3}" = "--arguments" ]]; then arguments=("${@:4}")
         else
             ez.log.error "Invalid argument identifier \"${3}\", expected \"-l|--long\" or \"-a|--arguments\""
             ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
         fi
-    elif [ "${1}" = "-l" -o "${1}" = "--long" ]; then long="${2}"
-        if [ "${3}" = "-s" -o "${3}" = "--short" ]; then short="${4}"
-            if [ "${5}" = "-a" -o "${5}" = "--arguments" ]; then arguments=("${@:6}")
+    elif [[ "${1}" = "-l" || "${1}" = "--long" ]]; then long="${2}"
+        if [[ "${3}" = "-s" || "${3}" = "--short" ]]; then short="${4}"
+            if [[ "${5}" = "-a" || "${5}" = "--arguments" ]]; then arguments=("${@:6}")
             else
                 ez.log.error "Invalid argument identifier \"${5}\", expected \"-a|--arguments\""
                 ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
             fi
-        elif [ "${3}" = "-a" -o "${3}" = "--arguments" ]; then arguments=("${@:4}")
+        elif [[ "${3}" = "-a" || "${3}" = "--arguments" ]]; then arguments=("${@:4}")
         else
             ez.log.error "Invalid argument identifier \"${5}\", expected \"-s|--short\" or \"-a|--arguments\""
             ez.log.error "Run \"${FUNCNAME[0]} --help\" for details"; return 1
