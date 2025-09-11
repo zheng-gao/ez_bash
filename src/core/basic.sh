@@ -388,10 +388,10 @@ function ez.text.color {
 
 ################################# Miscellaneous Function ##########################################
 function ez.source {
-    local path="." depth="" exclude=() arg_list=("-p" "--path" "-d" "--depth" "-e" "--exclude") sh_file=""
+    local path="." depth="" exclude=() arg_list=("-p" "--path" "-d" "--depth" "-e" "--exclude") sh_file="" exec_str
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Source a file or a directory recursively" \
         -a "-p|--path" -t "String" -d "${path}" -c "" -i "Path to source" \
-        -a "-d|--depth" -t "String" -d "${depth}" -c "" -i "Directory search depth, none for infinity" \
+        -a "-d|--depth" -t "Integer" -d "${depth}" -c "" -i "Directory search depth, none for infinity" \
         -a "-e|--exclude" -t "List" -d "[$(ez.join ", " "${exclude[@]}")]" -c "" -i "Keywords to exclude" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
@@ -405,17 +405,16 @@ function ez.source {
     path="${path%/}" # Remove a trailing slash if there is one
     if [[ -d "${path}" ]]; then
         [[ ! -r "${path}" ]] && ez.log.error "Cannot read directory \"${path}\"" && return 1
-        [[ -n "${depth}" ]] && depth="-depth ${depth}"
-        if [[ -z "${exclude[*]}" ]]; then
-            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | sort); do
-                source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
-            done
-        else
-            for sh_file in $(find "${path}" -type f -name "*.sh" ${depth} | grep -v $(ez.join "\|" "${exclude[@]}") | sort); do
-                source "${sh_file}" || { ez.log.error "Failed to source \"${sh_file}\""; return 1; }
-            done
-        fi
+        exec_str="find '${path}' -type f -name '*.sh'"
+        if [[ -n "${depth}" ]]; then exec_str+=" -depth ${depth}"; fi
+        if [[ -n "${exclude[*]}" ]]; then exec_str+=" | grep -v $(ez.join "\|" "${exclude[@]}")"; fi
+        exec_str+=" | sort"
+        for sh_file in $(eval "${exec_str}"); do
+            # shellcheck disable=SC1090
+            if ! source "${sh_file}"; then ez.log.error "Failed to source \"${sh_file}\""; return 1; fi
+        done
     else
-        source "${path}" || { ez.log.error "Failed to source \"${path}\""; return 1; }
+        # shellcheck disable=SC1090
+        if ! source "${path}"; then ez.log.error "Failed to source \"${path}\""; return 1; fi
     fi
 }

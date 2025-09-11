@@ -25,7 +25,7 @@ function ez.string.trim {
     if ez.function.unregistered; then
         local valid_keys=("Left" "Right" "Both" "Any")
         ez.argument.set --short "-s" --long "--string" --required --info "The string to be trimmed" &&
-        ez.argument.set --short "-p" --long "--pattern" --required --default "${EZ_CHAR_SPACE}" --info "Substring Pattern" &&
+        ez.argument.set --short "-p" --long "--pattern" --required --default "' '" --info "Substring Pattern" &&
         ez.argument.set --short "-c" --long "--count" --info "Occurrence of the pattern" &&
         ez.argument.set --short "-k" --long "--key" --required --default "Any" --choices "${valid_keys[@]}" || return 1
     fi; ez.function.help "${@}" || return 0
@@ -33,7 +33,7 @@ function ez.string.trim {
     local pattern && pattern="$(ez.argument.get --short "-p" --long "--pattern" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" || return 1
-    if [[ "${pattern}" =  "${EZ_CHAR_SPACE}" ]]; then pattern=" "; fi
+    if [[ "${pattern}" = "' '" ]]; then pattern=" "; fi
     if [[ "${key}" = "Any" ]]; then echo "${string}" | sed "s/${pattern}//g"
     elif [[ "${key}" = "Left" ]]; then
         if [[ -z "${count}" ]]; then echo "${string}" | sed "s/^\(${pattern}\)\{1,\}//"

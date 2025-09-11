@@ -42,13 +42,13 @@ function ez.version.compare_2 {
     local right_version && right_version="$(ez.argument.get --short "-r" --long "--right-version" --arguments "${@}")" &&
     local check_length && check_length="$(ez.argument.get --short '-c' --long "--check-length" --arguments "${@}")" &&
     local print && print="$(ez.argument.get --short '-p' --long "--print" --arguments "${@}")" || return 1
-    local left_version_list=(${left_version//${delimiter}/" "}); local left_length=${#left_version_list[@]}
-    local right_version_list=(${right_version//${delimiter}/" "}); local right_length=${#right_version_list[@]}
+    local left_digits=(${left_version//${delimiter}/" "}); local left_length=${#left_digits[@]}
+    local right_digits=(${right_version//${delimiter}/" "}); local right_length=${#right_digits[@]}
     if ez.is_true "${check_length}" && [[ "${left_length}" -ne "${right_length}" ]]; then
     	ez.log.error "The length of \"${left_version}\" and \"${right_version}\" does not match"; return 1
     fi
     local state=0; local i=0; while [[ "${i}" -lt "${left_length}" ]] && [[ "${i}" -lt "${right_length}" ]]; do
-        ((state = ${left_version_list[${i}]} - ${right_version_list[${i}]})); [[ "${state}" -ne 0 ]] && break; ((++i))
+        ((state = ${left_digits[${i}]} - ${right_digits[${i}]})); [[ "${state}" -ne 0 ]] && break; ((++i))
     done
     local result;
     if [[ "${state}" -lt 0 ]]; then

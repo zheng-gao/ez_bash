@@ -1,13 +1,12 @@
 ###################################################################################################
 # -------------------------------------- Global Variables --------------------------------------- #
 ###################################################################################################
-EZ_CHAR_SHARP="EZ_SHARP"
-EZ_CHAR_SPACE="EZ_SPACE"
 EZ_CHAR_NON_SPACE_DELIMITER="#"
 EZ_DIR_WORKSPACE="/var/tmp/ez_workspace"; mkdir -p "${EZ_DIR_WORKSPACE}"
 EZ_DIR_SCRIPTS="${EZ_DIR_WORKSPACE}/scripts"; mkdir -p "${EZ_DIR_SCRIPTS}"
 EZ_DIR_LOGS="${EZ_DIR_WORKSPACE}/logs"; mkdir -p "${EZ_DIR_LOGS}"
 EZ_DIR_DATA="${EZ_DIR_WORKSPACE}/data"; mkdir -p "${EZ_DIR_DATA}"
+# shellcheck disable=SC2034
 EZ_DEFAULT_LOG="${EZ_DIR_LOGS}/ez_bash.log"
 
 EZ_FUNC_HELP="--help"
@@ -63,13 +62,14 @@ function ez.function.show_registered { local function; for function in "${!EZ_FU
 # ez.function.unregistered  Should only be called by another function. If not, give the function name in 1st argument
 function ez.function.unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
 function ez.function.help {  # By default it will print the "help" when no argument is given
-    [[ "${@}" = "--run-with-no-argument" ]] && return 0  # No help info and run function if no argument given
-    if [[ -z "${@}" ]] || ez.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
+    if [[ "${*}" = "--run-with-no-argument" ]]; then return 0; fi # No help info and run function if no argument given
+    if [[ -z "${*}" ]] || ez.includes "${EZ_FUNC_HELP}" "${@}"; then ez.function.arguments.print -f "${FUNCNAME[1]}"; return 1; fi; return 0
 }
 function ez.function.arguments.get_short { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_S_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_long { sed "s/${EZ_CHAR_NON_SPACE_DELIMITER}/ /g" <<< "${EZ_FUNC_TO_L_ARG_MAP[${1}]}"; }
 function ez.function.arguments.get_list {
     local status_code="${?}"; if [[ "${status_code}" -ne 0 ]]; then return "${status_code}"; fi
+    # shellcheck disable=SC2034
     local -n ez_function_arguments_get_list_arg_reference="${1}"; ez.split "ez_function_arguments_get_list_arg_reference" "${EZ_CHAR_NON_SPACE_DELIMITER}" "${@:2}"
 }
 function ez.function.arguments.print {
@@ -86,6 +86,7 @@ function ez.function.arguments.print {
     [[ -z "${EZ_FUNC_SET[${function}]}" ]] && ez.log.error "Function \"${function}\" NOT registered" && return 2
     local delimiter="${EZ_CHAR_NON_SPACE_DELIMITER}" indent="    "
     echo; echo "${indent}[Function Name] ${function}"; echo
+    # shellcheck disable=SC2030
     {
         echo "${indent}$(ez.join "${delimiter}" "[Short]" "[Long]" "[Type]" "[Required]" "[Exclude]" "[Default]" "[Choices]" "[Description]")"
         local key type required exclude choices default info
@@ -152,13 +153,13 @@ function ez.argument.set {
     local function="${FUNCNAME[1]}" short long exclude info type="${EZ_ARG_TYPE_DEFAULT}" required="${EZ_FALSE}" default=() choices=()
     [[ -z "${1}" || "${1}" = "-h" || "${1}" = "--help" ]] && ez.function.usage -D "Register Function Argument" \
         -a "-f|--function" -t "String" -d "${function}" -c "" -i "Target Function Name" \
-        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez.join ", " ${!EZ_ARG_TYPE_SET[@]})]" -i "Function Argument Type" \
+        -a "-t|--type" -t "String" -d "${type}" -c "[$(ez.join ", " "${!EZ_ARG_TYPE_SET[@]}")]" -i "Function Argument Type" \
         -a "-s|--short" -t "String" -d "${short}" -c "" -i "Short Argument Identifier" \
         -a "-l|--long" -t "String" -d "${long}" -c "" -i "Long Argument Identifier" \
         -a "-e|--exclude" -t "String" -d "${exclude}" -c "" -i "Mutually Exclusive Group ID" \
         -a "-i|--info" -t "String" -d "${info}" -c "" -i "Argument Description" \
-        -a "-d|--default" -t "List" -d "[$(ez.join ", " ${default[@]})]" -c "" -i "Argument Default Value" \
-        -a "-c|--choices" -t "List" -d "[$(ez.join ", " ${choices[@]})]" -c "" -i "Argument Value Choices" \
+        -a "-d|--default" -t "List" -d "[$(ez.join ", " "${default[@]}")]" -c "" -i "Argument Default Value" \
+        -a "-c|--choices" -t "List" -d "[$(ez.join ", " "${choices[@]}")]" -c "" -i "Argument Value Choices" \
         -a "-r|--required" -t "Flag" -d "" -c "" -i "Required Argument" && return 0
     while [[ -n "${1}" ]]; do
         case "${1}" in
@@ -176,7 +177,7 @@ function ez.argument.set {
     done
     [[ -z "${short}" ]] && [[ -z "${long}" ]] && ez.log.error "\"-s|--short\" and \"-l|--long\" are None" && return 1
     if [[ -z "${EZ_ARG_TYPE_SET[${type}]}" ]]; then
-        ez.log.error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez.join ', ' ${!EZ_ARG_TYPE_SET[@]})]"
+        ez.log.error "Invalid value \"${type}\" for \"-t|--type\", please choose from [$(ez.join ', ' "${!EZ_ARG_TYPE_SET[@]}")]"
         return 1
     fi
     # EZ_BASH_FUNCTION_HELP="--help" is reserved for ez_bash function help

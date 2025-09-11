@@ -6,6 +6,8 @@ ez.dependencies.check "ssh" "expect" || return 1
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
+EZ_CHAR_SHARP="EZ_SHARP"
+EZ_CHAR_SPACE="EZ_SPACE"
 EZ_SSH_CONNECT_TIMEOUT=10
 EZ_SSH_OPTIONS=(
     "-o" "BatchMode=yes"
@@ -37,7 +39,7 @@ function ez.timeout {
 
 function ez.ssh.agent.kill {
     local ssh_agent_pids=($(ps -ef | grep "ssh-agent" | grep -v "grep" | awk "{print \$2}"))
-    echo "Killing PIDs: ${ssh_agent_pids[@]}"
+    echo "Killing PIDs: ${ssh_agent_pids[*]}"
     kill "${ssh_agent_pids[@]}"
 }
 function ez.ssh.port.forward {
