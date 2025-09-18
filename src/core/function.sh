@@ -58,6 +58,7 @@ unset EZ_S_ARG_TO_EXCLUDE_MAP;                  declare -g -A EZ_S_ARG_TO_EXCLUD
 ###################################################################################################
 # ----------------------------------- EZ Bash Function Tools ------------------------------------ #
 ###################################################################################################
+function ez.function.exist { declare -F "${1}" > "/dev/null" 2>&1; }
 function ez.function.show_registered { local function; for function in "${!EZ_FUNC_SET[@]}"; do echo "${function}"; done; }
 # ez.function.unregistered  Should only be called by another function. If not, give the function name in 1st argument
 function ez.function.unregistered { if [[ -z "${1}" ]]; then test -z "${EZ_FUNC_SET[${FUNCNAME[1]}]}"; else test -z "${EZ_FUNC_SET[${1}]}"; fi; }
