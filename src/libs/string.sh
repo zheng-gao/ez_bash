@@ -6,7 +6,7 @@
 ###################################################################################################
 # -------------------------------------- EZ Bash Functions -------------------------------------- #
 ###################################################################################################
-function ez.string.contains { local string="${1}" substring="${2}"; [[ "${string}" == *"${substring}"* ]]; }
+function ez.string.contains { local string="${1}" substring="${2}"; [[ "${string}" = *"${substring}"* ]]; }
 function ez.string.replace { local string="${1}" pattern="${2}" replacement="${3}"; echo "${string//${pattern}/${replacement}}"; }
 function ez.string.count_substring { local input_string="${1}" substring="${2}"; echo "${input_string}" | grep -o "${substring}" | wc -l | bc; }
 
@@ -86,6 +86,24 @@ function ez.string.check {
         if [[ "${string}" =~ .*"${pattern}"$ ]]; then ez.is_true"${verbose}" && echo "${EZ_TRUE}"; return 0
         else ez.is_true "${verbose}" && echo "${EZ_FALSE}"; return 2; fi
     fi
+}
+
+function ez.string.mask.compare {
+    if ez.function.unregistered; then
+        ez.argument.set --short "-l" --long "--left" --required --info "The string to be compared" &&
+        ez.argument.set --short "-r" --long "--right" --required --info "The string to be compared" &&
+        ez.argument.set --short "-m" --long "--mask" --required --type "List" --default "*" --info "Character Mask" || return 1
+    fi; ez.function.help "${@}" || return 0
+    local left && left="$(ez.argument.get --short "-l" --long "--left" --arguments "${@}")" &&
+    local right && right="$(ez.argument.get --short "-r" --long "--right" --arguments "${@}")" &&
+    local mask_list && ez.function.arguments.get_list "mask_list" "$(ez.argument.get --short "-m" --long "--mask" --arguments "${@}")" || return 1
+    if [[ "${#left}" -ne "${#right}" ]]; then return 1; fi
+    local match=0 i=0 l r 
+    for ((; i < "${#left}"; ++i)); do
+        l="${left:$i:1}" r="${right:$i:1}"
+        if [[ "${l}" != "${r}" ]] && ez.excludes "${l}" "${mask_list[@]}" && ez.excludes "${r}" "${mask_list[@]}"; then match=1; break; fi
+    done
+    return "${match}"
 }
 
 function ez.string.banner {
