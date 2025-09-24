@@ -79,18 +79,22 @@ declare -gA EZ_HTTP_CODES=(
 )
 
 function ez.http.code {
-    local key="${1}" key i match
-    while [[ "${#key}" < 3 ]]; do key+="x"; done
-    if [[ "${key}" = *"x"* || "${key}" = *"X"* ]] then
-        {
-            for k in "${!EZ_HTTP_CODES[@]}"; do
-                if ez.string.mask.compare -l "${k}" -r "${key}" -m "x" "X"; then
-                    echo "${k}: ${EZ_HTTP_CODES["${k}"]}"
-                fi
-            done
-        } | sort -n
+    local key="${1}" k i match
+    if [[ -z "${key}" ]]; then
+        { for k in "${!EZ_HTTP_CODES[@]}"; do echo "${k}: ${EZ_HTTP_CODES["${k}"]}"; done; } | sort -n
     else
-        echo "${EZ_HTTP_CODES["${key}"]}"
+        while [[ "${#key}" < 3 ]]; do key+="x"; done
+        if [[ "${key}" = *"x"* || "${key}" = *"X"* ]]; then
+            {
+                for k in "${!EZ_HTTP_CODES[@]}"; do
+                    if ez.string.mask.compare -l "${k}" -r "${key}" -m "x" "X"; then
+                        echo "${k}: ${EZ_HTTP_CODES["${k}"]}"
+                    fi
+                done
+            } | sort -n
+        else
+            echo "${EZ_HTTP_CODES["${key}"]}"
+        fi
     fi
 }
 
