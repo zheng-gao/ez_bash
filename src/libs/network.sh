@@ -99,18 +99,13 @@ function ez.http.code {
 }
 
 function ez.netstat {
+    local exec_str="" grep_str="listen\|Local Address"
     if [[ "$(uname -s)" = "Darwin" ]]; then
-        if [[ "${1}" = "sudo" ]]; then
-            sudo netstat -p "UDP" -p "TCP" -anv | grep -i "listen\|Local Address"
-        else
-            netstat -p "UDP" -p "TCP" -anv | grep -i "listen\|Local Address"
-        fi
+        exec_str="netstat -anv -p UDP -p TCP | grep -i \"listen\|Local Address\""
     else  # Linux
-        if [[ "${1}" = "sudo" ]]; then
-            sudo netstat -tulpn | grep -i "listen\|Local Address"
-        else
-            netstat -tulpn | grep -i "listen\|Local Address"
-        fi
+        exec_str="netstat -tulpn | grep -i \"listen\|Local Address\""
     fi
+    if [[ -n "${1}" ]]; then exec_str+=" | grep -i \"${1}\|Local Address\""; fi
+    eval "${exec_str}"
 }
 

@@ -114,19 +114,15 @@ function ez.array.quote.double { ez.array.map --array "${1}" --function "ez.quot
 function ez.array.size { echo "${#@}"; }
 function ez.array.delete.item() {  # ${1} = array reference, ${2} = item
     local -n ez_array_delete_item_arg_reference="${1}"; local tmp_array=() item
-    for item in "${ez_array_delete_item_arg_reference[@]}"; do tmp_array+=("${item}"); done
-    ez_array_delete_item_arg_reference=()
-    for item in "${tmp_array[@]}"; do
-        if [[ "${item}" != "${2}" ]]; then ez_array_delete_item_arg_reference+=("${item}"); fi
+    for item in "${ez_array_delete_item_arg_reference[@]}"; do
+        if [[ "${item}" != "${2}" ]]; then tmp_array+=("${item}"); fi
     done
+    ez_array_delete_item_arg_reference=("${tmp_array[@]}")
 }
 function ez.array.delete.index() {  # ${1} = array reference, ${2} = index
-    local -n ez_array_delete_index_arg_reference="${1}"; local tmp_array=() item index="${2}" i
-    for item in "${ez_array_delete_index_arg_reference[@]}"; do tmp_array+=("${item}"); done
-    ez_array_delete_index_arg_reference=(); if [[ "${index}" -lt 0 ]]; then (( index += "${#tmp_array[@]}" )); fi
-    for ((i=0; i < "${#tmp_array[@]}"; ++i)); do
-        if [[ "${i}" -ne "${index}" ]]; then ez_array_delete_index_arg_reference+=("${tmp_array[${i}]}"); fi
-    done
+    local -n ez_array_delete_index_arg_reference="${1}"; local index="${2}"
+    unset ez_array_delete_index_arg_reference["${index}"]
+    ez_array_delete_index_arg_reference=("${ez_array_delete_index_arg_reference[@]}")  # (optional) reindexing to remove sparse indices
 }
 
 ######################################## Logging ##################################################
