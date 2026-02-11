@@ -33,17 +33,17 @@ function ez.string.trim {
     local pattern && pattern="$(ez.argument.get --short "-p" --long "--pattern" --arguments "${@}")" &&
     local count && count="$(ez.argument.get --short "-c" --long "--count" --arguments "${@}")" &&
     local key && key="$(ez.argument.get --short "-k" --long "--key" --arguments "${@}")" || return 1
-    if [[ "${pattern}" = "' '" ]]; then pattern=" "; fi
-    if [[ "${key}" = "Any" ]]; then echo "${string}" | sed "s/${pattern}//g"
+    if [[ "${pattern}" = "' '" ]]; then pattern=" "; else pattern="${pattern//\//\\\/}"; fi
+    if [[ "${key}" = "Any" ]]; then sed "s/${pattern}//g" <<< "${string}"
     elif [[ "${key}" = "Left" ]]; then
-        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/^\(${pattern}\)\{1,\}//"
-        else echo "${string}" | sed "s/^\(${pattern}\)\{1,${count}\}//"; fi
+        if [[ -z "${count}" ]]; then sed "s/^\(${pattern}\)\{1,\}//" <<< "${string}"
+        else sed "s/^\(${pattern}\)\{1,${count}\}//" <<< "${string}"; fi
     elif [[ "${key}" = "Right" ]]; then
-        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/\(${pattern}\)\{1,\}$//"
-        else echo "${string}" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
+        if [[ -z "${count}" ]]; then sed "s/\(${pattern}\)\{1,\}$//" <<< "${string}" 
+        else sed "s/\(${pattern}\)\{1,${count}\}$//" <<< "${string}"; fi
     elif [[ "${key}" = "Both" ]]; then
-        if [[ -z "${count}" ]]; then echo "${string}" | sed "s/^\(${pattern}\)\{1,\}//" | sed "s/\(${pattern}\)\{1,\}$//"
-        else echo "${string}" | sed "s/^\(${pattern}\)\{1,${count}\}//" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
+        if [[ -z "${count}" ]]; then sed "s/^\(${pattern}\)\{1,\}//" <<< "${string}" | sed "s/\(${pattern}\)\{1,\}$//"
+        else sed "s/^\(${pattern}\)\{1,${count}\}//" <<< "${string}" | sed "s/\(${pattern}\)\{1,${count}\}$//"; fi
     fi
 }
 
