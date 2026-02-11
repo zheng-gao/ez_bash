@@ -95,10 +95,8 @@ function ez.table.headers {
         for ((; index < "${#items[@]}"; ++index)); do
             if [[ "${index}" = 0 ]]; then line="${break_line}"; else line+="${delimiter}${break_line}"; fi
         done
-        echo "${line}"
+        echo -e "${line}$(ez.text.format -e "ResetAll")"
     fi
-    echo -en "$(ez.text.format -e "ResetAll")"
-
 }
 
 
