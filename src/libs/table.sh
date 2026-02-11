@@ -75,3 +75,30 @@ function ez.columns.get {
     done
     awk_str+="}"; while read -r data; do echo "${data}" | awk -F "${input_delimiter}" "${awk_str}"; done
 }
+
+function ez.table.headers {
+    if ez.function.unregistered; then
+        ez.argument.set --short "-b" --long "--break-line" &&
+        ez.argument.set --short "-c" --long "--color" --default "Yellow" &&
+        ez.argument.set --short "-d" --long "--delimiter" --default "<SPACE>" &&
+        ez.argument.set --short "-i" --long "--items" --type "List" --required || return 1
+    fi; ez.function.help "${@}" || return 0
+    local break_line && break_line="$(ez.argument.get --short "-b" --long "--break-line" --arguments "${@}")" &&
+    local color && color="$(ez.argument.get --short "-c" --long "--color" --arguments "${@}")" &&
+    local delimiter && delimiter="$(ez.argument.get --short "-d" --long "--delimiter" --arguments "${@}")" &&
+    local items && ez.function.arguments.get_list "items" "$(ez.argument.get -s "-i" -l "--items" -a "${@}")" || return 1
+    [[ "${delimiter}" = "<SPACE>" ]] && delimiter=" "
+    echo -en "$(ez.text.format -f "${color}")"
+    ez.join "${delimiter}" "${items[@]}"
+    if [[ -n "${break_line}" ]]; then
+        local index=0 line=""
+        for ((; index < "${#items[@]}"; ++index)); do
+            if [[ "${index}" = 0 ]]; then line="${break_line}"; else line+="${delimiter}${break_line}"; fi
+        done
+        echo "${line}"
+    fi
+    echo -en "$(ez.text.format -e "ResetAll")"
+
+}
+
+
