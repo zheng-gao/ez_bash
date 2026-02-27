@@ -14,6 +14,7 @@
 EZ_SELF_LOGO="EZ-Bash"
 EZ_SELF_VERSION="2.0.1"
 EZ_SELF_REQUIRED_MIN_BASH_VERSION=5
+EZ_FUNCTION_STACK_DELIMITER="|"
 
 ###################################################################################################
 # -------------------------------------- Dependency Check --------------------------------------- #
@@ -48,8 +49,12 @@ function ez.dependencies.check {
     local cmd; for cmd in "${@}"; do
         if [[ -z "${EZ_DEPENDENCY_SET[${cmd}]}" ]]; then
             if ! which "${cmd}" > "/dev/null"; then
-                local function_stack="$(for ((i="${#FUNCNAME[@]}"-1; i>=0; i--)); do echo "${FUNCNAME[${i}]}"; done | tr '\n' '.')"
-                echo -e "[${EZ_SELF_LOGO}][\e[31mERROR\e[0m][${function_stack:0:-1}] Command \"${cmd}\" not found!"
+                local function_stack first=0
+                for ((i="${#FUNCNAME[@]}"-1; i>=0; i--)); do
+                    [ "${first}" -ne 0 ] && function_stack+="${EZ_FUNCTION_STACK_DELIMITER}" || first=1
+                    function_stack+="${FUNCNAME[${i}]}"
+                done
+                echo -e "[${EZ_SELF_LOGO}][\e[31mERROR\e[0m][${function_stack}] Command \"${cmd}\" not found!"
                 return 1
             fi
             EZ_DEPENDENCY_SET["${cmd}"]="${EZ_TRUE}"
