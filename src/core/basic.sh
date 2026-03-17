@@ -6,6 +6,7 @@ EZ_FALSE="False"
 EZ_ALL="All"
 EZ_ANY="Any"
 EZ_NONE="None"
+EZ_SUDO="${EZ_FALSE}"
 
 EZ_INDENT="    "
 

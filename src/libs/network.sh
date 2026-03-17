@@ -106,6 +106,7 @@ function ez.netstat {
         exec_str="netstat -tulpn | grep -i \"listen\|Local Address\""
     fi
     if [[ -n "${1}" ]]; then exec_str+=" | grep -i \"${1}\|Local Address\""; fi
+    if [[ "${EZ_SUDO}" != "${EZ_FALSE}" ]]; then exec_str="sudo ${exec_str}"; fi
     eval "${exec_str}"
 }
 
