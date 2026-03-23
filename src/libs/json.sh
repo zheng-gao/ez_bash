@@ -8,7 +8,7 @@ ez.dependencies.check "jq" || return 1
 ###################################################################################################
 function ez.json.flatten {
     if ez.function.unregistered; then
-        ez.argument.set --short "-l" --long "--list-filter" --required --default ".[]" --info "JQ filter to the list field" &&
+        ez.argument.set --short "-l" --long "--list-filter" --required --default ".[]" --info "JQ filter to the list field with [], e.g. .data[]" &&
         ez.argument.set --short "-f" --long "--fields" --type "List" --info "Json Keys" &&
         ez.argument.set --short "-i" --long "--ignore-fields" --type "List" --info "Json Keys" &&
         ez.argument.set --short "-c" --long "--columns" --type "List" --info "Column Headers" &&
