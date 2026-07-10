@@ -50,6 +50,10 @@ function ez.string.count_items {  # "," "a,b,c" -> 3
     echo "$((++count))"
 }
 
+# format key:value or key=value
+function ez.parse.key { if [[ "${1}" == *":"* ]]; then echo "${1%%:*}"; else echo "${1%%=*}"; fi; }
+function ez.parse.value { if [[ "${1}" == *":"* ]]; then echo "${1#*:}"; else echo "${1#*=}"; fi; }
+
 # ${1} = delimiter, ${2} ~ ${n} = ${input_list[@]}
 function ez.join {
     local d="${1}"; [[ -z "${d}" ]] && ez.log.error "Delimiter Not Found" && return 1
