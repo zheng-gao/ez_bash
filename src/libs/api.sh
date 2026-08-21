@@ -20,6 +20,7 @@ function ez.api {
         ez.argument.set --short "-a" --long "--auth" --info "Username:Password" &&
         ez.argument.set --short "-I" --long "--head" --type "Flag" --info "Show Headers Only" &&
         ez.argument.set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --info "HTTP headers" &&
+        ez.argument.set --short "-F" --long "--forms" --type "List" --info "Forms" &&
         ez.argument.set --short "-x" --long "--extra-headers" --type "List" --info "Extra HTTP Headers" &&
         ez.argument.set --short "-d" --long "--data" --info "PUT/POST payload" &&
         ez.argument.set --short "-T" --long "--upload-file" --info "File Path" &&
@@ -39,6 +40,7 @@ function ez.api {
     local ends_with_slash && ends_with_slash="$(ez.argument.get --short "-E" --long "--ends-with-slash" --arguments "${@}")" &&
     local head && head="$(ez.argument.get --short "-I" --long "--head" --arguments "${@}")" &&
     local headers && ez.function.arguments.get_list "headers" "$(ez.argument.get --short "-H" --long "--headers" --arguments "${@}")" &&
+    local forms && ez.function.arguments.get_list "forms" "$(ez.argument.get --short "-F" --long "--forms" --arguments "${@}")" &&
     local x_headers && ez.function.arguments.get_list "x_headers" "$(ez.argument.get --short "-x" --long "--extra-headers" --arguments "${@}")" &&
     local params && ez.function.arguments.get_list "params" "$(ez.argument.get --short "-p" --long "--params" --arguments "${@}")" &&
     local data && data="$(ez.argument.get --short "-d" --long "--data" --arguments "${@}")" &&
@@ -49,10 +51,11 @@ function ez.api {
     local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[*]}" ]] && params_str="?$(ez.join '&' "${params[@]}")"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
+    local forms_opt=() form; for form in "${forms[@]}"; do forms_opt+=("-F" "\"${form}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
     if [[ "${ends_with_slash}" = "True" && "${endpoint:0-1}" != "/" ]]; then endpoint+="/"; fi
     if [[ -z "${url}" ]]; then [[ -n "${port}" ]] && domain="${domain}:${port}"; url="https://${domain}${version}${endpoint}${params_str}"; fi
-    local curl_str="curl -sL ${auth_op[*]} ${headers_opt[*]} \"${url}\""
+    local curl_str="curl -sL ${auth_op[*]} ${headers_opt[*]} ${forms_opt[*]} \"${url}\""
     [[ "${method}" != "GET" ]] && curl_str+=" -X ${method}"
     [[ -n "${data}" ]] && curl_str+=" -d '${data}'"
     [[ -n "${upload_file}" ]] && curl_str+=" -T '${upload_file}'"
