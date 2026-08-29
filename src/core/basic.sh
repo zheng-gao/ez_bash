@@ -59,6 +59,10 @@ function ez.join {
     local d="${1}"; [[ -z "${d}" ]] && ez.log.error "Delimiter Not Found" && return 1
     local o i first=0; for i in "${@:2}"; do [[ "${first}" -eq 0 ]] && o="${i}" || o+="${d}${i}"; first=1; done; echo "${o}"
 }
+function ez.join.not.none {
+    local d="${1}"; [[ -z "${d}" ]] && ez.log.error "Delimiter Not Found" && return 1
+    local o i first=0; for i in "${@:2}"; do [[ -z "${i}" ]] && continue; [[ "${first}" -eq 0 ]] && o="${i}" || o+="${d}${i}"; first=1; done; echo "${o}"
+}
 # IFS can only take 1 character
 # function ez.join { local IFS="${1}"; shift; echo "${*}"; }
 

@@ -9,6 +9,8 @@ EZ_API_DRY_RUN="False"
 function ez.api {
     if ez.function.unregistered; then
         ez.argument.set --short "-u" --long "--url" --info "The full url overrides domain, port, endpoint, params"  &&
+        ez.argument.set --short "-a" --long "--auth" --info "Username:Password" &&
+        ez.argument.set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" "PATCH" "DELETE" "OPTION" "HEAD" &&
         ez.argument.set --short "-D" --long "--domain" &&
         ez.argument.set --short "-P" --long "--port" &&
         ez.argument.set --short "-k" --long "--insecure" --type "Flag" --info "Ignore Cert" &&
@@ -16,8 +18,6 @@ function ez.api {
         ez.argument.set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
         ez.argument.set --short "-E" --long "--ends-with-slash" --type "Flag" --info "Ensure the url ends with a slash" &&
         ez.argument.set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
-        ez.argument.set --short "-X" --long "--method" --default "GET" --choices "GET" "PUT" "POST" "PATCH" "DELETE" "OPTION" "HEAD" &&
-        ez.argument.set --short "-a" --long "--auth" --info "Username:Password" &&
         ez.argument.set --short "-I" --long "--head" --type "Flag" --info "Show Headers Only" &&
         ez.argument.set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" "Content-Type: application/json" --info "HTTP headers" &&
         ez.argument.set --short "-F" --long "--forms" --type "List" --info "Forms" &&
@@ -30,8 +30,8 @@ function ez.api {
         ez.argument.set --short "-c" --long "--code-only" --type "Flag" --info "Print HTTP response code only" || return 1
     fi; ez.function.help "${@}" || return 0
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
-    local method && method="$(ez.argument.get --short "-X" --long "--method" --arguments "${@}")" &&
     local auth && auth="$(ez.argument.get --short "-a" --long "--auth" --arguments "${@}")" &&
+    local method && method="$(ez.argument.get --short "-X" --long "--method" --arguments "${@}")" &&
     local domain && domain="$(ez.argument.get --short "-D" --long "--domain" --arguments "${@}")" &&
     local port && port="$(ez.argument.get --short "-P" --long "--port" --arguments "${@}")" &&
     local insecure && insecure="$(ez.argument.get --short "-k" --long "--insecure" --arguments "${@}")" &&
@@ -49,7 +49,7 @@ function ez.api {
     local verbose && verbose="$(ez.argument.get --short "-V" --long "--verbose" --arguments "${@}")" &&
     local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" &&
     local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
-    local params_str=""; [[ -n "${params[*]}" ]] && params_str="?$(ez.join '&' "${params[@]}")"
+    local params_str=""; [[ -n "${params[*]}" ]] && params_str="?$(ez.join.not.none '&' "${params[@]}")"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local forms_opt=() form; for form in "${forms[@]}"; do forms_opt+=("-F" "\"${form}\""); done
     local auth_op=(); [[ -n "${auth}" ]] && auth_op=("-u" "\"${auth}\"")
@@ -69,6 +69,77 @@ function ez.api {
     else
         bash -c "${curl_str}"  # eval "${curl_str}"
     fi
+}
+
+function ez.api.pagination {
+    if ez.function.unregistered; then
+        ez.argument.set --short "-u" --long "--url" --info "The full url overrides domain, port, endpoint, params"  &&
+        ez.argument.set --short "-a" --long "--auth" --info "Username:Password" &&
+        ez.argument.set --short "-D" --long "--domain" &&
+        ez.argument.set --short "-P" --long "--port" &&
+        ez.argument.set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
+        ez.argument.set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" --info "HTTP headers" &&
+        ez.argument.set --short "-x" --long "--extra-headers" --type "List" --info "Extra HTTP Headers" &&
+        ez.argument.set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
+        ez.argument.set --short "-l" --long "--limit" --required --default 30 --info "Page Size Limit" &&
+        ez.argument.set --short "-lk" --long "--limit-key" --required --default "limit" --info "Param key of the page limit" &&
+        ez.argument.set --short "-pk" --long "--page-key" --exclude "pagination" --info "Param key of the page id" &&
+        ez.argument.set --short "-ok" --long "--offset-key" --exclude "pagination" --info "Param key of the offset" &&
+        ez.argument.set --short "-df" --long "--data-filter" --default ".data" --info "JQ key selector of the data part" &&
+        ez.argument.set --short "-nf" --long "--next-filter" --default ".pagination.links.next" --info "JQ key selector of the next page link" &&
+        ez.argument.set --short "-tf" --long "--total-filter" --default ".pagination.total" --info "JQ key selector of the total items" &&
+        ez.argument.set --short "-s" --long "--show-progress" --type "Flag" --info "Show Pagination Progress" || return 1
+    fi; ez.function.help "${@}" || return 0
+    local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
+    local auth && auth="$(ez.argument.get --short "-a" --long "--auth" --arguments "${@}")" &&
+    local domain && domain="$(ez.argument.get --short "-D" --long "--domain" --arguments "${@}")" &&
+    local port && port="$(ez.argument.get --short "-P" --long "--port" --arguments "${@}")" &&
+    local endpoint && endpoint="$(ez.argument.get --short "-e" --long "--endpoint" --arguments "${@}")" &&
+    local headers && ez.function.arguments.get_list "headers" "$(ez.argument.get --short "-H" --long "--headers" --arguments "${@}")" &&
+    local x_headers && ez.function.arguments.get_list "x_headers" "$(ez.argument.get --short "-x" --long "--extra-headers" --arguments "${@}")" &&
+    local params && ez.function.arguments.get_list "params" "$(ez.argument.get --short "-p" --long "--params" --arguments "${@}")" &&
+    local limit && limit="$(ez.argument.get --short "-l" --long "--limit" --arguments "${@}")" &&
+    local limit_key && limit_key="$(ez.argument.get --short "-lk" --long "--limit-key" --arguments "${@}")" &&
+    local page_key && page_key="$(ez.argument.get --short "-pk" --long "--page-key" --arguments "${@}")" &&
+    local offset_key && offset_key="$(ez.argument.get --short "-ok" --long "--offset-key" --arguments "${@}")" &&
+    local data_filter && data_filter="$(ez.argument.get --short "-df" --long "--data-filter" --arguments "${@}")" &&
+    local next_filter && next_filter="$(ez.argument.get --short "-nf" --long "--next-filter" --arguments "${@}")" &&
+    local total_filter && total_filter="$(ez.argument.get --short "-tf" --long "--total-filter" --arguments "${@}")" &&
+    local show_progress && show_progress="$(ez.argument.get --short "-s" --long "--show-progress" --arguments "${@}")" || return 1
+    local all_results="" result="" data="" size=0 offset=0 page=1 total=0 progress=0 progress_str="" progress_prefix="" next_url=""
+    if [[ -n "${url}" ]]; then
+        progress_prefix="${url}"
+    else
+        if [[ -n "${domain}" ]]; then progress_prefix+="domain: ${domain}"; fi
+        if [[ -n "${endpoint}" ]]; then progress_prefix+=", endpoint: ${endpoint}"; fi
+        if [[ -n "${params[@]}" ]]; then progress_prefix+=", params: ${params[@]}"; fi
+    fi
+    while true; do
+        result="$(
+            ez.api --url "${url}" --auth "${auth}" --domain "${domain}" --port "${port}" --endpoint "${endpoint}" \
+                --headers "${headers[@]}" --extra-headers "${x_headers[@]}" \
+                --params "${limit_key}=${limit}" \
+                    "$([[ -n "${page_key}" ]] && echo "${page_key}=${page}")" \
+                    "$([[ -n "${offset_key}" ]] && echo "${offset_key}=${offset}")" \
+                    "${params[@]}"
+        )"
+        total="$(jq -r "${total_filter}" <<< "${result}")"
+        next_url="$(jq -r "${next_filter}" <<< "${result}")"
+        data="$(jq -c "${data_filter}" <<< "${result}")"
+        size="$(jq "length" <<< "${data}")"
+        if [[ "${data}" = "null" ]]; then data=""; else data="${data:1:-1}"; fi
+        if [[ -n "${all_results}" ]]; then all_results+=","; fi; all_results+="${data}"
+        if [[ "${show_progress}" = "${EZ_TRUE}" ]]; then
+            ((progress+="${size}"))
+            progress_str="${progress_prefix}, page: ${page}, offset: ${offset}, limit: ${limit}, size: ${size}, progress: ${progress}"
+            if [[ "${total}" != "null" ]]; then progress_str+=", total: ${total}"; fi
+            >&2 echo "${progress_str}"
+        fi
+        ((offset+="${size}")); ((page++))
+        if [[ "${total}" != "null" && "${offset}" -ge "${total}" ]]; then break; fi
+        if [[ "${next_url}" = "null" ]]; then break; else url="${next_url}"; fi
+    done
+    echo "[${all_results}]"
 }
 
 
