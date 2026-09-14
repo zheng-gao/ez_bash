@@ -63,7 +63,7 @@ function ez.api {
     [[ "${head}" = "True" ]] && curl_str+=" -I"
     [[ "${insecure}" = "True" ]] && curl_str+=" -k"
     [[ "${verbose}" = "True" ]] && curl_str+=" -v"
-    [[ "${return_type}" = "BodyAndCode" ]] && curl_str+=" -w \"%{http_code}\""
+    [[ "${return_type}" = "BodyAndCode" ]] && curl_str+=" -w \"\n%{http_code}\""
     [[ "${return_type}" = "CodeOnly" ]] && curl_str+=" -w \"%{http_code}\" -o \"/dev/null\""  # -w "%{stderr}%{http_code}" redirect http code to stderr
     if [[ "${dryrun}" = "True" || "${EZ_API_DRY_RUN}" = "True" ]]; then
         >&2 echo "${curl_str}"
