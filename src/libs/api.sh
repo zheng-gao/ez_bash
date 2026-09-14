@@ -27,7 +27,7 @@ function ez.api {
         ez.argument.set --short "-o" --long "--output" --info "Output Path" &&
         ez.argument.set --short "-V" --long "--verbose" --type "Flag" --info "Print request details (curl -v)" &&
         ez.argument.set --short "-t" --long "--dry-run" --type "Flag" --info "Print Command Only, No Execution" &&
-        ez.argument.set --short "-c" --long "--code-only" --type "Flag" --info "Print HTTP response code only" || return 1
+        ez.argument.set --short "-r" --long "--return-type" --default "BodyOnly" --choices "BodyOnly" "CodeOnly" "BodyAndCode" --info "Print HTTP response body or code" || return 1
     fi; ez.function.help "${@}" || return 0
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
     local auth && auth="$(ez.argument.get --short "-a" --long "--auth" --arguments "${@}")" &&
@@ -48,7 +48,7 @@ function ez.api {
     local output && output="$(ez.argument.get --short "-o" --long "--output" --arguments "${@}")" &&
     local verbose && verbose="$(ez.argument.get --short "-V" --long "--verbose" --arguments "${@}")" &&
     local dryrun && dryrun="$(ez.argument.get --short "-t" --long "--dry-run" --arguments "${@}")" &&
-    local code_only && code_only="$(ez.argument.get --short "-c" --long "--code-only" --arguments "${@}")" || return 1
+    local return_type && return_type="$(ez.argument.get --short "-r" --long "--return-type" --arguments "${@}")" || return 1
     local params_str=""; [[ -n "${params[*]}" ]] && params_str="?$(ez.join.not.none '&' "${params[@]}")"
     local headers_opt=() header; for header in "${headers[@]}" "${x_headers[@]}"; do headers_opt+=("-H" "\"${header}\""); done
     local forms_opt=() form; for form in "${forms[@]}"; do forms_opt+=("-F" "\"${form}\""); done
@@ -63,7 +63,8 @@ function ez.api {
     [[ "${head}" = "True" ]] && curl_str+=" -I"
     [[ "${insecure}" = "True" ]] && curl_str+=" -k"
     [[ "${verbose}" = "True" ]] && curl_str+=" -v"
-    [[ "${code_only}" = "True" ]] && curl_str+=" -w \"%{http_code}\" -o \"/dev/null\""  # -w "%{stderr}%{http_code}" redirect http code to stderr
+    [[ "${return_type}" = "BodyAndCode" ]] && curl_str+=" -w \"%{http_code}\""
+    [[ "${return_type}" = "CodeOnly" ]] && curl_str+=" -w \"%{http_code}\" -o \"/dev/null\""  # -w "%{stderr}%{http_code}" redirect http code to stderr
     if [[ "${dryrun}" = "True" || "${EZ_API_DRY_RUN}" = "True" ]]; then
         >&2 echo "${curl_str}"
     else
@@ -78,6 +79,7 @@ function ez.api.pagination {
         ez.argument.set --short "-D" --long "--domain" &&
         ez.argument.set --short "-P" --long "--port" &&
         ez.argument.set --short "-e" --long "--endpoint" --info "Url after domain and port with no parameters" &&
+        ez.argument.set --short "-E" --long "--expected-code" --default 200 --info "HTTP Return Code on a Successful Request" && 
         ez.argument.set --short "-H" --long "--headers" --type "List" --default "Accept: application/json" --info "HTTP headers" &&
         ez.argument.set --short "-x" --long "--extra-headers" --type "List" --info "Extra HTTP Headers" &&
         ez.argument.set --short "-p" --long "--params" --type "List" --info "HTTP parameters" &&
@@ -95,6 +97,7 @@ function ez.api.pagination {
     local domain && domain="$(ez.argument.get --short "-D" --long "--domain" --arguments "${@}")" &&
     local port && port="$(ez.argument.get --short "-P" --long "--port" --arguments "${@}")" &&
     local endpoint && endpoint="$(ez.argument.get --short "-e" --long "--endpoint" --arguments "${@}")" &&
+    local expected_code && expected_code="$(ez.argument.get --short "-E" --long "--expected-code" --arguments "${@}")" &&
     local headers && ez.function.arguments.get_list "headers" "$(ez.argument.get --short "-H" --long "--headers" --arguments "${@}")" &&
     local x_headers && ez.function.arguments.get_list "x_headers" "$(ez.argument.get --short "-x" --long "--extra-headers" --arguments "${@}")" &&
     local params && ez.function.arguments.get_list "params" "$(ez.argument.get --short "-p" --long "--params" --arguments "${@}")" &&
@@ -116,16 +119,19 @@ function ez.api.pagination {
     fi
     while true; do
         result="$(
-            ez.api --url "${url}" --auth "${auth}" --domain "${domain}" --port "${port}" --endpoint "${endpoint}" \
+            ez.api --url "${url}" --auth "${auth}" --domain "${domain}" --port "${port}" --endpoint "${endpoint}" --return-type "BodyAndCode" \
                 --headers "${headers[@]}" --extra-headers "${x_headers[@]}" \
                 --params "${limit_key}=${limit}" \
                     "$([[ -n "${page_key}" ]] && echo "${page_key}=${page}")" \
                     "$([[ -n "${offset_key}" ]] && echo "${offset_key}=${offset}")" \
                     "${params[@]}"
         )"
-        total="$(jq -r "${total_filter}" <<< "${result}")"
-        next_url="$(jq -r "${next_filter}" <<< "${result}")"
-        data="$(jq -c "${data_filter}" <<< "${result}")"
+        # Extract the last line (the status code), everything except the last line (the body)
+        local http_code body; http_code="$(tail -n1 <<< "${result}")"; body="$(sed '$ d' <<< "${result}")"
+        if [[ "${expected_code}" != "${http_code}" ]]; then echo "${body}"; return 1; fi
+        total="$(jq -r "${total_filter}" <<< "${body}")"
+        next_url="$(jq -r "${next_filter}" <<< "${body}")"
+        data="$(jq -c "${data_filter}" <<< "${body}")"
         size="$(jq "length" <<< "${data}")"
         if [[ "${data}" = "null" ]]; then data=""; else data="${data:1:-1}"; fi
         if [[ -n "${all_results}" ]]; then all_results+=","; fi; all_results+="${data}"
