@@ -88,8 +88,8 @@ function ez.api.pagination {
         ez.argument.set --short "-pk" --long "--page-key" --exclude "pagination" --info "Param key of the page id" &&
         ez.argument.set --short "-ok" --long "--offset-key" --exclude "pagination" --info "Param key of the offset" &&
         ez.argument.set --short "-df" --long "--data-filter" --default ".data" --info "JQ key selector of the data part" &&
-        ez.argument.set --short "-nf" --long "--next-filter" --default ".pagination.links.next" --info "JQ key selector of the next page link" &&
-        ez.argument.set --short "-tf" --long "--total-filter" --default ".pagination.total" --info "JQ key selector of the total items" &&
+        ez.argument.set --short "-nf" --long "--next-filter" --info "JQ key selector of the next page link" &&
+        ez.argument.set --short "-tf" --long "--total-filter" --info "JQ key selector of the total items" &&
         ez.argument.set --short "-s" --long "--show-progress" --type "Flag" --info "Show Pagination Progress" || return 1
     fi; ez.function.help "${@}" || return 0
     local url && url="$(ez.argument.get --short "-u" --long "--url" --arguments "${@}")" &&
@@ -129,21 +129,22 @@ function ez.api.pagination {
         # Extract the last line (the status code), everything except the last line (the body)
         local http_code body; http_code="$(tail -n1 <<< "${result}")"; body="$(sed '$ d' <<< "${result}")"
         if [[ "${expected_code}" != "${http_code}" ]]; then echo "${body}"; return 1; fi
-        total="$(jq -r "${total_filter}" <<< "${body}")"
-        next_url="$(jq -r "${next_filter}" <<< "${body}")"
+        if [[ -n "${total_filter}" ]]; then total="$(jq -r "${total_filter}" <<< "${body}")"; fi
+        if [[ -n "${next_filter}" ]]; then next_url="$(jq -r "${next_filter}" <<< "${body}")"; fi
         data="$(jq -c "${data_filter}" <<< "${body}")"
-        size="$(jq "length" <<< "${data}")"
-        if [[ "${data}" = "null" ]]; then data=""; else data="${data:1:-1}"; fi
+        if [[ "${data}" = "null" || "${data}" = "[]" ]]; then break; else data="${data:1:-1}"; fi
+        size="$(jq "length" <<< "[${data}]")"
         if [[ -n "${all_results}" ]]; then all_results+=","; fi; all_results+="${data}"
         if [[ "${show_progress}" = "${EZ_TRUE}" ]]; then
             ((progress+="${size}"))
             progress_str="${progress_prefix}, page: ${page}, offset: ${offset}, limit: ${limit}, size: ${size}, progress: ${progress}"
-            if [[ "${total}" != "null" ]]; then progress_str+=", total: ${total}"; fi
+            if [[ -n "${total_filter}" ]]; then progress_str+="/${total}"; fi
+            if [[ -n "${next_filter}" ]]; then progress_str+=", next: ${next_url}"; fi
             >&2 echo "${progress_str}"
         fi
         ((offset+="${size}")); ((page++))
-        if [[ "${total}" != "null" && "${offset}" -ge "${total}" ]]; then break; fi
-        if [[ "${next_url}" = "null" ]]; then break; else url="${next_url}"; fi
+        if [[ -n "${total_filter}" && "${total}" != "null" && "${offset}" -ge "${total}" ]]; then break; fi
+        if [[ -n "${next_filter}" && "${next_url}" = "null" ]]; then break; else url="${next_url}"; fi
     done
     echo "[${all_results}]"
 }
