@@ -34,3 +34,20 @@ function ez.json.flatten {
             | { if [[ "${sort_numbers}" = "True" ]]; then sort -n -k "${sort_column}" -t "|"; else sort -k "${sort_column}" -t "|"; fi; }
     } | column -s "|" -t)"
 }
+
+function ez.json.error.check {
+    if ez.function.unregistered; then
+        ez.argument.set --short "-e" --long "--error-key" --required --default "error" --info "" &&
+        ez.argument.set --short "-j" --long "--jq-arguments" --type "List" --info "JQ Arguments" || return 1
+    fi; ez.function.help "${@}" --run-with-no-argument || return 0
+    local error_key && error_key="$(ez.argument.get --short "-e" --long "--error-key" --arguments "${@}")" &&
+    local jq_arguments && ez.function.arguments.get_list "jq_arguments" "$(ez.argument.get --short "-j" --long "--jq-arguments" --arguments "${@}")" || return 1
+    local line data=""; while read -r "line"; do data+="${line}"; done; if [[ -n "${line}" ]]; then data+="${line}"; fi
+    local has_error="has(\"${error_key}\")"
+    if jq ${has_error} <<< "${data}" | grep "true" > "/dev/null"; then
+        jq <<< "${data}"
+        return 1
+    fi
+    echo "${jq_arguments[@]}"
+    jq "${jq_arguments[@]}" <<< "${data}"
+}
