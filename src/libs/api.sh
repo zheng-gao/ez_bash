@@ -128,7 +128,7 @@ function ez.api.pagination {
         )"
         # Extract the last line (the status code), everything except the last line (the body)
         local http_code body; http_code="$(tail -n1 <<< "${result}")"; body="$(sed '$ d' <<< "${result}")"
-        if [[ "${expected_code}" != "${http_code}" ]]; then echo "${body}"; return 1; fi
+        if [[ "${expected_code}" != "${http_code}" ]]; then jq <<< "${body}"; return 1; fi
         if [[ -n "${total_filter}" ]]; then total="$(jq -r "${total_filter}" <<< "${body}")"; fi
         if [[ -n "${next_filter}" ]]; then next_url="$(jq -r "${next_filter}" <<< "${body}")"; fi
         data="$(jq -c "${data_filter}" <<< "${body}")"
